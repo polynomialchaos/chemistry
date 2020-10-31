@@ -29,7 +29,7 @@ lib/
 build/
 share/
 *.egg-info/
-!/tools/pyPreprocessor/bin
+!/tools/pyChemistry/bin
 
 # Packages #
 ############
