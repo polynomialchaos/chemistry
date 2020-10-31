@@ -40,7 +40,7 @@ int main( int argc, string_t *argv )
     analyze_define();
     output_define();
     restart_define();
-    // timedisc_define();
+    timedisc_define();
 
     // call the global initialize routine
     global_initialize( argc, argv, 1, 1 );

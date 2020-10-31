@@ -31,6 +31,7 @@ string_t time_step_name = NULL;
 int max_iter            = 1000;
 int is_transient        = 1;
 double abort_residual   = 1e-10;
+double dt               = 1e-6;
 double t_start          = 0.0;
 double t_end            = 0.2;
 
@@ -59,6 +60,7 @@ void timedisc_define()
     set_parameter( "TimeDisc/max_iter", ParameterDigit, &max_iter, "The maximum number of iterations", NULL, 0 );
     set_parameter( "TimeDisc/transient", ParameterBool, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0 );
     set_parameter( "TimeDisc/abort_residual", ParameterNumber, &abort_residual, "The abort residual", NULL, 0 );
+    set_parameter( "TimeDisc/dt", ParameterNumber, &dt, "The timestep", NULL, 0 );
     set_parameter( "TimeDisc/t_start", ParameterNumber, &t_start, "The start time", NULL, 0 );
     set_parameter( "TimeDisc/t_end", ParameterNumber, &t_end, "The end time", NULL, 0 );
 
@@ -72,6 +74,7 @@ void timedisc_initialize()
     get_parameter( "TimeDisc/max_iter", ParameterDigit, &max_iter );
     get_parameter( "TimeDisc/transient", ParameterBool, &is_transient );
     get_parameter( "TimeDisc/abort_residual", ParameterNumber, &abort_residual );
+    get_parameter( "TimeDisc/dt", ParameterNumber, &dt );
     get_parameter( "TimeDisc/t_start", ParameterNumber, &t_start );
     get_parameter( "TimeDisc/t_end", ParameterNumber, &t_end );
 
@@ -113,8 +116,6 @@ void timedisc()
     double t = t_start;
     if (use_restart == 1) t = t_restart;
 
-    double dt;
-
     print_residual_header();
     if (iter == 0) reactor_function_pointer( t );
     if ((do_output_data == 1) && (use_restart == 0)) write_output( iter, t );
@@ -125,9 +126,6 @@ void timedisc()
         check_abort( 0 );
 
         // calculate time step dt
-        double dt_local = calc_time_step_function_pointer();
-        mpi_all_reduce( &dt_local, &dt, MPIDouble, MPIMin );
-
         if (t + dt > t_end )
         {
             dt          = t_end - t;

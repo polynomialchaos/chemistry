@@ -35,6 +35,10 @@ State_t *allocate_state( Chemistry_t *chemistry )
     state->C            = allocate( sizeof( double ) * (chemistry->specii->n_specii + 1) ); // 3rd body concentration
     state->X            = allocate( sizeof( double ) * chemistry->specii->n_specii );
 
+    set_value_n( 0.0, state->Y, chemistry->specii->n_specii );
+    set_value_n( 0.0, state->C, (chemistry->specii->n_specii + 1) );
+    set_value_n( 0.0, state->X, chemistry->specii->n_specii );
+
     return state;
 }
 
