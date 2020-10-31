@@ -24,10 +24,6 @@ const double s52        = 5./2.;
 const double s53        = 5./3.;
 const double s516       = 5./16.;
 
-const double f1         = pow( PI, 1.5 ) / 2.;
-const double f2         = PI * PI / 4. + 2.;
-const double f3         = pow( PI, 1.5 );
-
 const double omega_aj[] = {1.0548, 0.15504, 0.55909, 2.1705, 0.093193, 1.5};
 const double omega_bj[] = {1.0413, 0.11930, 0.43628, 1.6041, 0.095661, 2.0};
 
@@ -128,6 +124,10 @@ double calc_sp_dij( int i, int j, double p, double T, Chemistry_t *chemistry )
 
 double calc_rot_rel( double T, double pot_lj )
 {
+    const double f1 = pow( PI, 1.5 ) / 2.;
+    const double f2 = PI * PI / 4. + 2.;
+    const double f3 = pow( PI, 1.5 );
+
     double ratio = pot_lj / T;
     return 1. + f1 * sqrt( ratio ) + f2 * ratio + f3 * pow( ratio, 1.5 );
 }

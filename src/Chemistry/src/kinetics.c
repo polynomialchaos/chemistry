@@ -97,7 +97,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
     // assemble the backward reaction rate or progress
     for ( int ii = 0; ii < n_reactions_rev; ii++ )
     {
-        int i       = reactions->idx_reactions_rev[i];
+        int i       = reactions->idx_reactions_rev[ii];
         int is_zero = 0;
         double tmp  = 0.0;
 
@@ -113,7 +113,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
 
     for ( int ii = 0; ii < n_reactions_rev_arr; ii++ )
     {
-        int i       = reactions->idx_reactions_rev_arr[i];
+        int i       = reactions->idx_reactions_rev_arr[ii];
         int is_zero = 0;
         double tmp  = 0.0;
 
@@ -130,7 +130,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
     // three-body type reactions
     for ( int ii = 0; ii < n_reactions_three; ii++ )
     {
-        int i = reactions->idx_reactions_three[i];
+        int i = reactions->idx_reactions_three[ii];
 
         C[n_specii] = C_sum;
         for ( int j = 0; j < reactions->n_efficiencies[i]; j++ )
@@ -146,7 +146,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
     // pressure type reactions (unimolecular/recombination fall-off reactions)
     for ( int ii = 0; ii < n_reactions_low; ii++ )
     {
-        int i = reactions->idx_reactions_low[i];
+        int i = reactions->idx_reactions_low[ii];
 
         C[n_specii] = C_sum;
         for ( int j = 0; j < reactions->n_efficiencies[i]; j++ )
@@ -166,7 +166,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
     // pressure type reactions (chemically activated bimolecular reactions)
     for ( int ii = 0; ii < n_reactions_high; ii++ )
     {
-        int i = reactions->idx_reactions_high[i];
+        int i = reactions->idx_reactions_high[ii];
 
         C[n_specii] = C_sum;
         for ( int j = 0; j < reactions->n_efficiencies[i]; j++ )
@@ -186,7 +186,7 @@ void calc_rate_of_progress( double *C, double T, Chemistry_t *chemistry )
     // pressure type reactions (Troe)
     for ( int ii = 0; ii < n_reactions_troe; ii++ )
     {
-        int i       = reactions->idx_reactions_troe[i];
+        int i       = reactions->idx_reactions_troe[ii];
         double tmp  = calc_troe( T, reactions->pr[i], &reactions->troe_coeff[i*max_troe_coeff] );
 
         reactions->q[i*KINDIM]      *= tmp;
