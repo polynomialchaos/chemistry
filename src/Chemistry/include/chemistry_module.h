@@ -203,6 +203,7 @@ double calc_sp_dii( int i, double p, double T, Chemistry_t *chemistry );
 double calc_sp_dij( int i, int j, double p, double T, Chemistry_t *chemistry );
 
 State_t *allocate_state( Chemistry_t *chemistry );
+void print_state( State_t *state );
 void deallocate_state( State_t **state );
 void update_state_isochoric( double p, double rho, double T, double *Y, State_t *state );
 void update_state_isobaric( double p, double rho, double T, double *Y, State_t *state );

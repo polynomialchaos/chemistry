@@ -98,7 +98,7 @@ void reactor_initialize()
 
     for ( int i = 0; i < n_specii; i++ )
     {
-        string_t tmp = allocate_strcat( "Reactor/", specii->symbol[i] );
+        string_t tmp = allocate_strcat( "Reactor/Y/", specii->symbol[i] );
         if (parameter_exists( tmp )) get_parameter( tmp, ParameterNumber, &global_state->Y[i] );
         deallocate( tmp );
     }
@@ -109,11 +109,11 @@ void reactor_initialize()
     update_state_isobaric( global_state->p, global_state->rho, global_state->T, global_state->Y, global_state );
 
     // initialize thermochemical vectors
-    n_variables = i_Y0 + global_chemistry->specii->n_specii;
+    n_variables = i_Y0 + specii->n_specii;
     variables   = allocate( sizeof( string_t ) * n_variables );
 
     variables[0] = allocate_strcpy( "T" );
-    for ( int i = 0; i < n_variables; i++ )
+    for ( int i = 0; i < specii->n_specii; i++ )
         variables[i_Y0+i] = allocate_strcpy( specii->symbol[i] );
 
     phi         = allocate( sizeof( double ) * n_variables );
@@ -127,6 +127,8 @@ void reactor_initialize()
         phi_bounds[(i_Y0+i)*BOUNDDIM]   = 0.0;
         phi_bounds[(i_Y0+i)*BOUNDDIM+1] = 1.0;
     }
+
+    print_state( global_state );
 }
 
 void reactor_finalize()

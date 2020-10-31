@@ -43,7 +43,7 @@ Chemistry_t *allocate_chemistry()
 void print_chemistry_info( Chemistry_t *chemistry )
 {
     if (chemistry == NULL) return;
-    printf_r( "chemistry\n" );
+    printf_r( "Chemistry\n" );
 
     print_elements( chemistry->elements );
     print_specii( chemistry->specii );

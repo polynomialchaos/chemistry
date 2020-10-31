@@ -42,6 +42,21 @@ State_t *allocate_state( Chemistry_t *chemistry )
     return state;
 }
 
+void print_state( State_t *state )
+{
+    if (state == NULL) return;
+    printf_r( "State\n" );
+
+    printf_r( "%s = %e\n", "p", state->p );
+    printf_r( "%s = %e\n", "T", state->T );
+
+    for ( int i = 0; i < state->chemistry->specii->n_specii; i++ )
+    {
+        if (state->Y[i] < YSMALL) continue;
+        printf_r( "%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i], state->Y[i], state->C[i], state->X[i] );
+    }
+}
+
 void deallocate_state( State_t **state )
 {
     if ((*state) == NULL) return;
