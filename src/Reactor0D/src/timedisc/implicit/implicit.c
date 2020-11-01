@@ -29,7 +29,7 @@ string_t method_name            = NULL;
 int max_iter_inner              = 100;
 string_t solver_name            = NULL;
 string_t jacobian_type_name     = NULL;
-double tolerance_lsoe           = 1e-12;
+double tolerance_lsoe           = 1e-3;
 int max_iter_lsoe               = 100;
 int max_krylov_dims             = 15;
 int max_krylov_restarts         = 2;
@@ -249,12 +249,14 @@ void time_step_newton( int iter, double t, double dt )
         }
 
     const double err_f_Y_0 = len_n( f_Y_n, n_variables );
+    double err_f_Y_old = err_f_Y_0;
 
     for ( n_iter_inner = 1; n_iter_inner <= max_iter_inner; n_iter_inner++ )
     {
         // Jac * dY = fY_n => dY ... Jacobian is determined via finite difference. fY_n = phi - dt * RHS
         n_iter_lsoe = max_iter_lsoe;
-        double residual_lsoe = tolerance_lsoe;
+        double residual_lsoe = tolerance_lsoe * err_f_Y_old;
+
         if (is_bicgstab)
         {
             BiCGStab_n_m( n_variables, 1, f_Y_n, dY_n,
@@ -290,8 +292,8 @@ void time_step_newton( int iter, double t, double dt )
                 f_Y_n[idx] -= bdf_a_loc[i_stage] / dt_loc * phi_old[i_stage][idx];
             }
 
-        double err_f_Y = len_n( f_Y_n, n_variables );
-        if (err_f_Y < err_f_Y_0) break;
+        err_f_Y_old = len_n( f_Y_n, n_variables );
+        if (err_f_Y_old < err_f_Y_0) break;
         if (is_transient == 0) break;
     }
 
