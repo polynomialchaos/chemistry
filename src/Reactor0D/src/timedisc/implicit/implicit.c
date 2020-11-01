@@ -59,11 +59,13 @@ int n_bdf_stages_loc    = 0;
 double *bdf_a_loc       = NULL;
 double bdf_b_loc        = 1.0;
 
+double *work    = NULL;
+
 double *Y_n     = NULL;
 double *f_Y_n   = NULL;
 double *dY_n    = NULL;
 double *dY_dt_n = NULL;
-double *work    = NULL;
+double *jac     = NULL;
 
 //##################################################################################################################################
 // LOCAL FUNCTIONS
@@ -71,6 +73,7 @@ double *work    = NULL;
 void implicit_initialize();
 void implicit_finalize();
 
+void calc_jacobian_numerical( int n_var );
 int matrix_vector_numerical( double *x, double *b, int n, int m );
 void time_step_newton( int iter, double t, double dt );
 
@@ -192,6 +195,7 @@ void implicit_initialize()
     f_Y_n   = allocate( sizeof( double ) * n_variables );
     dY_n    = allocate( sizeof( double ) * n_variables );
     dY_dt_n = allocate( sizeof( double ) * n_variables );
+    jac     = allocate( sizeof( double ) * n_variables * n_variables );
 }
 
 void implicit_finalize()
@@ -205,11 +209,13 @@ void implicit_finalize()
         deallocate( phi_old[i] );
     deallocate( phi_old );
 
+    deallocate( work );
+
     deallocate( Y_n );
     deallocate( f_Y_n );
     deallocate( dY_n );
     deallocate( dY_dt_n );
-    deallocate( work );
+    deallocate( jac );
 }
 
 void time_step_newton( int iter, double t, double dt )
@@ -253,6 +259,8 @@ void time_step_newton( int iter, double t, double dt )
 
     for ( n_iter_inner = 1; n_iter_inner <= max_iter_inner; n_iter_inner++ )
     {
+        calc_jacobian_numerical( n_variables );
+
         // Jac * dY = fY_n => dY ... Jacobian is determined via finite difference. fY_n = phi - dt * RHS
         n_iter_lsoe = max_iter_lsoe;
         double residual_lsoe = tolerance_lsoe * err_f_Y_old;
@@ -301,14 +309,8 @@ void time_step_newton( int iter, double t, double dt )
         check_error( 0 );
 }
 
-int matrix_vector_numerical( double *x, double *b, int n_var, int m )
+void calc_jacobian_numerical( int n_var )
 {
-#ifdef DEBUG
-    u_unused( m );
-#endif /* DEBUG */
-
-    double jac[n_var*n_var];
-
     for ( int i_var = 0; i_var < n_var; i_var++ )
     {
         double eps_fd = 0.0;
@@ -346,6 +348,13 @@ int matrix_vector_numerical( double *x, double *b, int n_var, int m )
 
         jac[i_var*n_var+i_var] += 1.0 / dt_loc;
     }
+}
+
+int matrix_vector_numerical( double *x, double *b, int n_var, int m )
+{
+#ifdef DEBUG
+    u_unused( m );
+#endif /* DEBUG */
 
     for ( int j = 0; j < n_var; j++ )
     {
