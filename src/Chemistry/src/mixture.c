@@ -43,8 +43,8 @@ void correct_fraction( double *Y, double *Y_out, Chemistry_t *chemistry )
         Y_out[i] = Y_out[i] / Y_sum;
     }
 
-    if (u_abs( Y_sum - 1.0 ) > YONE)
-        check_error( 0 );
+    // if (u_abs( Y_sum - 1.0 ) > YONE)
+    //     check_error( 0 );
 }
 
 double calc_mix_R( double *Y, Chemistry_t *chemistry )

@@ -191,8 +191,11 @@ void print_residual_header()
         printf_r( "%9s %12s %12s %1s %1s %6s %6s:", "iter", "time", "dt", "V", "O", "inner", "lsoe" );
     }
 
-    for ( int i = 0; i < n_variables; i++ )
-        printf_r( " %12s", variables[i] );
+    printf_r( " %12s", "T" );
+    printf_r( " %12s", "Y_mean" );
+    printf_r( " %12s", "Y_max" );
+
+    printf_r( " %12s", "T" );
 
     printf_r( "\n" );
 }
@@ -211,8 +214,11 @@ void print_residual( int iter, double t, double dt, int do_output )
         printf_r( "%09d %12.5e %12.5e %c %c %6d %6d:", iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe  );
     }
 
-    for ( int i = 0; i < n_variables; i++ )
-        printf_r( " %12.5e", residual[i] );
+    printf_r( " %12.5e", residual[0] );
+    printf_r( " %12.5e", sum_n( &residual[i_Y0], n_variables-1 ) / (n_variables-1) );
+    printf_r( " %12.5e", max_n( &residual[i_Y0], n_variables-1 ) );
+
+    printf_r( " %12.5e", phi[0] );
 
     printf_r( "\n" );
 }

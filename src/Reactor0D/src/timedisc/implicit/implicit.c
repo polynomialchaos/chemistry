@@ -291,6 +291,7 @@ void time_step_newton( int iter, double t, double dt )
             }
 
         double err_f_Y = len_n( f_Y_n, n_variables );
+        printf_r( "%e %e \n", err_f_Y, err_f_Y_0 );
         if (err_f_Y < err_f_Y_0) break;
         if (is_transient == 0) break;
     }
@@ -310,7 +311,7 @@ int matrix_vector_numerical( double *x, double *b, int n_var, int m )
     for ( int i_var = 0; i_var < n_var; i_var++ )
     {
         double eps_fd = 0.0;
-        eps_fd = Y_n[i_var] *Y_n[i_var];
+        eps_fd = Y_n[i_var] * Y_n[i_var];
         eps_fd = sqrt( eps_fd ) * 1e-4;
 
         // positive + eps
@@ -318,6 +319,7 @@ int matrix_vector_numerical( double *x, double *b, int n_var, int m )
             phi[j] = Y_n[j];
 
         phi[i_var] += 0.5 * eps_fd;
+        phi[i_var]  = u_max( phi_bounds[i_var*BOUNDDIM], u_min( phi_bounds[i_var*BOUNDDIM+1], phi[i_var] ) );
 
         reactor_function_pointer( tpdt_loc );
 
@@ -331,6 +333,7 @@ int matrix_vector_numerical( double *x, double *b, int n_var, int m )
             phi[j] = Y_n[j];
 
         phi[i_var] -= 0.5 * eps_fd;
+        phi[i_var]  = u_max( phi_bounds[i_var*BOUNDDIM], u_min( phi_bounds[i_var*BOUNDDIM+1], phi[i_var] ) );
 
         reactor_function_pointer( tpdt_loc );
 

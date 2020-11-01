@@ -262,32 +262,74 @@ void calc_chemistry_data( Chemistry_t *chemistry )
         reactions->n_reactions_three = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if (reactions->type[i] == ReactionThreeBody)
+            {
                 reactions->n_reactions_three += 1;
+
+                reactions->idx_reactions_three = reallocate(
+                    reactions->idx_reactions_three, sizeof( int ) * reactions->n_reactions_three );
+
+                reactions->idx_reactions_three[reactions->n_reactions_three-1] = i;
+            }
 
         reactions->n_reactions_low = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_low_arr[i] == 1))
+            {
                 reactions->n_reactions_low += 1;
+
+                reactions->idx_reactions_low = reallocate(
+                    reactions->idx_reactions_low, sizeof( int ) * reactions->n_reactions_low );
+
+                reactions->idx_reactions_low[reactions->n_reactions_low-1] = i;
+            }
 
         reactions->n_reactions_high = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_high_arr[i] == 1))
+            {
                 reactions->n_reactions_high += 1;
+
+                reactions->idx_reactions_high = reallocate(
+                    reactions->idx_reactions_high, sizeof( int ) * reactions->n_reactions_high );
+
+                reactions->idx_reactions_high[reactions->n_reactions_high-1] = i;
+            }
 
         reactions->n_reactions_troe = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_troe[i] == 1))
+            {
                 reactions->n_reactions_troe += 1;
+
+                reactions->idx_reactions_troe = reallocate(
+                    reactions->idx_reactions_troe, sizeof( int ) * reactions->n_reactions_troe );
+
+                reactions->idx_reactions_troe[reactions->n_reactions_troe-1] = i;
+            }
 
         reactions->n_reactions_rev = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 0))
+            {
                 reactions->n_reactions_rev += 1;
+
+                reactions->idx_reactions_rev = reallocate(
+                    reactions->idx_reactions_rev, sizeof( int ) * reactions->n_reactions_rev );
+
+                reactions->idx_reactions_rev[reactions->n_reactions_rev-1] = i;
+            }
 
         reactions->n_reactions_rev_arr = 0;
         for ( int i = 0; i < n_reactions; i++ )
             if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 1))
+            {
                 reactions->n_reactions_rev_arr += 1;
+
+                reactions->idx_reactions_rev_arr = reallocate(
+                    reactions->idx_reactions_rev_arr, sizeof( int ) * reactions->n_reactions_rev_arr );
+
+                reactions->idx_reactions_rev_arr[reactions->n_reactions_rev_arr-1] = i;
+            }
     }
 }
 

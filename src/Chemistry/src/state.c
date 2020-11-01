@@ -49,12 +49,23 @@ void print_state( State_t *state )
 
     printf_r( "%s = %e\n", "p", state->p );
     printf_r( "%s = %e\n", "T", state->T );
+    printf_r( "%s = %e\n", "rho", state->rho );
 
     for ( int i = 0; i < state->chemistry->specii->n_specii; i++ )
     {
         if (state->Y[i] < YSMALL) continue;
         printf_r( "%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i], state->Y[i], state->C[i], state->X[i] );
     }
+
+    printf_r( "%s = %e\n", "R", state->R );
+    printf_r( "%s = %e\n", "Molar mass", state->molar_mass );
+
+    printf_r( "%s = %e\n", "cp", state->cp );
+    printf_r( "%s = %e\n", "cv", state->cv );
+    printf_r( "%s = %e\n", "h", state->h );
+    printf_r( "%s = %e\n", "s", state->s );
+    printf_r( "%s = %e\n", "u", state->u );
+    printf_r( "%s = %e\n", "g", state->g );
 }
 
 void deallocate_state( State_t **state )

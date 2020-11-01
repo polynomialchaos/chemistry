@@ -48,7 +48,7 @@ int main( int argc, string_t *argv )
     // calculation
     printf_r( "\n" );
     printf_r_block( '=', "Calculation" );
-    // timedisc();
+    timedisc();
     printf_r_emtpy_block( '=' );
 
     // end the program

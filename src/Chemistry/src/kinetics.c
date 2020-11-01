@@ -227,14 +227,16 @@ void calc_reaction_rates( double T, Chemistry_t *chemistry )
         double tmp = 0.0;
         for ( int j = 0; j < reactions->n_reactants[i]; j++ )
         {
-            int idx_sp = i*max_reactants+j;
-            tmp -= reactions->nu_reactants[idx_sp] * g_rt[idx_sp];
+            int idx_j    = i*max_reactants+j;
+            int idx_sp   = reactions->reactants[idx_j];
+            tmp         -= reactions->nu_reactants[idx_j] * g_rt[idx_sp];
         }
 
         for ( int j = 0; j < reactions->n_products[i]; j++ )
         {
-            int idx_sp = i*max_products+j;
-            tmp += reactions->nu_products[idx_sp] * g_rt[idx_sp];
+            int idx_j    = i*max_products+j;
+            int idx_sp   = reactions->products[idx_j];
+            tmp         += reactions->nu_products[idx_j] * g_rt[idx_sp];
         }
 
         tmp = exp( tmp );

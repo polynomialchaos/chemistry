@@ -120,6 +120,9 @@ void reactor_initialize()
     phi_dt      = allocate( sizeof( double ) * n_variables );
     phi_bounds  = allocate( sizeof( double ) * BOUNDDIM * n_variables );
 
+    phi[0] = global_state->T;
+    copy_n( global_state->Y, &phi[i_Y0], n_specii );
+
     phi_bounds[0]   = 300.0;
     phi_bounds[1]   = 4500.0;
     for ( int i = 0; i < n_specii; i++ )
@@ -154,7 +157,7 @@ void calc_reactor_isobar_adiabt( double t )
     u_unused( t );
 #endif /* DEBUG */
 
-    update_state_isobaric( global_state->p, global_state->rho, global_state->T, global_state->Y, global_state );
+    update_state_isobaric( global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state );
     calc_production_rate( global_state->C, global_state->T, global_chemistry );
 
     Specii_t *specii    = global_chemistry->specii;
@@ -172,7 +175,7 @@ void calc_reactor_isobar_isotherm( double t )
     u_unused( t );
 #endif /* DEBUG */
 
-    update_state_isobaric( global_state->p, global_state->rho, global_state->T, global_state->Y, global_state );
+    update_state_isobaric( global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state );
     calc_production_rate( global_state->C, global_state->T, global_chemistry );
 
     Specii_t *specii    = global_chemistry->specii;
@@ -190,7 +193,7 @@ void calc_reactor_isochor_adiabat( double t )
     u_unused( t );
 #endif /* DEBUG */
 
-    update_state_isochoric( global_state->p, global_state->rho, global_state->T, global_state->Y, global_state );
+    update_state_isochoric( global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state );
     calc_production_rate( global_state->C, global_state->T, global_chemistry );
 
     Specii_t *specii    = global_chemistry->specii;
@@ -208,7 +211,7 @@ void calc_reactor_isochor_isotherm( double t )
     u_unused( t );
 #endif /* DEBUG */
 
-    update_state_isochoric( global_state->p, global_state->rho, global_state->T, global_state->Y, global_state );
+    update_state_isochoric( global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state );
     calc_production_rate( global_state->C, global_state->T, global_chemistry );
 
     Specii_t *specii    = global_chemistry->specii;
