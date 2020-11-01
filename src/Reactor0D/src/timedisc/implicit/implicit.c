@@ -291,7 +291,6 @@ void time_step_newton( int iter, double t, double dt )
             }
 
         double err_f_Y = len_n( f_Y_n, n_variables );
-        printf_r( "%e %e \n", err_f_Y, err_f_Y_0 );
         if (err_f_Y < err_f_Y_0) break;
         if (is_transient == 0) break;
     }
