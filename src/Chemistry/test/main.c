@@ -26,7 +26,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------
 int main( int argc, char **argv )
 {
-    global_initialize( argc, argv, 1, 0 );
+    global_initialize( argc, argv, false, false );
 
     printf_r( "Hello World!\n" );
 
