@@ -12,7 +12,7 @@ from .parse_chemkin import chemkin_format_reader
 # Definitions
 # ----------------------------------------------------------------------------------------------------------------------------------
 regex_pressure  = re.compile( r'\(\+.*?\)' )
-regex_three     = re.compile( r'\+M' )
+regex_three     = re.compile( r'\+\s*M' )
 ndef_keys       = ['SRI', 'LT', 'JAN', 'FIT1', 'HV', 'TDEP', 'EXCI', 'MOME', 'XSMI', 'PLOG', 'UNITS']
 
 ####################################################################################################################################
