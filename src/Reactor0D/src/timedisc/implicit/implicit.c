@@ -74,7 +74,7 @@ void implicit_initialize();
 void implicit_finalize();
 
 void calc_jacobian_numerical( int n_var );
-int matrix_vector_numerical( double *x, double *b, int n, int m );
+int matrix_vector_numerical( double *x, double *b, size_t n, size_t m );
 void time_step_newton( int iter, double t, double dt );
 
 //##################################################################################################################################
@@ -350,20 +350,20 @@ void calc_jacobian_numerical( int n_var )
     }
 }
 
-int matrix_vector_numerical( double *x, double *b, int n_var, int m )
+int matrix_vector_numerical( double *x, double *b, size_t n_var, size_t m )
 {
 #ifdef DEBUG
     u_unused( m );
 #endif /* DEBUG */
 
-    for ( int j = 0; j < n_var; j++ )
+    for ( size_t j = 0; j < n_var; j++ )
     {
         b[j] = jac[j] * x[0];
     }
 
-    for ( int i_var = 1; i_var < n_var; i_var++ )
+    for ( size_t i_var = 1; i_var < n_var; i_var++ )
     {
-        for ( int j = 0; j < n_var; j++ )
+        for ( size_t j = 0; j < n_var; j++ )
         {
             b[j] += jac[i_var*n_var+j] * x[i_var];
         }
