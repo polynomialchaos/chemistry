@@ -5,7 +5,7 @@
 #ifndef REACTOR0D_PRIVATE_H
 #define REACTOR0D_PRIVATE_H
 
-#include "reactor0d_module.h"
+#include "chemistry/reactor0d_module.h"
 
 //##################################################################################################################################
 // DEFINES

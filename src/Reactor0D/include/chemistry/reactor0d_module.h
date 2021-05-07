@@ -13,7 +13,7 @@
 #include "libc/global_module.h"
 #include "libc/hdf5_module.h"
 
-#include "chemistry_module.h"
+#include "chemistry/chemistry_module.h"
 
 //##################################################################################################################################
 // DEFINES

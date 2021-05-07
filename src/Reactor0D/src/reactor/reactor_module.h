@@ -5,7 +5,7 @@
 #ifndef REACTOR_MODULE_H
 #define REACTOR_MODULE_H
 
-#include "reactor0d_module.h"
+#include "chemistry/reactor0d_module.h"
 
 //##################################################################################################################################
 // DEFINES

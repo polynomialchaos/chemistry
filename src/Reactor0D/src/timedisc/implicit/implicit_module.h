@@ -5,7 +5,7 @@
 #ifndef IMPLICIT_MODULE_H
 #define IMPLICIT_MODULE_H
 
-#include "reactor0d_module.h"
+#include "chemistry/reactor0d_module.h"
 
 //##################################################################################################################################
 // DEFINES

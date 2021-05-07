@@ -5,7 +5,7 @@
 #ifndef CHEMISTRY_PRIVATE_H
 #define CHEMISTRY_PRIVATE_H
 
-#include "chemistry_module.h"
+#include "chemistry/chemistry_module.h"
 
 //##################################################################################################################################
 // DEFINES
