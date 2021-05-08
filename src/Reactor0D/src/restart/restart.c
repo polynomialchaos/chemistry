@@ -93,10 +93,10 @@ void read_restart_data()
         check_error((n_stages_restart == n_bdf_stages));
 
         phi_old_restart = allocate(sizeof(double *) * n_stages_restart);
-        for (int i = 0; i < n_stages_restart; i++)
+        for (int i = 0; i < n_stages_restart; ++i)
             phi_old_restart[i] = allocate(sizeof(double) * n_variables);
 
-        for (int i_stage = 0; i_stage < n_stages_restart; i_stage++)
+        for (int i_stage = 0; i_stage < n_stages_restart; ++i_stage)
         {
             char iter_string[10];
             sprintf(iter_string, "%d", i_stage);
@@ -117,7 +117,7 @@ void read_restart_data()
     copy_n(phi_restart, phi, n_variables);
     copy_n(phi_dt_restart, phi_dt, n_variables);
 
-    for (int i_stage = 0; i_stage < n_stages_restart; i_stage++)
+    for (int i_stage = 0; i_stage < n_stages_restart; ++i_stage)
     {
         copy_n(phi_old_restart[i_stage], phi_old[i_stage], n_variables);
     }

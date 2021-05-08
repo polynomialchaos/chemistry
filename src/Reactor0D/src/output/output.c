@@ -62,11 +62,11 @@ void create_file_header()
 
     {
         size_t max_len = 0;
-        for (int i = 0; i < n_variables; i++)
+        for (int i = 0; i < n_variables; ++i)
             max_len = u_max(max_len, strlen(variables[i]));
 
         string_t *tmp = allocate_hdf5_string_buffer(n_variables, max_len + 1);
-        for (int i = 0; i < n_variables; i++)
+        for (int i = 0; i < n_variables; ++i)
             strcpy(tmp[i], variables[i]);
 
         hsize_t dims[2] = {n_variables, max_len + 1};
@@ -112,7 +112,7 @@ void write_output(int iter, double t)
     {
         set_hdf5_attribute(solution_id, "n_stages", HDF5Int, &n_bdf_stages);
 
-        for (int i_stage = 0; i_stage < n_bdf_stages; i_stage++)
+        for (int i_stage = 0; i_stage < n_bdf_stages; ++i_stage)
         {
             char stage_string[256];
             sprintf(stage_string, "%d", i_stage);

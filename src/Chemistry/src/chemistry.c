@@ -251,10 +251,10 @@ void calc_chemistry_data(Chemistry_t *chemistry)
     int n_specii = specii->n_specii;
     int n_reactions = reactions->n_reactions;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         specii->molar_mass[i] = 0.0;
-        for (int j = 0; j < n_elements; j++)
+        for (int j = 0; j < n_elements; ++j)
             specii->molar_mass[i] += specii->composition[i * n_elements + j] * elements->mass[j];
 
         specii->molecule_weight[i] = specii->molar_mass[i] / NA;
@@ -264,7 +264,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
     if (n_reactions > 0)
     {
         reactions->n_reactions_three = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if (reactions->type[i] == ReactionThreeBody)
             {
                 reactions->n_reactions_three += 1;
@@ -276,7 +276,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
             }
 
         reactions->n_reactions_low = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_low_arr[i] == 1))
             {
                 reactions->n_reactions_low += 1;
@@ -288,7 +288,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
             }
 
         reactions->n_reactions_high = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_high_arr[i] == 1))
             {
                 reactions->n_reactions_high += 1;
@@ -300,7 +300,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
             }
 
         reactions->n_reactions_troe = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if ((reactions->type[i] == ReactionPressure) && (reactions->has_troe[i] == 1))
             {
                 reactions->n_reactions_troe += 1;
@@ -312,7 +312,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
             }
 
         reactions->n_reactions_rev = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 0))
             {
                 reactions->n_reactions_rev += 1;
@@ -324,7 +324,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
             }
 
         reactions->n_reactions_rev_arr = 0;
-        for (int i = 0; i < n_reactions; i++)
+        for (int i = 0; i < n_reactions; ++i)
             if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 1))
             {
                 reactions->n_reactions_rev_arr += 1;
@@ -343,7 +343,7 @@ int get_species_index(Chemistry_t *chemistry, const_string_t symbol)
     int n_specii = specii->n_specii;
     string_t *symbols = specii->symbol;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         if (is_equal(symbol, symbols[i]))
             return i;

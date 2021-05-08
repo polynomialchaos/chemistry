@@ -37,11 +37,11 @@ void calc_production_rate(double *C, double T, Chemistry_t *chemistry)
     int n_specii = specii->n_specii;
     int max_reac_points = specii->max_reac_points;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         specii->omega[i] = 0.0;
 
-        for (int j = 0; j < specii->n_reac_points[i]; j++)
+        for (int j = 0; j < specii->n_reac_points[i]; ++j)
         {
             int idx_r = specii->reac_points[i * max_reac_points + j] * KINDIM;
 
@@ -75,16 +75,16 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     double C_sum = sum_n(C, n_specii);
     int use_sp[n_specii];
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         use_sp[i] = (C[i] > YSMALL);
 
     // assemble the forward reaction rate or progress
-    for (int i = 0; i < n_reactions; i++)
+    for (int i = 0; i < n_reactions; ++i)
     {
         int is_zero = 0;
 
         double tmp = 0.0;
-        for (int j = 0; j < reactions->n_reactants[i]; j++)
+        for (int j = 0; j < reactions->n_reactants[i]; ++j)
         {
             int idx_sp = i * max_reactants + j;
             if (use_sp[reactions->reactants[idx_sp]] == 0)
@@ -96,13 +96,13 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     }
 
     // assemble the backward reaction rate or progress
-    for (int ii = 0; ii < n_reactions_rev; ii++)
+    for (int ii = 0; ii < n_reactions_rev; ++ii)
     {
         int i = reactions->idx_reactions_rev[ii];
         int is_zero = 0;
         double tmp = 0.0;
 
-        for (int j = 0; j < reactions->n_products[i]; j++)
+        for (int j = 0; j < reactions->n_products[i]; ++j)
         {
             int idx_sp = i * max_products + j;
             if (use_sp[reactions->products[idx_sp]] == 0)
@@ -113,13 +113,13 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
         reactions->q[i * KINDIM + 1] = (is_zero == 0) ? reactions->k[i * KINDIM + 1] * exp(tmp) : 0.0;
     }
 
-    for (int ii = 0; ii < n_reactions_rev_arr; ii++)
+    for (int ii = 0; ii < n_reactions_rev_arr; ++ii)
     {
         int i = reactions->idx_reactions_rev_arr[ii];
         int is_zero = 0;
         double tmp = 0.0;
 
-        for (int j = 0; j < reactions->n_products[i]; j++)
+        for (int j = 0; j < reactions->n_products[i]; ++j)
         {
             int idx_sp = i * max_products + j;
             if (use_sp[reactions->products[idx_sp]] == 0)
@@ -131,12 +131,12 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     }
 
     // three-body type reactions
-    for (int ii = 0; ii < n_reactions_three; ii++)
+    for (int ii = 0; ii < n_reactions_three; ++ii)
     {
         int i = reactions->idx_reactions_three[ii];
 
         C[n_specii] = C_sum;
-        for (int j = 0; j < reactions->n_efficiencies[i]; j++)
+        for (int j = 0; j < reactions->n_efficiencies[i]; ++j)
         {
             int idx_sp = i * max_efficiencies + j;
             C[n_specii] += (reactions->efficiencies[idx_sp] - 1.0) * C[reactions->sp_efficiencies[idx_sp]];
@@ -147,12 +147,12 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     }
 
     // pressure type reactions (unimolecular/recombination fall-off reactions)
-    for (int ii = 0; ii < n_reactions_low; ii++)
+    for (int ii = 0; ii < n_reactions_low; ++ii)
     {
         int i = reactions->idx_reactions_low[ii];
 
         C[n_specii] = C_sum;
-        for (int j = 0; j < reactions->n_efficiencies[i]; j++)
+        for (int j = 0; j < reactions->n_efficiencies[i]; ++j)
         {
             int idx_sp = i * max_efficiencies + j;
             C[n_specii] += (reactions->efficiencies[idx_sp] - 1.0) * C[reactions->sp_efficiencies[idx_sp]];
@@ -167,12 +167,12 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     }
 
     // pressure type reactions (chemically activated bimolecular reactions)
-    for (int ii = 0; ii < n_reactions_high; ii++)
+    for (int ii = 0; ii < n_reactions_high; ++ii)
     {
         int i = reactions->idx_reactions_high[ii];
 
         C[n_specii] = C_sum;
-        for (int j = 0; j < reactions->n_efficiencies[i]; j++)
+        for (int j = 0; j < reactions->n_efficiencies[i]; ++j)
         {
             int idx_sp = i * max_efficiencies + j;
             C[n_specii] += (reactions->efficiencies[idx_sp] - 1.0) * C[reactions->sp_efficiencies[idx_sp]];
@@ -187,7 +187,7 @@ void calc_rate_of_progress(double *C, double T, Chemistry_t *chemistry)
     }
 
     // pressure type reactions (Troe)
-    for (int ii = 0; ii < n_reactions_troe; ii++)
+    for (int ii = 0; ii < n_reactions_troe; ++ii)
     {
         int i = reactions->idx_reactions_troe[ii];
         double tmp = calc_troe(T, reactions->pr[i], &reactions->troe_coeff[i * max_troe_coeff]);
@@ -211,31 +211,31 @@ void calc_reaction_rates(double T, Chemistry_t *chemistry)
     double s_prmt = P0 / (RM * T);
     double g_rt[n_specii];
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         g_rt[i] = calc_sp_g_rt(i, T, chemistry);
     }
 
     // forward reaction rate
-    for (int i = 0; i < n_reactions; i++)
+    for (int i = 0; i < n_reactions; ++i)
     {
         reactions->k[i * KINDIM] = calc_arr(T, &reactions->arr_coeff[i * ARR]);
     }
 
     // backward reaction rate from equilibrium constant
-    for (int ii = 0; ii < n_reactions_rev; ii++)
+    for (int ii = 0; ii < n_reactions_rev; ++ii)
     {
         int i = reactions->idx_reactions_rev[ii];
 
         double tmp = 0.0;
-        for (int j = 0; j < reactions->n_reactants[i]; j++)
+        for (int j = 0; j < reactions->n_reactants[i]; ++j)
         {
             int idx_j = i * max_reactants + j;
             int idx_sp = reactions->reactants[idx_j];
             tmp -= reactions->nu_reactants[idx_j] * g_rt[idx_sp];
         }
 
-        for (int j = 0; j < reactions->n_products[i]; j++)
+        for (int j = 0; j < reactions->n_products[i]; ++j)
         {
             int idx_j = i * max_products + j;
             int idx_sp = reactions->products[idx_j];
@@ -247,7 +247,7 @@ void calc_reaction_rates(double T, Chemistry_t *chemistry)
     }
 
     // backward reaction rate from reverse rate constant
-    for (int ii = 0; ii < n_reactions_rev_arr; ii++)
+    for (int ii = 0; ii < n_reactions_rev_arr; ++ii)
     {
         int i = reactions->idx_reactions_rev_arr[ii];
         reactions->k[i * KINDIM + 1] = calc_arr(T, &reactions->rev_arr_coeff[i * ARR]);

@@ -46,6 +46,6 @@ void analyze_finalize()
 
 void calc_global_residual(double dt)
 {
-    for (int i = 0; i < n_variables; i++)
+    for (int i = 0; i < n_variables; ++i)
         residual[i] = u_abs(phi_dt[i]) * dt;
 }

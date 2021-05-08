@@ -52,7 +52,7 @@ void print_state(State_t *state)
     printf_r("%s = %e\n", "T", state->T);
     printf_r("%s = %e\n", "rho", state->rho);
 
-    for (int i = 0; i < state->chemistry->specii->n_specii; i++)
+    for (int i = 0; i < state->chemistry->specii->n_specii; ++i)
     {
         if (state->Y[i] < YSMALL)
             continue;

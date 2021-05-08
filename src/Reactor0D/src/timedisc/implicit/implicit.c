@@ -190,7 +190,7 @@ void implicit_initialize()
     }
 
     phi_old = allocate(sizeof(double *) * n_bdf_stages);
-    for (int i = 0; i < n_bdf_stages; i++)
+    for (int i = 0; i < n_bdf_stages; ++i)
         phi_old[i] = allocate(sizeof(double) * n_variables);
 
     Y_n = allocate(sizeof(double) * n_variables);
@@ -207,7 +207,7 @@ void implicit_finalize()
     deallocate(solver_name);
     deallocate(jacobian_type_name);
 
-    for (int i = 0; i < n_bdf_stages; i++)
+    for (int i = 0; i < n_bdf_stages; ++i)
         deallocate(phi_old[i]);
     deallocate(phi_old);
 
@@ -235,7 +235,7 @@ void time_step_newton(int iter, double t, double dt)
     for (int i = n_bdf_stages_loc - 1; i > 0; i--)
         copy_n(phi_old[i - 1], phi_old[i], n_variables);
 
-    for (int j = 0; j < n_variables; j++)
+    for (int j = 0; j < n_variables; ++j)
         phi_old[0][j] = phi[j];
 
     // fill inital values for newton iteration
@@ -243,14 +243,14 @@ void time_step_newton(int iter, double t, double dt)
     copy_n(phi_dt, dY_dt_n, n_variables);
 
     // calculate the inital error for newton abort criterion
-    for (int j = 0; j < n_variables; j++)
+    for (int j = 0; j < n_variables; ++j)
     {
         int idx = j;
         f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc + bdf_b_loc * dY_dt_n[idx];
     }
 
-    for (int i_stage = 0; i_stage < n_bdf_stages_loc; i_stage++)
-        for (int j = 0; j < n_variables; j++)
+    for (int i_stage = 0; i_stage < n_bdf_stages_loc; ++i_stage)
+        for (int j = 0; j < n_variables; ++j)
         {
             int idx = j;
             f_Y_n[idx] -= bdf_a_loc[i_stage] / dt_loc * phi_old[i_stage][idx];
@@ -259,7 +259,7 @@ void time_step_newton(int iter, double t, double dt)
     const double err_f_Y_0 = len_n(f_Y_n, n_variables);
     double err_f_Y_old = err_f_Y_0;
 
-    for (n_iter_inner = 1; n_iter_inner <= max_iter_inner; n_iter_inner++)
+    for (n_iter_inner = 1; n_iter_inner <= max_iter_inner; ++n_iter_inner)
     {
         calc_jacobian_numerical(n_variables);
 
@@ -279,7 +279,7 @@ void time_step_newton(int iter, double t, double dt)
         }
 
         // Y^(n+1) = Y^(n) + (Y^(n+1)-Y^(n))
-        for (int j = 0; j < n_variables; j++)
+        for (int j = 0; j < n_variables; ++j)
         {
             int idx = j;
             Y_n[idx] += dY_n[idx];
@@ -289,14 +289,14 @@ void time_step_newton(int iter, double t, double dt)
         reactor_function_pointer(tpdt_loc);
         copy_n(phi_dt, dY_dt_n, n_variables);
 
-        for (int j = 0; j < n_variables; j++)
+        for (int j = 0; j < n_variables; ++j)
         {
             int idx = j;
             f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc + bdf_b_loc * dY_dt_n[idx];
         }
 
-        for (int i_stage = 0; i_stage < n_bdf_stages_loc; i_stage++)
-            for (int j = 0; j < n_variables; j++)
+        for (int i_stage = 0; i_stage < n_bdf_stages_loc; ++i_stage)
+            for (int j = 0; j < n_variables; ++j)
             {
                 int idx = j;
                 f_Y_n[idx] -= bdf_a_loc[i_stage] / dt_loc * phi_old[i_stage][idx];
@@ -315,14 +315,14 @@ void time_step_newton(int iter, double t, double dt)
 
 void calc_jacobian_numerical(int n_var)
 {
-    for (int i_var = 0; i_var < n_var; i_var++)
+    for (int i_var = 0; i_var < n_var; ++i_var)
     {
         double eps_fd = 0.0;
         eps_fd = Y_n[i_var] * Y_n[i_var];
         eps_fd = sqrt(eps_fd) * 1e-4;
 
         // positive + eps
-        for (int j = 0; j < n_var; j++)
+        for (int j = 0; j < n_var; ++j)
             phi[j] = Y_n[j];
 
         phi[i_var] += 0.5 * eps_fd;
@@ -330,13 +330,13 @@ void calc_jacobian_numerical(int n_var)
 
         reactor_function_pointer(tpdt_loc);
 
-        for (int j = 0; j < n_var; j++)
+        for (int j = 0; j < n_var; ++j)
         {
             jac[i_var * n_var + j] = -phi_dt[j];
         }
 
         // negative + eps
-        for (int j = 0; j < n_var; j++)
+        for (int j = 0; j < n_var; ++j)
             phi[j] = Y_n[j];
 
         phi[i_var] -= 0.5 * eps_fd;
@@ -344,7 +344,7 @@ void calc_jacobian_numerical(int n_var)
 
         reactor_function_pointer(tpdt_loc);
 
-        for (int j = 0; j < n_var; j++)
+        for (int j = 0; j < n_var; ++j)
         {
             jac[i_var * n_var + j] += phi_dt[j];
             jac[i_var * n_var + j] *= bdf_b_loc / (eps_fd + SMALL);
@@ -360,14 +360,14 @@ int matrix_vector_numerical(double *x, double *b, size_t n_var, size_t m)
     u_unused(m);
 #endif /* DEBUG */
 
-    for (size_t j = 0; j < n_var; j++)
+    for (size_t j = 0; j < n_var; ++j)
     {
         b[j] = jac[j] * x[0];
     }
 
-    for (size_t i_var = 1; i_var < n_var; i_var++)
+    for (size_t i_var = 1; i_var < n_var; ++i_var)
     {
-        for (size_t j = 0; j < n_var; j++)
+        for (size_t j = 0; j < n_var; ++j)
         {
             b[j] += jac[i_var * n_var + j] * x[i_var];
         }

@@ -96,7 +96,7 @@ void reactor_initialize()
     get_parameter("Reactor/p", ParameterNumber, &global_state->p);
     get_parameter("Reactor/T", ParameterNumber, &global_state->T);
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         string_t tmp = allocate_strcat("Reactor/Y/", specii->symbol[i]);
         if (parameter_exists(tmp))
@@ -115,7 +115,7 @@ void reactor_initialize()
     variables = allocate(sizeof(string_t) * n_variables);
 
     variables[0] = allocate_strcpy("T");
-    for (int i = 0; i < specii->n_specii; i++)
+    for (int i = 0; i < specii->n_specii; ++i)
         variables[i_Y0 + i] = allocate_strcpy(specii->symbol[i]);
 
     phi = allocate(sizeof(double) * n_variables);
@@ -127,7 +127,7 @@ void reactor_initialize()
 
     phi_bounds[0] = 300.0;
     phi_bounds[1] = 4500.0;
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
     {
         phi_bounds[(i_Y0 + i) * BOUNDDIM] = 0.0;
         phi_bounds[(i_Y0 + i) * BOUNDDIM + 1] = 1.0;
@@ -144,7 +144,7 @@ void reactor_finalize()
     deallocate_chemistry(&global_chemistry);
     deallocate_state(&global_state);
 
-    for (int i = 0; i < n_variables; i++)
+    for (int i = 0; i < n_variables; ++i)
         deallocate(variables[i]);
     deallocate(variables);
 
@@ -165,7 +165,7 @@ void calc_reactor_isobar_adiabt(double t)
     Specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
 
     phi_dt[0] = -calc_temp_equation(&phi_dt[i_Y0], global_state->T) / global_state->cp;
@@ -183,7 +183,7 @@ void calc_reactor_isobar_isotherm(double t)
     Specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
 
     phi_dt[0] = 0.0;
@@ -201,7 +201,7 @@ void calc_reactor_isochor_adiabat(double t)
     Specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
 
     phi_dt[0] = -calc_temp_equation(&phi_dt[i_Y0], global_state->T) / global_state->cv;
@@ -219,7 +219,7 @@ void calc_reactor_isochor_isotherm(double t)
     Specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
 
     phi_dt[0] = 0.0;
@@ -231,7 +231,7 @@ double calc_temp_equation(double *dY_dt, double T_old)
     int n_specii = specii->n_specii;
 
     double tmp = 0.0;
-    for (int i = 0; i < n_specii; i++)
+    for (int i = 0; i < n_specii; ++i)
         tmp += dY_dt[i] * calc_sp_h_rt(i, T_old, global_chemistry) * specii->Rsp[i] * T_old;
 
     return tmp;
