@@ -24,15 +24,13 @@
 //##################################################################################################################################
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-    global_initialize( argc, argv, false, false );
+    global_initialize(argc, argv, false, false);
 
-    printf_r( "Hello World!\n" );
+    Chemistry_t *chemistry = read_chemistry_data("../../build/gri3.mech.h5");
+    print_chemistry_info(chemistry);
 
-    Chemistry_t *chemistry = read_chemistry_data( "gri3.mech.h5" );
-    print_chemistry_info( chemistry );
-
-    check_abort( 1 );
+    check_abort(1);
     return 0;
 }

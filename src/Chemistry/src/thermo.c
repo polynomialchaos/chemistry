@@ -16,13 +16,13 @@
 //##################################################################################################################################
 // VARIABLES
 //----------------------------------------------------------------------------------------------------------------------------------
-const double s12 = 1./2.;
-const double s13 = 1./3.;
-const double s14 = 1./4.;
-const double s15 = 1./4.;
-const double s16 = 1./6.;
-const double s112 = 1./12.;
-const double s120 = 1./20.;
+const double s12 = 1. / 2.;
+const double s13 = 1. / 3.;
+const double s14 = 1. / 4.;
+const double s15 = 1. / 4.;
+const double s16 = 1. / 6.;
+const double s112 = 1. / 12.;
+const double s120 = 1. / 20.;
 
 //##################################################################################################################################
 // LOCAL FUNCTIONS
@@ -31,35 +31,31 @@ const double s120 = 1./20.;
 //##################################################################################################################################
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-double calc_sp_cp_r( int i, double T, Chemistry_t *chemistry )
+double calc_sp_cp_r(int i, double T, Chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS*i+1]) ?
-        &chemistry->specii->coeff_low[NASA*i] : &chemistry->specii->coeff_high[NASA*i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
 
     return a[0] + T * (a[1] + T * (a[2] + T * (a[3] + a[4] * T)));
 }
 
-double calc_sp_h_rt( int i, double T, Chemistry_t *chemistry )
+double calc_sp_h_rt(int i, double T, Chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS*i+1]) ?
-        &chemistry->specii->coeff_low[NASA*i] : &chemistry->specii->coeff_high[NASA*i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
 
     return a[0] + T * (s12 * a[1] + T * (s13 * a[2] + T * (s14 * a[3] + s15 * a[4] * T))) + a[5] / T;
 }
 
-double calc_sp_s_r( int i, double T, Chemistry_t *chemistry )
+double calc_sp_s_r(int i, double T, Chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS*i+1]) ?
-        &chemistry->specii->coeff_low[NASA*i] : &chemistry->specii->coeff_high[NASA*i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
 
-    return a[0] * log( T ) + T * (a[1] + T * (s12 * a[2] + T * (s13 * a[3] + s14 * a[4] * T))) + a[6];
+    return a[0] * log(T) + T * (a[1] + T * (s12 * a[2] + T * (s13 * a[3] + s14 * a[4] * T))) + a[6];
 }
 
-double calc_sp_g_rt( int i, double T, Chemistry_t *chemistry )
+double calc_sp_g_rt(int i, double T, Chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS*i+1]) ?
-        &chemistry->specii->coeff_low[NASA*i] : &chemistry->specii->coeff_high[NASA*i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
 
-    return a[0] * (log( T ) - 1.0) +
-        T * (s12 * a[1] + T * (s16 * a[2] + T * (s112 * a[3] + s120 * a[4] * T))) - a[5] / T + a[6];
+    return a[0] * (log(T) - 1.0) +
+           T * (s12 * a[1] + T * (s16 * a[2] + T * (s112 * a[3] + s120 * a[4] * T))) - a[5] / T + a[6];
 }

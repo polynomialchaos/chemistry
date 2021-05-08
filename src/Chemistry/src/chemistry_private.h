@@ -23,9 +23,9 @@
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
 Chemistry_t *allocate_chemistry();
-Elements_t *allocate_elements( Chemistry_t *chemistry, int n_elements, int max_name_length );
-Specii_t *allocate_specii( Chemistry_t *chemistry, int n_specii, int max_name_length, int max_reac_points );
-Reactions_t *allocate_reactions( Chemistry_t *chemistry, int n_reactions,
-    int max_reactants, int max_products, int max_troe_coeff, int max_efficiencies );
+Elements_t *allocate_elements(Chemistry_t *chemistry, int n_elements, int max_name_length);
+Specii_t *allocate_specii(Chemistry_t *chemistry, int n_specii, int max_name_length, int max_reac_points);
+Reactions_t *allocate_reactions(Chemistry_t *chemistry, int n_reactions,
+                                int max_reactants, int max_products, int max_troe_coeff, int max_efficiencies);
 
 #endif /* CHEMISTRY_PRIVATE_H */

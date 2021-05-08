@@ -19,137 +19,140 @@
 //##################################################################################################################################
 // LOCAL FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-double calc_ig_p( double rho, double R, double T );
-double calc_ig_rho( double p, double R, double T );
-double calc_ig_T( double p, double rho, double R );
+double calc_ig_p(double rho, double R, double T);
+double calc_ig_rho(double p, double R, double T);
+double calc_ig_T(double p, double rho, double R);
 
 //##################################################################################################################################
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-State_t *allocate_state( Chemistry_t *chemistry )
+State_t *allocate_state(Chemistry_t *chemistry)
 {
-    State_t *state      = allocate( sizeof( State_t ) );
-    state->chemistry    = chemistry;
+    State_t *state = allocate(sizeof(State_t));
+    state->chemistry = chemistry;
 
-    state->Y            = allocate( sizeof( double ) * chemistry->specii->n_specii );
-    state->C            = allocate( sizeof( double ) * (chemistry->specii->n_specii + 1) ); // 3rd body concentration
-    state->X            = allocate( sizeof( double ) * chemistry->specii->n_specii );
+    state->Y = allocate(sizeof(double) * chemistry->specii->n_specii);
+    state->C = allocate(sizeof(double) * (chemistry->specii->n_specii + 1)); // 3rd body concentration
+    state->X = allocate(sizeof(double) * chemistry->specii->n_specii);
 
-    set_value_n( 0.0, state->Y, chemistry->specii->n_specii );
-    set_value_n( 0.0, state->C, (chemistry->specii->n_specii + 1) );
-    set_value_n( 0.0, state->X, chemistry->specii->n_specii );
+    set_value_n(0.0, state->Y, chemistry->specii->n_specii);
+    set_value_n(0.0, state->C, (chemistry->specii->n_specii + 1));
+    set_value_n(0.0, state->X, chemistry->specii->n_specii);
 
     return state;
 }
 
-void print_state( State_t *state )
+void print_state(State_t *state)
 {
-    if (state == NULL) return;
-    printf_r( "State\n" );
+    if (state == NULL)
+        return;
+    printf_r("State\n");
 
-    printf_r( "%s = %e\n", "p", state->p );
-    printf_r( "%s = %e\n", "T", state->T );
-    printf_r( "%s = %e\n", "rho", state->rho );
+    printf_r("%s = %e\n", "p", state->p);
+    printf_r("%s = %e\n", "T", state->T);
+    printf_r("%s = %e\n", "rho", state->rho);
 
-    for ( int i = 0; i < state->chemistry->specii->n_specii; i++ )
+    for (int i = 0; i < state->chemistry->specii->n_specii; i++)
     {
-        if (state->Y[i] < YSMALL) continue;
-        printf_r( "%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i], state->Y[i], state->C[i], state->X[i] );
+        if (state->Y[i] < YSMALL)
+            continue;
+        printf_r("%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i], state->Y[i], state->C[i], state->X[i]);
     }
 
-    printf_r( "%s = %e\n", "R", state->R );
-    printf_r( "%s = %e\n", "Molar mass", state->molar_mass );
+    printf_r("%s = %e\n", "R", state->R);
+    printf_r("%s = %e\n", "Molar mass", state->molar_mass);
 
-    printf_r( "%s = %e\n", "cp", state->cp );
-    printf_r( "%s = %e\n", "cv", state->cv );
-    printf_r( "%s = %e\n", "h", state->h );
-    printf_r( "%s = %e\n", "s", state->s );
-    printf_r( "%s = %e\n", "u", state->u );
-    printf_r( "%s = %e\n", "g", state->g );
+    printf_r("%s = %e\n", "cp", state->cp);
+    printf_r("%s = %e\n", "cv", state->cv);
+    printf_r("%s = %e\n", "h", state->h);
+    printf_r("%s = %e\n", "s", state->s);
+    printf_r("%s = %e\n", "u", state->u);
+    printf_r("%s = %e\n", "g", state->g);
 }
 
-void deallocate_state( State_t **state )
+void deallocate_state(State_t **state)
 {
-    if ((*state) == NULL) return;
+    if ((*state) == NULL)
+        return;
 
-    deallocate( (*state)->Y );
-    deallocate( (*state)->C );
-    deallocate( (*state)->X );
+    deallocate((*state)->Y);
+    deallocate((*state)->C);
+    deallocate((*state)->X);
 
-    deallocate( (*state) );
+    deallocate((*state));
 }
 
-void update_state_isochoric( double p, double rho, double T, double *Y, State_t *state )
-{
-#ifdef DEBUG
-    u_unused( p );
-#endif /* DEBUG */
-
-    Chemistry_t *chemistry  = state->chemistry;
-
-    state->rho  = rho;
-    state->T    = T;
-
-    correct_fraction( Y, state->Y, chemistry );
-
-    state->R    = calc_mix_R( state->Y, chemistry );
-    state->p    = calc_ig_p( state->rho, state->R, state->T );
-
-    conv_mass_to_conc( state->Y, state->rho, state->C, chemistry );
-
-    state->molar_mass   = calc_mix_molar_mass_from_Y( state->Y, chemistry );
-
-    conv_mass_to_mole( state->Y, state->molar_mass, state->X, chemistry );
-
-    state->cp   = calc_mix_cp( state->Y, state->T, chemistry );
-    state->cv   = calc_mix_cv( state->cp, state->R );
-    state->h    = calc_mix_h( state->Y, state->T, chemistry );
-    state->s    = calc_mix_s( state->X, state->Y, state->p, state->T, chemistry );
-    state->u    = calc_mix_u( state->h, state->R, state->T );
-    state->g    = calc_mix_g( state->h, state->s, state->T );
-}
-
-void update_state_isobaric( double p, double rho, double T, double *Y, State_t *state )
+void update_state_isochoric(double p, double rho, double T, double *Y, State_t *state)
 {
 #ifdef DEBUG
-    u_unused( rho );
+    u_unused(p);
 #endif /* DEBUG */
 
-    Chemistry_t *chemistry  = state->chemistry;
+    Chemistry_t *chemistry = state->chemistry;
 
-    state->p    = p;
-    state->T    = T;
+    state->rho = rho;
+    state->T = T;
 
-    correct_fraction( Y, state->Y, chemistry );
+    correct_fraction(Y, state->Y, chemistry);
 
-    state->R    = calc_mix_R( state->Y, chemistry );
-    state->rho  = calc_ig_rho( state->p, state->R, state->T );
+    state->R = calc_mix_R(state->Y, chemistry);
+    state->p = calc_ig_p(state->rho, state->R, state->T);
 
-    conv_mass_to_conc( state->Y, state->rho, state->C, chemistry );
+    conv_mass_to_conc(state->Y, state->rho, state->C, chemistry);
 
-    state->molar_mass   = calc_mix_molar_mass_from_Y( state->Y, chemistry );
+    state->molar_mass = calc_mix_molar_mass_from_Y(state->Y, chemistry);
 
-    conv_mass_to_mole( state->Y, state->molar_mass, state->X, chemistry );
+    conv_mass_to_mole(state->Y, state->molar_mass, state->X, chemistry);
 
-    state->cp   = calc_mix_cp( state->Y, state->T, chemistry );
-    state->cv   = calc_mix_cv( state->cp, state->R );
-    state->h    = calc_mix_h( state->Y, state->T, chemistry );
-    state->s    = calc_mix_s( state->X, state->Y, state->p, state->T, chemistry );
-    state->u    = calc_mix_u( state->h, state->R, state->T );
-    state->g    = calc_mix_g( state->h, state->s, state->T );
+    state->cp = calc_mix_cp(state->Y, state->T, chemistry);
+    state->cv = calc_mix_cv(state->cp, state->R);
+    state->h = calc_mix_h(state->Y, state->T, chemistry);
+    state->s = calc_mix_s(state->X, state->Y, state->p, state->T, chemistry);
+    state->u = calc_mix_u(state->h, state->R, state->T);
+    state->g = calc_mix_g(state->h, state->s, state->T);
 }
 
-double calc_ig_p( double rho, double R, double T )
+void update_state_isobaric(double p, double rho, double T, double *Y, State_t *state)
+{
+#ifdef DEBUG
+    u_unused(rho);
+#endif /* DEBUG */
+
+    Chemistry_t *chemistry = state->chemistry;
+
+    state->p = p;
+    state->T = T;
+
+    correct_fraction(Y, state->Y, chemistry);
+
+    state->R = calc_mix_R(state->Y, chemistry);
+    state->rho = calc_ig_rho(state->p, state->R, state->T);
+
+    conv_mass_to_conc(state->Y, state->rho, state->C, chemistry);
+
+    state->molar_mass = calc_mix_molar_mass_from_Y(state->Y, chemistry);
+
+    conv_mass_to_mole(state->Y, state->molar_mass, state->X, chemistry);
+
+    state->cp = calc_mix_cp(state->Y, state->T, chemistry);
+    state->cv = calc_mix_cv(state->cp, state->R);
+    state->h = calc_mix_h(state->Y, state->T, chemistry);
+    state->s = calc_mix_s(state->X, state->Y, state->p, state->T, chemistry);
+    state->u = calc_mix_u(state->h, state->R, state->T);
+    state->g = calc_mix_g(state->h, state->s, state->T);
+}
+
+double calc_ig_p(double rho, double R, double T)
 {
     return rho * R * T;
 }
 
-double calc_ig_rho( double p, double R, double T )
+double calc_ig_rho(double p, double R, double T)
 {
     return p / (R * T);
 }
 
-double calc_ig_T( double p, double rho, double R )
+double calc_ig_T(double p, double rho, double R)
 {
     return p / (rho * R);
 }
