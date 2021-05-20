@@ -269,13 +269,13 @@ void time_step_newton(int iter, double t, double dt)
 
         if (is_bicgstab)
         {
-            BiCGStab_n_m(n_variables, 1, f_Y_n, dY_n,
-                         work, matrix_vector, &n_iter_lsoe, &residual_lsoe);
+            solve_bicgstab_n_m(n_variables, 1, f_Y_n, dY_n,
+                               work, matrix_vector, &n_iter_lsoe, &residual_lsoe);
         }
         else
         {
-            GMRes_n_m(n_variables, 1, f_Y_n, dY_n,
-                      work, matrix_vector, &n_iter_lsoe, &residual_lsoe, max_krylov_dims, max_krylov_restarts);
+            solve_gmres_n_m(n_variables, 1, f_Y_n, dY_n,
+                            work, matrix_vector, &n_iter_lsoe, &residual_lsoe, max_krylov_dims, max_krylov_restarts);
         }
 
         // Y^(n+1) = Y^(n) + (Y^(n+1)-Y^(n))
