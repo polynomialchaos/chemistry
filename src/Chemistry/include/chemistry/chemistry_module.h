@@ -171,7 +171,7 @@ typedef struct State
 //##################################################################################################################################
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-Chemistry_t *read_chemistry_data(const_string_t chemistry_file);
+Chemistry_t *read_chemistry_data(c_string_t chemistry_file);
 void print_chemistry_info(Chemistry_t *chemistry);
 void deallocate_chemistry(Chemistry_t **chemistry);
 

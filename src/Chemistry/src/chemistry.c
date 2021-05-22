@@ -31,7 +31,7 @@ void calc_chemistry_data(Chemistry_t *chemistry);
 //##################################################################################################################################
 // FUNCTIONS
 //----------------------------------------------------------------------------------------------------------------------------------
-Chemistry_t *read_chemistry_data(const_string_t chemistry_file)
+Chemistry_t *read_chemistry_data(c_string_t chemistry_file)
 {
     Chemistry_t *chemistry = allocate_chemistry();
 
@@ -337,7 +337,7 @@ void calc_chemistry_data(Chemistry_t *chemistry)
     }
 }
 
-int get_species_index(Chemistry_t *chemistry, const_string_t symbol)
+int get_species_index(Chemistry_t *chemistry, c_string_t symbol)
 {
     Specii_t *specii = chemistry->specii;
     int n_specii = specii->n_specii;
