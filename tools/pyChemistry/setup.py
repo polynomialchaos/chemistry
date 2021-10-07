@@ -16,7 +16,7 @@ with open('pychemistry/version.py', 'r') as fp:
 #-----------------------------------------------------------------------------------------------------------------------------------
 setup(
     name='pyChemistry',
-    version=version_locals['__version__'],
+    version=str( version_locals['__version__'] ),
     author='Florian Eigentler',
     author_email='f.m.eigentler@gmail.com',
     description='Python package for Chemistry preprocessing',
@@ -24,7 +24,7 @@ setup(
     install_requires=['h5py'],
     entry_points={
         'console_scripts': [
-            'pyChemistry.py=bin.pyChemistry:main',
+            'pyChemistry=bin.pyChemistry:main',
         ]
     }
 )

@@ -6,6 +6,7 @@
 import argparse, logging, os, sys
 
 from pychemistry import parse_input, write_chemistry_data
+from pychemistry.version import __version__
 
 ####################################################################################################################################
 # Definitions
@@ -43,12 +44,13 @@ def main():
 
     # define the argument parser
     parser = argparse.ArgumentParser( description='Chemistry - Finite Rate Chemistry library - preprocessing' )
-    parser.add_argument( '-d', '--debugging', dest='debugging', action='store_true', help='Debugging output' )
-    parser.add_argument( '-i', '--input', dest='input', type=str, required=True, help='The chemkin fortmat input file' )
-    parser.add_argument( '-th', '--thermo', dest='thermo', type=str, default=None, help='The chemkin fortmat thermo file' )
-    parser.add_argument( '-tr', '--transport', dest='transport', default=None, type=str, help='The chemkin fortmat transport file' )
-    parser.add_argument( '-o', '--output', dest='output', type=str, help='The Chemistry output file' )
-    parser.add_argument( '-ck', '--chemkin', dest='chemkin', type=str, help='The chemkin format output file' )
+    parser.add_argument( '-ck', '--chemkin', type=str, help='The chemkin format output file' )
+    parser.add_argument( '-d', '--debugging', action='store_true', help='Debugging output' )
+    parser.add_argument( '-i', '--input', type=str, required=True, help='The chemkin fortmat input file' )
+    parser.add_argument( '-o', '--output', type=str, help='The Chemistry output file' )
+    parser.add_argument( '-th', '--thermo', type=str, default=None, help='The chemkin fortmat thermo file' )
+    parser.add_argument( '-tr', '--transport', default=None, type=str, help='The chemkin fortmat transport file' )
+    parser.add_argument( '-v', '--version', action='version', version='%(prog)s (version {:})'.format( __version__ ) )
     args = parser.parse_args()
 
     # setup additional output for debugging
