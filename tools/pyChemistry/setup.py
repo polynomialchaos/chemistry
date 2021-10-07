@@ -16,7 +16,7 @@ with open('pychemistry/version.py', 'r') as fp:
 #-----------------------------------------------------------------------------------------------------------------------------------
 setup(
     name='pyChemistry',
-    version=str( version_locals['__version__'] ),
+    version=str(version_locals['__version__']),
     author='Florian Eigentler',
     author_email='f.m.eigentler@gmail.com',
     description='Python package for Chemistry preprocessing',
