@@ -37,7 +37,7 @@ def parse_specii( path, start_keys=['SPECIES', 'SPEC'], end_keys=['END'] ):
                 logging.debug( 'Add species "{:}"'.format( tmp_string ) )
 
                 species[tmp_string] = Species(
-                    symbol = tmp_string
+                    symbol  = tmp_string
                 )
     except:
         logging.error( 'Parse error in line "{:}"'.format( string ) )

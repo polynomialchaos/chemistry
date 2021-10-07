@@ -17,16 +17,20 @@ class Element( Base ):
     """Object for storing element data. Inputs in SI units."""
     def __init__( self, symbol, mass=None ):
         self.symbol = symbol
-
         self.mass   = mass
+
+    def _checklist( self ):
+        return [
+            (self.mass > 0.0, 'Atomic mass not valid (am={:})'.format( self.mass )),
+        ]
+
+    def chemkinify( self ):
+        tmp = '/{:}/'.format( self._mass ) if hasattr( self, '_mass' ) else ''
+        return self.symbol + tmp
 
     @property
     def mass( self ):
         return REF_ELEMENTS[self.symbol]
-
-    @property
-    def symbol( self ):
-        return self._symbol.upper()
 
     @mass.setter
     def mass( self, value ):
@@ -34,22 +38,20 @@ class Element( Base ):
         self._mass = float( value )
         REF_ELEMENTS[self.symbol] = self._mass
 
+    @property
+    def symbol( self ):
+        return self._symbol.upper()
+
     @symbol.setter
     def symbol( self, value ):
         self._symbol = value.strip()
 
-    def chemkinify( self ):
-        tmp = '/{:}/'.format( self._mass ) if hasattr( self, '_mass' ) else ''
-        return self.symbol + tmp
-
-    def _checklist( self ):
-        return [
-            (self.mass > 0.0, 'Atomic mass not valid (am={:})'.format( self.mass )),
-        ]
-
 class ElementContainer( BaseOrderedDictContainer ):
     """Container (storage) object for Element class objects."""
     _type = Element
+
+    def __str__( self ):
+        return self.symbol
 
     def chemkinify( self, keys=None, lineLength=80, **kwargs ):
         tmp             = self.keys() if keys is None else keys
@@ -60,9 +62,6 @@ class ElementContainer( BaseOrderedDictContainer ):
             ' '.join( ['{1:{0:}}'.format( max_len, x ) for x in chunk] ) + '\n'
             for chunk in chunk_list( element_strings, int( lineLength / max_len ) )
         ]
-
-    def __str__( self ):
-        return self.symbol
 
 ####################################################################################################################################
 # Functions

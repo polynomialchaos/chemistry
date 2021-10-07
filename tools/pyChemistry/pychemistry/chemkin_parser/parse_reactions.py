@@ -171,6 +171,7 @@ def parse_reaction( strings, unit_k0, unit_Ea ):
     if 'LOW' in tmp_auxiliary:
         reaction.adv_arr_coeff = cmsk_to_si( tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si( add=1.0 ), unit_k0, unit_Ea )
     elif 'HIGH' in tmp_auxiliary:
+        raise( NotImplementedError( 'HIGH keyword is not supported. If use, check add parameter in unit conversion (may be 0)' ) )
         reaction.adv_arr_coeff = cmsk_to_si( tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si( add=-1.0 ), unit_k0, unit_Ea )
 
     return reaction

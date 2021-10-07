@@ -22,6 +22,38 @@ from .transport import TransportContainer
 # ----------------------------------------------------------------------------------------------------------------------------------
 class Mechanism( Base ):
     """Object for storing mechanism data."""
+    def __add__( self, other ):
+        if other is None:
+            return deepcopy( self )
+
+        if isinstance( self, other.__class__ ):
+            new = deepcopy( self )
+
+            new.name += '+{:}'.format( other.name )
+            new.models.update( {key: other.models[key] for key in other.models} )
+
+            for key in other.elements.keys():
+                new.elements[key] = other.elements[key]
+
+            for key in other.specii.keys():
+                new.specii[key] = other.specii[key]
+
+            for x in other.reactions:
+                new.reactions.append( x )
+
+            for key in other.thermos.keys():
+                new.thermos[key] = other.thermos[key]
+
+            for key in other.transports.keys():
+                new.transports[key] = other.transports[key]
+
+            new._update_thermos()
+            new._update_transports()
+
+            return new
+        else:
+            raise(TypeError(Mechanism, type(other)))
+
     def __init__( self, name, elements=None, specii=None, reactions=None, thermos=None, transports=None, models=None ):
 
         self.name       = name
@@ -32,23 +64,31 @@ class Mechanism( Base ):
         self.transports = TransportContainer() if transports is None else transports
         self.models     = OrderedDict() if models is None else models
 
-    @property
-    def thermos( self ):
-        return self._thermos
+    def __str__(self):
+        return self.name
 
-    @property
-    def transports( self ):
-        return self._transports
+    def _checklist( self ):
+        reaction_strings = [x.reaction_string_short() for x in self.reactions]
 
-    @thermos.setter
-    def thermos( self, value ):
-        self._thermos = value
-        self._update_thermos()
+        return [
+            (self.elements.is_valid(), 'Element data not valid'),
+            (self.specii.is_valid(), 'Species data not valid'),
+            (self.reactions.is_valid( elements=self.elements, specii=self.specii,
+                reaction_strings=reaction_strings ), 'Reaction data not valid'),
+            (self.thermos.is_valid(), 'Thermo data not valid'),
+            (self.transports.is_valid(), 'Transport data not valid'),
+            (len( self.inert_specii() ) >= 1, 'Missing inert species'),
+        ]
 
-    @transports.setter
-    def transports( self, value ):
-        self._transports = value
-        self._update_transports()
+    def _update_thermos( self ):
+        for key in self.thermos:
+            if key in self.specii:
+                self.specii[key].thermo = self.thermos[key]
+
+    def _update_transports( self ):
+        for key in self.transports:
+            if key in self.specii:
+                self.specii[key].transport = self.transports[key]
 
     def chemkinify( self, prefix, unit_k0=None, unit_Ea=None ):
         with open( '{:}.mech'.format( prefix ), 'w' ) as fp:
@@ -83,63 +123,23 @@ class Mechanism( Base ):
         self.thermos.all_flag    = state
         self.transports.all_flag = state
 
-    def _checklist( self ):
-        reaction_strings = [x.reaction_string_short() for x in self.reactions]
+    @property
+    def thermos( self ):
+        return self._thermos
 
-        return [
-            (self.elements.is_valid(), 'Element data not valid'),
-            (self.specii.is_valid(), 'Species data not valid'),
-            (self.reactions.is_valid( elements=self.elements, specii=self.specii,
-                reaction_strings=reaction_strings ), 'Reaction data not valid'),
-            (self.thermos.is_valid(), 'Thermo data not valid'),
-            (self.transports.is_valid(), 'Transport data not valid'),
-            (len( self.inert_specii() ) >= 1, 'Missing inert species'),
-        ]
+    @thermos.setter
+    def thermos( self, value ):
+        self._thermos = value
+        self._update_thermos()
 
-    def _update_thermos( self ):
-        for key in self.thermos:
-            if key in self.specii:
-                self.specii[key].thermo = self.thermos[key]
+    @property
+    def transports( self ):
+        return self._transports
 
-    def _update_transports( self ):
-        for key in self.transports:
-            if key in self.specii:
-                self.specii[key].transport = self.transports[key]
-
-    def __add__( self, other ):
-        if other is None:
-            return deepcopy( self )
-
-        if isinstance( self, other.__class__ ):
-            new = deepcopy( self )
-
-            new.name += '+{:}'.format( other.name )
-            new.models.update( {key: other.models[key] for key in other.models} )
-
-            for key in other.elements.keys():
-                new.elements[key] = other.elements[key]
-
-            for key in other.specii.keys():
-                new.specii[key] = other.specii[key]
-
-            for x in other.reactions:
-                new.reactions.append( x )
-
-            for key in other.thermos.keys():
-                new.thermos[key] = other.thermos[key]
-
-            for key in other.transports.keys():
-                new.transports[key] = other.transports[key]
-
-            new._update_thermos()
-            new._update_transports()
-
-            return new
-        else:
-            raise( TypeError( 'Adding unsupported instances "{:}" and "{:}"'.format( self.__class__, other.__class__ ) ) )
-
-    def __str__(self):
-        return self.name
+    @transports.setter
+    def transports( self, value ):
+        self._transports = value
+        self._update_transports()
 
 ####################################################################################################################################
 # Functions

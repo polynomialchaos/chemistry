@@ -39,7 +39,7 @@ def parse_elements( path, start_keys=['ELEMENTS', 'ELEM'], end_keys=['END'] ):
                     tmp_symbol = tmp_string
                     logging.debug( 'Add element "{:}"'.format( tmp_symbol ) )
                     elements[tmp_symbol] = Element(
-                        symbol = tmp_symbol
+                        symbol=tmp_symbol
                     )
                 else:
                     logging.debug( 'Add additional element mass "{:}"'.format( tmp_string ) )

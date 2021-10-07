@@ -2,7 +2,7 @@
 # pyChemistry - Python package for FV3D preprocessing
 # (c) Florian Eigentler | 2020
 ####################################################################################################################################
-from .constants import NA, ENH_VW, CHI, KB, RM, P0, T0
+from .constants import NA, ENH_VW, KB, RM, P0, T0
 from .constants import CM_M, CAL_JOULE, JOULE_KELVINS, ANGSTROM_SI, DEBYE_SI, REF_ELEMENTS
 from .utilities import as_int, as_short, chunk_list, f_arr, f_arr_ea, f_arr_ta, alpha_to_arr, is_number
 from .base import Base, BaseOrderedDictContainer, BaseListContainer

@@ -9,7 +9,6 @@ from collections import OrderedDict
 # ----------------------------------------------------------------------------------------------------------------------------------
 NA              = 6.022140857e23    # Avogadro number (mol-1)
 ENH_VW          = 2.2               # Van Waals enhancement factor (-)
-CHI             = 2.32e19           # Number of soot surface sites (m-2)
 
 KB              = 1.38064852e-23    # Boltzmann constant (m2 kg s-2 K-1)
 RM              = NA * KB           # Universal gas constant (mol-1 m2 kg s-2 K-1)
