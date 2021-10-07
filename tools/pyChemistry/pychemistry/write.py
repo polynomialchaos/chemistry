@@ -5,6 +5,8 @@
 import logging, h5py, datetime
 import numpy as np
 
+from .version import __version__
+
 ####################################################################################################################################
 # Definitions
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -125,7 +127,8 @@ def write_chemistry_data( path, mechanism ):
     fillArray = (lambda lists, fill, maxLength=getMaxCount: [x + [fill for _ in range( maxLength( lists )-len( x ) )] for x in lists])
 
     with h5py.File( path, 'w' ) as h5f:
-        h5f.attrs['date']   = np.string_( str( datetime.datetime.now() ) )
+        h5f.attrs['date']       = np.string_( str( datetime.datetime.now() ) )
+        h5f.attrs['version']    = np.string_( str( __version__ ) )
 
         # elements
         group = h5f.create_group( r'ELEMENTS' )
