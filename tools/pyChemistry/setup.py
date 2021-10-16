@@ -24,7 +24,7 @@ setup(
     install_requires=['h5py'],
     entry_points={
         'console_scripts': [
-            'pyChemistry=bin.pyChemistry:main',
+            'pyChemistry=pychemistry.bin.pyChemistry:main',
         ]
     }
 )
