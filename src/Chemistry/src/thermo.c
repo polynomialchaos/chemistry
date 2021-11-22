@@ -1,61 +1,88 @@
-//##################################################################################################################################
-// FV3D - Finite volume solver
-// (c) 2020 | Florian Eigentler
-//##################################################################################################################################
+/*******************************************************************************
+ * @file thermo.h
+ * @author Florian Eigentler
+ * @brief
+ * @version 1.0.0
+ * @date 2021-11-15
+ * @copyright Copyright (c) 2021
+ ******************************************************************************/
 #include <math.h>
 #include "chemistry_private.h"
 
-//##################################################################################################################################
-// DEFINES
-//----------------------------------------------------------------------------------------------------------------------------------
+const double s12 = 1. / 2.;   /** Calculation constant */
+const double s13 = 1. / 3.;   /** Calculation constant */
+const double s14 = 1. / 4.;   /** Calculation constant */
+const double s15 = 1. / 4.;   /** Calculation constant */
+const double s16 = 1. / 6.;   /** Calculation constant */
+const double s112 = 1. / 12.; /** Calculation constant */
+const double s120 = 1. / 20.; /** Calculation constant */
 
-//##################################################################################################################################
-// MACROS
-//----------------------------------------------------------------------------------------------------------------------------------
-
-//##################################################################################################################################
-// VARIABLES
-//----------------------------------------------------------------------------------------------------------------------------------
-const double s12 = 1. / 2.;
-const double s13 = 1. / 3.;
-const double s14 = 1. / 4.;
-const double s15 = 1. / 4.;
-const double s16 = 1. / 6.;
-const double s112 = 1. / 12.;
-const double s120 = 1. / 20.;
-
-//##################################################################################################################################
-// LOCAL FUNCTIONS
-//----------------------------------------------------------------------------------------------------------------------------------
-
-//##################################################################################################################################
-// FUNCTIONS
-//----------------------------------------------------------------------------------------------------------------------------------
-double calc_sp_cp_r(int i, double T, Chemistry_t *chemistry)
+/*******************************************************************************
+ * @brief Return dimensionless heat capacity
+ * @param i
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_cp_r(int i, double T, chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1])
+                    ? &chemistry->specii->coeff_low[NASA * i]
+                    : &chemistry->specii->coeff_high[NASA * i];
 
     return a[0] + T * (a[1] + T * (a[2] + T * (a[3] + a[4] * T)));
 }
 
-double calc_sp_h_rt(int i, double T, Chemistry_t *chemistry)
+/*******************************************************************************
+ * @brief Return dimensionless enthalpy
+ * @param i
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_h_rt(int i, double T, chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1])
+                    ? &chemistry->specii->coeff_low[NASA * i]
+                    : &chemistry->specii->coeff_high[NASA * i];
 
-    return a[0] + T * (s12 * a[1] + T * (s13 * a[2] + T * (s14 * a[3] + s15 * a[4] * T))) + a[5] / T;
+    double tmp = (s14 * a[3] + s15 * a[4] * T);
+    tmp = s12 * a[1] + T * (s13 * a[2] + T * tmp);
+    return a[0] + T * tmp + a[5] / T;
 }
 
-double calc_sp_s_r(int i, double T, Chemistry_t *chemistry)
+/*******************************************************************************
+ * @brief Return dimensionless entropy
+ * @param i
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_s_r(int i, double T, chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1])
+                    ? &chemistry->specii->coeff_low[NASA * i]
+                    : &chemistry->specii->coeff_high[NASA * i];
 
-    return a[0] * log(T) + T * (a[1] + T * (s12 * a[2] + T * (s13 * a[3] + s14 * a[4] * T))) + a[6];
+    double tmp = s13 * a[3] + s14 * a[4] * T;
+    tmp = a[1] + T * (s12 * a[2] + T * tmp);
+    return a[0] * log(T) + T * tmp + a[6];
 }
 
-double calc_sp_g_rt(int i, double T, Chemistry_t *chemistry)
+/*******************************************************************************
+ * @brief Return dimensionless free gibb's energy
+ * @param i
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_sp_g_rt(int i, double T, chemistry_t *chemistry)
 {
-    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1]) ? &chemistry->specii->coeff_low[NASA * i] : &chemistry->specii->coeff_high[NASA * i];
+    double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1])
+                    ? &chemistry->specii->coeff_low[NASA * i]
+                    : &chemistry->specii->coeff_high[NASA * i];
 
-    return a[0] * (log(T) - 1.0) +
-           T * (s12 * a[1] + T * (s16 * a[2] + T * (s112 * a[3] + s120 * a[4] * T))) - a[5] / T + a[6];
+    double tmp = s112 * a[3] + s120 * a[4] * T;
+    tmp = s12 * a[1] + T * (s16 * a[2] + T * tmp);
+    return a[0] * (log(T) - 1.0) + T * tmp - a[5] / T + a[6];
 }

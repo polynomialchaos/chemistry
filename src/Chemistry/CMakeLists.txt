@@ -1,46 +1,47 @@
-####################################################################################################################################
-# Chemistry - Finite rate chemistry library and solver
-# (c) 2020 | Florian Eigentler
-####################################################################################################################################
-set( target "${PROJECT_NAME}" )
+#*******************************************************************************
+# @file CMakeLists.txt
+# @author Florian Eigentler
+# @brief
+# @version 0.1
+# @date 2021-11-08
+# @copyright Copyright (c) 2021
+#*******************************************************************************
+set(target ${CMAKE_PROJECT_NAME})
 
-####################################################################################################################################
+#*******************************************************************************
 # Add subdirecotries
-#-----------------------------------------------------------------------------------------------------------------------------------
-file( GLOB SOURCES
-    src/*/*.c
+#******************************************************************************/
+file(GLOB target_sources
     src/*.c
 )
 
-####################################################################################################################################
-# External libraries
-#-----------------------------------------------------------------------------------------------------------------------------------
-
-####################################################################################################################################
+#*******************************************************************************
 # Build target
-#-----------------------------------------------------------------------------------------------------------------------------------
-if( SHARED )
-    add_library( ${target} SHARED ${SOURCES} )
+#******************************************************************************/
+if(shared_lib)
+    add_library(${target} SHARED ${target_sources})
 else()
-    add_library( ${target} STATIC ${SOURCES} )
+    add_library(${target} STATIC ${target_sources})
 endif()
-target_include_directories( ${target} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:include>" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src" )
-target_link_libraries( ${target} C ${external_libraries} )
-set_target_properties( ${target} PROPERTIES LINKER_LANGUAGE C )
-set_target_properties( ${target} PROPERTIES COMPILE_FLAGS "${external_library_compile_flags}" )
-set_target_properties( ${target} PROPERTIES LINK_FLAGS "${external_library_link_flags}" )
+target_link_libraries(${target} basec)
+set_target_properties(${target} PROPERTIES VERSION ${PROJECT_VERSION})
 
-####################################################################################################################################
+target_include_directories(${target} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include> PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+#*******************************************************************************
+# Unit test target
+#******************************************************************************/
+include(unit_test)
+unit_test(${target} "test/chemistry.c")
+
+#*******************************************************************************
 # Install target
-#-----------------------------------------------------------------------------------------------------------------------------------
+#******************************************************************************/
 install( DIRECTORY include/ DESTINATION include FILES_MATCHING PATTERN "*.h" )
-install( TARGETS ${target} EXPORT Chemistry
-    RUNTIME DESTINATION bin INCLUDES DESTINATION include LIBRARY DESTINATION lib ARCHIVE DESTINATION lib )
+install( TARGETS ${target} EXPORT ${install_target}
+    RUNTIME DESTINATION bin INCLUDES DESTINATION include
+    LIBRARY DESTINATION lib ARCHIVE DESTINATION lib )
 
-####################################################################################################################################
-# Build test target
-#-----------------------------------------------------------------------------------------------------------------------------------
-if( BUILD_TESTING )
-    include( build_test )
-endif()
+install( EXPORT ${install_target} DESTINATION share/cmake )

@@ -1,31 +1,116 @@
-//##################################################################################################################################
-// Chemistry - Finite rate chemistry library and solver
-// (c) 2020 | Florian Eigentler
-//##################################################################################################################################
+/*******************************************************************************
+ * @file chemistry_private.h
+ * @author Florian Eigentler
+ * @brief
+ * @version 1.0.0
+ * @date 2021-11-15
+ * @copyright Copyright (c) 2021
+ ******************************************************************************/
 #ifndef CHEMISTRY_PRIVATE_H
 #define CHEMISTRY_PRIVATE_H
 
 #include "chemistry/chemistry_module.h"
 
-//##################################################################################################################################
-// DEFINES
-//----------------------------------------------------------------------------------------------------------------------------------
+/*******************************************************************************
+ * @brief Reaction type enumeration
+ ******************************************************************************/
+typedef enum ReactionType
+{
+    ReactionDefault,   /** Default reaction */
+    ReactionThreeBody, /** Three-body reaction */
+    ReactionPressure,  /** Pressure dependent reaction */
+    _reaction_type_max
+} reaction_type_t;
 
-//##################################################################################################################################
-// MACROS
-//----------------------------------------------------------------------------------------------------------------------------------
+/*******************************************************************************
+ * @brief Allocate chemistry structure
+ * @return chemistry_t*
+ ******************************************************************************/
+chemistry_t *allocate_chemistry();
 
-//##################################################################################################################################
-// VARIABLES
-//----------------------------------------------------------------------------------------------------------------------------------
+/*******************************************************************************
+ * @brief Allocate elements structure
+ * @param chemistry
+ * @param n_elements
+ * @param max_name_length
+ * @return elements_t*
+ ******************************************************************************/
+elements_t *allocate_elements(chemistry_t *chemistry,
+                              int n_elements, int max_name_length);
 
-//##################################################################################################################################
-// FUNCTIONS
-//----------------------------------------------------------------------------------------------------------------------------------
-Chemistry_t *allocate_chemistry();
-Elements_t *allocate_elements(Chemistry_t *chemistry, int n_elements, int max_name_length);
-Specii_t *allocate_specii(Chemistry_t *chemistry, int n_specii, int max_name_length, int max_reac_points);
-Reactions_t *allocate_reactions(Chemistry_t *chemistry, int n_reactions,
-                                int max_reactants, int max_products, int max_troe_coeff, int max_efficiencies);
+/*******************************************************************************
+ * @brief Allocate reactions structure
+ * @param chemistry
+ * @param n_reactions
+ * @param max_reactants
+ * @param max_products
+ * @param max_troe_coeff
+ * @param max_efficiencies
+ * @return reactions_t*
+ ******************************************************************************/
+reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
+                                int max_reactants, int max_products,
+                                int max_troe_coeff, int max_efficiencies);
+
+/*******************************************************************************
+ * @brief Allocate specii structure
+ * @param chemistry
+ * @param n_elements
+ * @param max_name_length
+ * @return elements_t*
+ ******************************************************************************/
+specii_t *allocate_specii(chemistry_t *chemistry, int n_specii,
+                          int max_name_length, int max_reac_points);
+
+/*******************************************************************************
+ * @brief Calculate the Arrhenius function
+ * @param T
+ * @param pr
+ * @param coeff
+ * @return double
+ ******************************************************************************/
+double calc_troe(double T, double pr, double *coeff);
+
+/*******************************************************************************
+ * @brief Complete chemistry structure
+ * @param chemistry
+ ******************************************************************************/
+void complete_chemistry(chemistry_t *chemistry);
+
+/*******************************************************************************
+ * @brief Deallocate chemistry structure
+ * @param elements
+ ******************************************************************************/
+void deallocate_elements(elements_t *elements);
+
+/*******************************************************************************
+ * @brief Deallocate chemistry structure
+ * @param reactions
+ ******************************************************************************/
+void deallocate_reactions(reactions_t *reactions);
+
+/*******************************************************************************
+ * @brief Deallocate chemistry structure
+ * @param specii
+ ******************************************************************************/
+void deallocate_specii(specii_t *specii);
+
+/*******************************************************************************
+ * @brief Print elements structure
+ * @param chemistry
+ ******************************************************************************/
+void print_elements(elements_t *elements);
+
+/*******************************************************************************
+ * @brief Print reactions structure
+ * @param chemistry
+ ******************************************************************************/
+void print_reactions(reactions_t *reactions);
+
+/*******************************************************************************
+ * @brief Print specii structure
+ * @param chemistry
+ ******************************************************************************/
+void print_specii(specii_t *specii);
 
 #endif /* CHEMISTRY_PRIVATE_H */
