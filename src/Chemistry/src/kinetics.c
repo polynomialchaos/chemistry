@@ -41,7 +41,7 @@ void calc_reaction_rates(double T, chemistry_t *chemistry)
 
     for (int i = 0; i < n_specii; ++i)
     {
-        g_rt[i] = calc_sp_g_rt(i, T, chemistry);
+        g_rt[i] = calc_species_g_rt(i, T, chemistry);
     }
 
     /* forward reaction rate */

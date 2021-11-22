@@ -18,7 +18,7 @@ const double s112 = 1. / 12.; /** Calculation constant */
 const double s120 = 1. / 20.; /** Calculation constant */
 
 /*******************************************************************************
- * @brief Return dimensionless heat capacity
+ * @brief Calculate dimensionless heat capacity
  * @param i
  * @param T
  * @param chemistry
@@ -34,7 +34,7 @@ double calc_species_cp_r(int i, double T, chemistry_t *chemistry)
 }
 
 /*******************************************************************************
- * @brief Return dimensionless enthalpy
+ * @brief Calculate dimensionless enthalpy
  * @param i
  * @param T
  * @param chemistry
@@ -52,7 +52,7 @@ double calc_species_h_rt(int i, double T, chemistry_t *chemistry)
 }
 
 /*******************************************************************************
- * @brief Return dimensionless entropy
+ * @brief Calculate dimensionless entropy
  * @param i
  * @param T
  * @param chemistry
@@ -70,13 +70,13 @@ double calc_species_s_r(int i, double T, chemistry_t *chemistry)
 }
 
 /*******************************************************************************
- * @brief Return dimensionless free gibb's energy
+ * @brief Calculate dimensionless free gibb's energy
  * @param i
  * @param T
  * @param chemistry
  * @return double
  ******************************************************************************/
-double calc_sp_g_rt(int i, double T, chemistry_t *chemistry)
+double calc_species_g_rt(int i, double T, chemistry_t *chemistry)
 {
     double *a = (T < chemistry->specii->bounds[BOUNDS * i + 1])
                     ? &chemistry->specii->coeff_low[NASA * i]

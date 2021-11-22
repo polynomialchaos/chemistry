@@ -13,28 +13,27 @@
 
 #define NA 6.022140857e23 /** Avogadro number, mol-1 */
 #define KB 1.38064852e-23 /** Boltzmann constant, m2 kg s-2 K-1 */
-#define RM NA *KB         /** universal gas constant, mol-1 m2 kg s-2 K-1 */
-#define P0 101325.0       /** standard pressure, Pa */
-#define T0 273.15         /** standard temperature, K */
+#define RM NA *KB         /** Universal gas constant, mol-1 m2 kg s-2 K-1 */
+#define P0 101325.0       /** Standard pressure, Pa */
+#define T0 273.15         /** Standard temperature, K */
 
-#define BOUNDS 3 /** number of temperature bounds */
-#define NASA 7   /** number of NASA polynomial coefficients */
-#define ARR 3    /** number of Arrhenius coefficients */
-#define TROE 5   /** number of Troe pressure function coefficients */
-#define KINDIM 2 /** nmuber of kinetic dimensions (forward/backward) */
+#define BOUNDS 3 /** Number of temperature bounds */
+#define NASA 7   /** Number of NASA polynomial coefficients */
+#define ARR 3    /** Number of Arrhenius coefficients */
+#define TROE 5   /** Number of Troe pressure function coefficients */
+#define KINDIM 2 /** Nmuber of kinetic dimensions (forward/backward) */
 
-#define YONE 1e-6     /** maximum tolerance for sum y - 1 */
-#define YSMALL 1e-100 /** minimum species concentration */
+#define YONE 1e-6     /** Maximum tolerance for sum y - 1 */
+#define YSMALL 1e-100 /** Minimum species concentration */
 
 /*******************************************************************************
  * @brief Elements structure
  ******************************************************************************/
 typedef struct Elements
 {
-    int n_elements; /** number of elements */
-
-    string_t *symbol; /** symbol */
-    double *mass;     /** mass, kg mol-1 */
+    int n_elements;   /** Number of elements */
+    string_t *symbol; /** Symbol */
+    double *mass;     /** Mass, kg mol-1 */
 } elements_t;
 
 /*******************************************************************************
@@ -42,62 +41,52 @@ typedef struct Elements
  ******************************************************************************/
 typedef struct Reactions
 {
-    int n_reactions;      /** number of reactions */
-    int max_reactants;    /** maximum number of reactants */
-    int max_products;     /** maximum number of products */
-    int max_troe_coeff;   /** maximum number of troe coefficients */
-    int max_efficiencies; /** maximum number of efficiencies */
-
-    int *type;            /** reaction type */
-    int *falloff_species; /** fall off species */
-
-    double *arr_coeff;  /** Arrhenius coefficient */
-    int *is_reversible; /** flag for reversibility */
-
-    int *n_reactants;      /** number of reactants */
-    int *reactants;        /** reactants species */
-    double *nu_reactants;  /** reactants nus */
-    double *ord_reactants; /** reactants orders (nu and FORD/RORD) */
-
-    int *n_products;      /** number of products */
-    int *products;        /** products species */
-    double *nu_products;  /** products nus */
-    double *ord_products; /** products orders (nu and FORD/RORD) */
-
-    double *sum_nu; /** sum of nu from reactants and products */
-
-    int *has_rev_arr;      /** flag for reverse arrhenius coefficient */
-    double *rev_arr_coeff; /** reverse arrhenius coefficient */
-
-    int *has_high_arr;     /** flag for high keyword */
-    int *has_low_arr;      /** flag for low keyword */
-    double *adv_arr_coeff; /** advanced arrhenius coefficients */
-
-    int *has_troe;      /** flag for troe coefficients */
-    int *n_troe_coeff;  /** number of troe coefficients */
-    double *troe_coeff; /** Troe coefficients */
-
-    int *has_efficiencies; /** flag for efficiencies */
-    int *n_efficiencies;   /** number of efficiencies */
-    int *sp_efficiencies;  /** efficiency species */
-    double *efficiencies;  /** efficiencies */
-
-    int n_reactions_three;      /** Number of three-body reactions */
-    int *idx_reactions_three;   /** Indices of three-body reactions */
-    int n_reactions_low;        /** Number of reactions with LOW keyword */
-    int *idx_reactions_low;     /** Indices of reactions with LOW keyword */
-    int n_reactions_high;       /** Number of reactions with HIGH keyword */
-    int *idx_reactions_high;    /** Indices of reactions with HIGH keyword */
-    int n_reactions_troe;       /** Number of reactions with TROE keyword */
-    int *idx_reactions_troe;    /** Indices of reactions with TROE keyword */
-    int n_reactions_rev;        /** Number of reversible reactions */
-    int *idx_reactions_rev;     /** Indices of reversible reactions */
-    int n_reactions_rev_arr;    /** Number of reversible reactions with REV keyword */
-    int *idx_reactions_rev_arr; /** Indices of reversible reactions with REV keyword */
-
-    double *q;  /** rate of progress (mol m-3 s-1) */
-    double *k;  /** reaction rates (dep. on reaction) */
-    double *pr; /** reduced pressure */
+    int n_reactions;          /** Number of reactions */
+    int max_reactants;        /** Maximum number of reactants */
+    int max_products;         /** Maximum number of products */
+    int max_troe_coeff;       /** Maximum number of troe coefficients */
+    int max_efficiencies;     /** Maximum number of efficiencies */
+    int *type;                /** Reaction type */
+    int *falloff_species;     /** Fall off species */
+    double *arr_coeff;        /** Arrhenius coefficient */
+    int *is_reversible;       /** Flag for reversibility */
+    int *n_reactants;         /** Number of reactants */
+    int *reactants;           /** Reactants species */
+    double *nu_reactants;     /** Reactants nus */
+    double *ord_reactants;    /** Reactants orders (nu and FORD/RORD) */
+    int *n_products;          /** Number of products */
+    int *products;            /** Products species */
+    double *nu_products;      /** Products nus */
+    double *ord_products;     /** Products orders (nu and FORD/RORD) */
+    double *sum_nu;           /** Sum of nu from reactants and products */
+    int *has_rev_arr;         /** Flag for reverse arrhenius coefficient */
+    double *rev_arr_coeff;    /** Reverse arrhenius coefficient */
+    int *has_high_arr;        /** Flag for high keyword */
+    int *has_low_arr;         /** Flag for low keyword */
+    double *adv_arr_coeff;    /** Advanced arrhenius coefficients */
+    int *has_troe;            /** Flag for troe coefficients */
+    int *n_troe_coeff;        /** Number of troe coefficients */
+    double *troe_coeff;       /** Troe coefficients */
+    int *has_efficiencies;    /** Flag for efficiencies */
+    int *n_efficiencies;      /** Number of efficiencies */
+    int *sp_efficiencies;     /** Efficiency species */
+    double *efficiencies;     /** Efficiencies */
+    int n_reactions_three;    /** Number of three-body reactions */
+    int *idx_reactions_three; /** Three-body reactions */
+    int n_reactions_low;      /** Number of reactions with LOW keyword */
+    int *idx_reactions_low;   /** Reactions with LOW keyword */
+    int n_reactions_high;     /** Number of reactions with HIGH keyword */
+    int *idx_reactions_high;  /** Reactions with HIGH keyword */
+    int n_reactions_troe;     /** Number of reactions with TROE keyword */
+    int *idx_reactions_troe;  /** Reactions with TROE keyword */
+    int n_reactions_rev;      /** Number of reversible reactions */
+    int *idx_reactions_rev;   /** Reversible reactions */
+    /** Number of reversible reactions with REV keyword */
+    int n_reactions_rev_arr;
+    int *idx_reactions_rev_arr; /** Reversible reactions with REV keyword */
+    double *q;                  /** Rate of progress, mol m-3 s-1 */
+    double *k;                  /** Reaction rates, dep. on reaction */
+    double *pr;                 /** Reduced pressure */
 } reactions_t;
 
 /*******************************************************************************
@@ -105,34 +94,28 @@ typedef struct Reactions
  ******************************************************************************/
 typedef struct Specii
 {
-    int n_specii;        /** number of specii */
-    int max_reac_points; /** maximum number of reaction points */
-
-    string_t *symbol; /** symbol */
-    int *is_inert;    /** flag for inert species */
-
-    int *composition;   /** elementary composition */
-    int *phase;         /** phase */
-    double *bounds;     /** temperature bounds for NASA polynomials */
-    double *coeff_high; /** coefficients for high temperature range */
-    double *coeff_low;  /** coefficients for low temperature range */
-
-    int *geom;       /** geometrical configuration */
-    double *pot_lj;  /** lennard-Jones potential */
-    double *col_lj;  /** lennard-Jones collision diameter */
-    double *dip_mo;  /** dipole momentum */
-    double *pol;     /** polarizeability */
-    double *rot_rel; /** rotational relaxation */
-
-    int *n_reac_points;     /** number of reaction points */
-    int *reac_points;       /** reaction points */
-    double *nu_reac_points; /** reaction points nu */
-
-    double *molar_mass;      /** molar mass of species, kg mol-1 */
-    double *molecule_weight; /** molecular mass of species, kg */
-    double *Rsp;             /** specific gas constant, J kg-1 K-1 */
-
-    double *omega; /** production rates (kg m-3 s-1) */
+    int n_specii;            /** Number of specii */
+    int max_reac_points;     /** Maximum number of reaction points */
+    string_t *symbol;        /** Symbol */
+    int *is_inert;           /** Flag for inert species */
+    int *composition;        /** Elementary composition */
+    int *phase;              /** Phase */
+    double *bounds;          /** Temperature bounds for NASA polynomials */
+    double *coeff_high;      /** Coefficients for high temperature range */
+    double *coeff_low;       /** Coefficients for low temperature range */
+    int *geom;               /** Geometrical configuration */
+    double *pot_lj;          /** Lennard-Jones potential */
+    double *col_lj;          /** Lennard-Jones collision diameter */
+    double *dip_mo;          /** Dipole momentum */
+    double *pol;             /** Polarizeability */
+    double *rot_rel;         /** Rotational relaxation */
+    int *n_reac_points;      /** Number of reaction points */
+    int *reac_points;        /** Reaction points */
+    double *nu_reac_points;  /** Reaction points nu */
+    double *molar_mass;      /** Molar mass of species, kg mol-1 */
+    double *molecule_weight; /** Molecular mass of species, kg */
+    double *Rsp;             /** Specific gas constant, J kg-1 K-1 */
+    double *omega;           /** Production rates, kg m-3 s-1 */
 } specii_t;
 
 /*******************************************************************************
@@ -150,25 +133,23 @@ typedef struct Chemistry
  ******************************************************************************/
 typedef struct State
 {
-    chemistry_t *chemistry; /** related chemistry data */
-
-    double p;  /** pressure (Pa) */
-    double T;  /** temperature (K) */
-    double *Y; /** mass fractions */
-
-    double R;   /** specific gas constant (J kg-1 K-1) */
-    double rho; /** density (kg m-3) */
-    double *C;  /** concentrations (mol m-3) */
-
-    double molar_mass; /** molar mass (kg mol-1) */
-    double *X;         /** mole fractions () */
-
-    double cp; /** specific heat capacity (const. pressure, J kg-1 K-1) */
-    double cv; /** specific heat capacity (const. volume, J kg-1 K-1) */
-    double h;  /** specific enthalpy (J kg-1) */
-    double s;  /** specific entropy (J kg-1 K-1) */
-    double u;  /** specific inner energy (J kg-1) */
-    double g;  /** specific free gibbs energy (J kg-1) */
+    chemistry_t *chemistry; /** Related chemistry data */
+    double p;               /** Pressure, Pa */
+    double T;               /** Temperature, K */
+    double *Y;              /** Mass fractions */
+    double R;               /** Specific gas constant, J kg-1 K-1 */
+    double rho;             /** Density, kg m-3 */
+    double *C;              /** Concentrations, mol m-3 */
+    double molar_mass;      /** Molar mass, kg mol-1 */
+    double *X;              /** Mole fractions */
+    /** Specific heat capacity (const. pressure), J kg-1 K-1 */
+    double cp;
+    /** Specific heat capacity (const. volume), J kg-1 K-1 */
+    double cv;
+    double h; /** Specific enthalpy, J kg-1 */
+    double s; /** Specific entropy, J kg-1 K-1 */
+    double u; /** Specific inner energy, J kg-1 */
+    double g; /** Specific free gibbs energy, J kg-1 */
 } state_t;
 
 /*******************************************************************************
@@ -276,6 +257,29 @@ void calc_production_rate(double *C, double T, chemistry_t *chemistry);
 double calc_species_cp_r(int i, double T, chemistry_t *chemistry);
 
 /*******************************************************************************
+ * @brief Calculate species self diffusion coefficient
+ * @param i
+ * @param p
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_dii(int i, double p, double T,
+                        chemistry_t *chemistry);
+
+/*******************************************************************************
+ * @brief Calculate species binary diffusion coefficient
+ * @param i
+ * @param j
+ * @param p
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_dij(int i, int j, double p, double T,
+                        chemistry_t *chemistry);
+
+/*******************************************************************************
  * @brief Return dimensionless enthalpy
  * @param i
  * @param T
@@ -283,6 +287,28 @@ double calc_species_cp_r(int i, double T, chemistry_t *chemistry);
  * @return double
  ******************************************************************************/
 double calc_species_h_rt(int i, double T, chemistry_t *chemistry);
+
+/*******************************************************************************
+ * @brief Calculate species heat conductivity
+ * @param i
+ * @param p
+ * @param T
+ * @param mu
+ * @param Dii
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_lambda(int i, double p, double T, double mu, double Dii,
+                           chemistry_t *chemistry);
+
+/*******************************************************************************
+ * @brief Calculate species viscosity
+ * @param i
+ * @param T
+ * @param chemistry
+ * @return double
+ ******************************************************************************/
+double calc_species_mu(int i, double T, chemistry_t *chemistry);
 
 /*******************************************************************************
  * @brief Return dimensionless entropy
@@ -300,7 +326,7 @@ double calc_species_s_r(int i, double T, chemistry_t *chemistry);
  * @param chemistry
  * @return double
  ******************************************************************************/
-double calc_sp_g_rt(int i, double T, chemistry_t *chemistry);
+double calc_species_g_rt(int i, double T, chemistry_t *chemistry);
 
 /*******************************************************************************
  * @brief Convert the give mass fractions to concentrations
@@ -381,11 +407,6 @@ void print_state(state_t *state);
  * @return chemistry_t*
  ******************************************************************************/
 chemistry_t *read_chemistry_data(cstring_t chemistry_file);
-
-double calc_sp_mu(int i, double T, chemistry_t *chemistry);
-double calc_sp_lambda(int i, double p, double T, double mu, double Dii, chemistry_t *chemistry);
-double calc_sp_dii(int i, double p, double T, chemistry_t *chemistry);
-double calc_sp_dij(int i, int j, double p, double T, chemistry_t *chemistry);
 
 /*******************************************************************************
  * @brief Update the state structure (isochoric)
