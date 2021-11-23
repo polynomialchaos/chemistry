@@ -15,49 +15,63 @@
 
 string_t title = NULL;
 
-void main_define();
-void main_initialize();
-void main_finalize();
-
+/*******************************************************************************
+ * @brief Main test function
+ * @param argc
+ * @param argv
+ * @return int
+ ******************************************************************************/
 int main(int argc, string_t *argv)
 {
-    // define the program structure
-    main_define();
+    /* define the program structure */
+    reactor0d_define();
     reactor_define();
     analyze_define();
     output_define();
     timedisc_define();
     restart_define();
 
-    // call the global initialize routine
+    /* call the global initialize routine */
     global_initialize(argc, argv, BFLS, BFLS, BFLS, BTRU);
 
-    // calculation
+    /* calculation */
     PRINTF("\n");
     printf_r_sep_title('=', "Calculation");
+
     timedisc();
+
     printf_r_sep('=');
 
-    // end the program
+    /* end the program */
     check_abort(1);
     return 1;
 }
 
-void main_define()
+/*******************************************************************************
+ * @brief Define reactor0d
+ ******************************************************************************/
+void reactor0d_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(main_initialize);
-    REGISTER_FINALIZE_ROUTINE(main_finalize);
+    REGISTER_INITIALIZE_ROUTINE(reactor0d_initialize);
+    REGISTER_FINALIZE_ROUTINE(reactor0d_finalize);
 
     string_t tmp = "untitled";
-    SET_PARAMETER("General/title", StringParameter, &tmp, "The project title", NULL, 0);
+    SET_PARAMETER("General/title", StringParameter, &tmp,
+                  "The project title", NULL, 0);
 }
 
-void main_initialize()
-{
-    GET_PARAMETER("General/title", StringParameter, &title);
-}
-
-void main_finalize()
+/*******************************************************************************
+ * @brief Finalize reactor0d
+ ******************************************************************************/
+void reactor0d_finalize()
 {
     DEALLOCATE(title);
+}
+
+/*******************************************************************************
+ * @brief Initialize reactor0d
+ ******************************************************************************/
+void reactor0d_initialize()
+{
+    GET_PARAMETER("General/title", StringParameter, &title);
 }

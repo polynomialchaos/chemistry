@@ -28,68 +28,67 @@ double dt = 1e-6;
 double t_start = 0.0;
 double t_end = 0.2;
 
-void timedisc_initialize();
-void timedisc_finalize();
-
-void print_residual_header();
-void print_residual(int iter, double t, double dt, int do_output);
-
-void timedisc_define()
+/*******************************************************************************
+ * @brief Print the residual line
+ * @param iter
+ * @param t
+ * @param dt
+ * @param do_output
+ ******************************************************************************/
+void print_residual(int iter, double t, double dt, int do_output)
 {
-    REGISTER_INITIALIZE_ROUTINE(timedisc_initialize);
-    REGISTER_FINALIZE_ROUTINE(timedisc_finalize);
+    char output_str = (do_output == 1) ? '*' : ' ';
+    char viscous_str = (is_viscous_dt == 1) ? 'T' : 'F';
 
-    string_t tmp_opt[] = {"Explicit", "Implicit"};
-    int tmp_opt_n = sizeof(tmp_opt) / sizeof(string_t);
-    string_t tmp = tmp_opt[0];
-
-    SET_PARAMETER("TimeDisc/time_step", StringParameter, &tmp, "The timestep mehtod", &tmp_opt, tmp_opt_n);
-    SET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter, "The maximum number of iterations", NULL, 0);
-    SET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0);
-    SET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual, "The abort residual", NULL, 0);
-    SET_PARAMETER("TimeDisc/dt", NumberParameter, &dt, "The timestep", NULL, 0);
-    SET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start, "The start time", NULL, 0);
-    SET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end, "The end time", NULL, 0);
-
-    explicit_define();
-    implicit_define();
-}
-
-void timedisc_initialize()
-{
-    GET_PARAMETER("TimeDisc/time_step", StringParameter, &time_step_name);
-    GET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter);
-    GET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient);
-    GET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual);
-    GET_PARAMETER("TimeDisc/dt", NumberParameter, &dt);
-    GET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start);
-    GET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end);
-
-    if (is_transient == 0)
-        t_end = BDMX;
-
-    if (is_equal(time_step_name, "Explicit"))
+    if (explicit_active)
     {
-        explicit_active = 1;
-    }
-    else if (is_equal(time_step_name, "Implicit"))
-    {
-        implicit_active = 1;
+        PRINTF("%09d %12.5e %12.5e %c %c:",
+               iter, t, dt, viscous_str, output_str);
     }
     else
     {
-        check_abort(0);
+        PRINTF("%09d %12.5e %12.5e %c %c %6d %6d:",
+               iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe);
     }
+
+    PRINTF(" %12.5e", residual[0]);
+    PRINTF(" %12.5e",
+           sum_n(&residual[i_Y0], n_variables - 1) / (n_variables - 1));
+    PRINTF(" %12.5e", max_n(&residual[i_Y0], n_variables - 1));
+
+    PRINTF(" %12.5e", phi[0]);
+
+    PRINTF("\n");
 }
 
-void timedisc_finalize()
+/*******************************************************************************
+ * @brief Print the residual line header
+ ******************************************************************************/
+void print_residual_header()
 {
-    time_step_function_pointer = NULL;
-    calc_time_step_function_pointer = NULL;
+    if (explicit_active)
+    {
+        PRINTF("%9s %12s %12s %1s %1s:",
+               "iter", "time", "dt", "V", "O");
+    }
+    else
+    {
+        PRINTF("%9s %12s %12s %1s %1s %6s %6s:",
+               "iter", "time", "dt", "V", "O", "inner", "lsoe");
+    }
 
-    DEALLOCATE(time_step_name);
+    PRINTF(" %12s", "T");
+    PRINTF(" %12s", "Y_mean");
+    PRINTF(" %12s", "Y_max");
+
+    PRINTF(" %12s", "T");
+
+    PRINTF("\n");
 }
 
+/*******************************************************************************
+ * @brief Time discretizazion routine
+ ******************************************************************************/
 void timedisc()
 {
     // check for errors
@@ -173,45 +172,67 @@ void timedisc()
     }
 }
 
-void print_residual_header()
+/*******************************************************************************
+ * @brief Define timedisc
+ ******************************************************************************/
+void timedisc_define()
 {
-    if (explicit_active)
-    {
-        PRINTF("%9s %12s %12s %1s %1s:", "iter", "time", "dt", "V", "O");
-    }
-    else
-    {
-        PRINTF("%9s %12s %12s %1s %1s %6s %6s:", "iter", "time", "dt", "V", "O", "inner", "lsoe");
-    }
+    REGISTER_INITIALIZE_ROUTINE(timedisc_initialize);
+    REGISTER_FINALIZE_ROUTINE(timedisc_finalize);
 
-    PRINTF(" %12s", "T");
-    PRINTF(" %12s", "Y_mean");
-    PRINTF(" %12s", "Y_max");
+    string_t tmp_opt[] = {"Explicit", "Implicit"};
+    int tmp_opt_n = sizeof(tmp_opt) / sizeof(string_t);
+    string_t tmp = tmp_opt[0];
 
-    PRINTF(" %12s", "T");
+    SET_PARAMETER("TimeDisc/time_step", StringParameter, &tmp, "The timestep mehtod", &tmp_opt, tmp_opt_n);
+    SET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter, "The maximum number of iterations", NULL, 0);
+    SET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0);
+    SET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual, "The abort residual", NULL, 0);
+    SET_PARAMETER("TimeDisc/dt", NumberParameter, &dt, "The timestep", NULL, 0);
+    SET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start, "The start time", NULL, 0);
+    SET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end, "The end time", NULL, 0);
 
-    PRINTF("\n");
+    explicit_define();
+    implicit_define();
 }
 
-void print_residual(int iter, double t, double dt, int do_output)
+/*******************************************************************************
+ * @brief Finalize analyze
+ ******************************************************************************/
+void timedisc_finalize()
 {
-    char output_str = (do_output == 1) ? '*' : ' ';
-    char viscous_str = (is_viscous_dt == 1) ? 'T' : 'F';
+    time_step_function_pointer = NULL;
+    calc_time_step_function_pointer = NULL;
 
-    if (explicit_active)
+    DEALLOCATE(time_step_name);
+}
+
+/*******************************************************************************
+ * @brief Initialize timedisc
+ ******************************************************************************/
+void timedisc_initialize()
+{
+    GET_PARAMETER("TimeDisc/time_step", StringParameter, &time_step_name);
+    GET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter);
+    GET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient);
+    GET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual);
+    GET_PARAMETER("TimeDisc/dt", NumberParameter, &dt);
+    GET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start);
+    GET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end);
+
+    if (is_transient == 0)
+        t_end = BDMX;
+
+    if (is_equal(time_step_name, "Explicit"))
     {
-        PRINTF("%09d %12.5e %12.5e %c %c:", iter, t, dt, viscous_str, output_str);
+        explicit_active = 1;
+    }
+    else if (is_equal(time_step_name, "Implicit"))
+    {
+        implicit_active = 1;
     }
     else
     {
-        PRINTF("%09d %12.5e %12.5e %c %c %6d %6d:", iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe);
+        check_abort(0);
     }
-
-    PRINTF(" %12.5e", residual[0]);
-    PRINTF(" %12.5e", sum_n(&residual[i_Y0], n_variables - 1) / (n_variables - 1));
-    PRINTF(" %12.5e", max_n(&residual[i_Y0], n_variables - 1));
-
-    PRINTF(" %12.5e", phi[0]);
-
-    PRINTF("\n");
 }

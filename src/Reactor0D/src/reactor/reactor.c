@@ -24,29 +24,165 @@ double *phi = NULL;
 double *phi_dt = NULL;
 double *phi_bounds = NULL;
 
-void reactor_initialize();
-void reactor_finalize();
+/*******************************************************************************
+ * @brief Calculate the isobaric adiabatic 0D reactor
+ * @param t
+ ******************************************************************************/
+void calc_reactor_isobar_adiabt(double t)
+{
+#ifdef DEBUG
+    UNUSED(t);
+#endif /* DEBUG */
 
-void calc_reactor_isobar_adiabt(double t);
-void calc_reactor_isobar_isotherm(double t);
-void calc_reactor_isochor_adiabat(double t);
-void calc_reactor_isochor_isotherm(double t);
-double calc_temp_equation(double *dY_dt, double T_old);
+    update_state_isobaric(global_state->p, global_state->rho,
+                          phi[0], &phi[i_Y0], global_state);
+    calc_production_rate(global_state->C, global_state->T, global_chemistry);
 
+    specii_t *specii = global_chemistry->specii;
+    int n_specii = specii->n_specii;
+
+    for (int i = 0; i < n_specii; ++i)
+        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
+
+    phi_dt[0] = -calc_dT_dt(&phi_dt[i_Y0], global_state->T) /
+                global_state->cp;
+}
+
+/*******************************************************************************
+ * @brief Calculate the isobaric isothermal 0D reactor
+ * @param t
+ ******************************************************************************/
+void calc_reactor_isobar_isotherm(double t)
+{
+#ifdef DEBUG
+    UNUSED(t);
+#endif /* DEBUG */
+
+    update_state_isobaric(global_state->p, global_state->rho,
+                          phi[0], &phi[i_Y0], global_state);
+    calc_production_rate(global_state->C, global_state->T, global_chemistry);
+
+    specii_t *specii = global_chemistry->specii;
+    int n_specii = specii->n_specii;
+
+    for (int i = 0; i < n_specii; ++i)
+        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
+
+    phi_dt[0] = 0.0;
+}
+
+/*******************************************************************************
+ * @brief Calculate the isochoric adiabatic 0D reactor
+ * @param t
+ ******************************************************************************/
+void calc_reactor_isochor_adiabat(double t)
+{
+#ifdef DEBUG
+    UNUSED(t);
+#endif /* DEBUG */
+
+    update_state_isochoric(global_state->p, global_state->rho,
+                           phi[0], &phi[i_Y0], global_state);
+    calc_production_rate(global_state->C, global_state->T, global_chemistry);
+
+    specii_t *specii = global_chemistry->specii;
+    int n_specii = specii->n_specii;
+
+    for (int i = 0; i < n_specii; ++i)
+        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
+
+    phi_dt[0] = -calc_dT_dt(&phi_dt[i_Y0], global_state->T) /
+                global_state->cv;
+}
+
+/*******************************************************************************
+ * @brief Calculate the isochoric isothermal 0D reactor
+ * @param t
+ ******************************************************************************/
+void calc_reactor_isochor_isotherm(double t)
+{
+#ifdef DEBUG
+    UNUSED(t);
+#endif /* DEBUG */
+
+    update_state_isochoric(global_state->p, global_state->rho,
+                           phi[0], &phi[i_Y0], global_state);
+    calc_production_rate(global_state->C, global_state->T, global_chemistry);
+
+    specii_t *specii = global_chemistry->specii;
+    int n_specii = specii->n_specii;
+
+    for (int i = 0; i < n_specii; ++i)
+        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
+
+    phi_dt[0] = 0.0;
+}
+
+/*******************************************************************************
+ * @brief Return the temperature equation source term
+ * @param dY_dt
+ * @param T_old
+ * @return double
+ ******************************************************************************/
+double calc_dT_dt(double *dY_dt, double T_old)
+{
+    specii_t *specii = global_chemistry->specii;
+    int n_specii = specii->n_specii;
+
+    double tmp = 0.0;
+    for (int i = 0; i < n_specii; ++i)
+        tmp += dY_dt[i] * calc_species_h_rt(i, T_old, global_chemistry) *
+               specii->Rsp[i] * T_old;
+
+    return tmp;
+}
+
+/*******************************************************************************
+ * @brief Define analyze
+ ******************************************************************************/
 void reactor_define()
 {
     REGISTER_INITIALIZE_ROUTINE(reactor_initialize);
     REGISTER_FINALIZE_ROUTINE(reactor_finalize);
 
     string_t tmp = "untitled";
-    SET_PARAMETER("Reactor/chem_file", StringParameter, &tmp, "The chemistry data file", NULL, 0);
+    SET_PARAMETER("Reactor/chem_file", StringParameter, &tmp,
+                  "The chemistry data file", NULL, 0);
 
-    string_t tmp1_opt[] = {"ISOBAR-ADIABAT", "ISOBAR-ISOTHERM", "ISOCHOR-ADIABAT", "ISOCHOR-ISOTHERM"};
+    string_t tmp1_opt[] = {"ISOBAR-ADIABAT", "ISOBAR-ISOTHERM",
+                           "ISOCHOR-ADIABAT", "ISOCHOR-ISOTHERM"};
     int tmp1_opt_n = sizeof(tmp1_opt) / sizeof(string_t);
     string_t tmp1 = tmp1_opt[0];
-    SET_PARAMETER("Reactor/type", StringParameter, &tmp1, "The reactor type", tmp1_opt, tmp1_opt_n);
+    SET_PARAMETER("Reactor/type", StringParameter, &tmp1,
+                  "The reactor type", tmp1_opt, tmp1_opt_n);
 }
 
+/*******************************************************************************
+ * @brief Finalize analyze
+ ******************************************************************************/
+void reactor_finalize()
+{
+    DEALLOCATE(chem_file);
+    DEALLOCATE(reactor_type_name);
+
+    deallocate_chemistry(global_chemistry);
+    DEALLOCATE(global_chemistry);
+
+    deallocate_state(global_state);
+    DEALLOCATE(global_state);
+
+    for (int i = 0; i < n_variables; ++i)
+        DEALLOCATE(variables[i]);
+    DEALLOCATE(variables);
+
+    DEALLOCATE(phi);
+    DEALLOCATE(phi_dt);
+    DEALLOCATE(phi_bounds);
+}
+
+/*******************************************************************************
+ * @brief Initialize reactor
+ ******************************************************************************/
 void reactor_initialize()
 {
     GET_PARAMETER("Reactor/chem_file", StringParameter, &chem_file);
@@ -95,7 +231,8 @@ void reactor_initialize()
     if (ABS(Y_sum - 1.0) > YONE)
         check_abort(0);
 
-    update_state_isobaric(global_state->p, global_state->rho, global_state->T, global_state->Y, global_state);
+    update_state_isobaric(global_state->p, global_state->rho,
+                          global_state->T, global_state->Y, global_state);
 
     // initialize thermochemical vectors
     n_variables = i_Y0 + specii->n_specii;
@@ -121,108 +258,4 @@ void reactor_initialize()
     }
 
     print_state(global_state);
-}
-
-void reactor_finalize()
-{
-    DEALLOCATE(chem_file);
-    DEALLOCATE(reactor_type_name);
-
-    deallocate_chemistry(global_chemistry);
-    DEALLOCATE(global_chemistry);
-
-    deallocate_state(global_state);
-    DEALLOCATE(global_state);
-
-    for (int i = 0; i < n_variables; ++i)
-        DEALLOCATE(variables[i]);
-    DEALLOCATE(variables);
-
-    DEALLOCATE(phi);
-    DEALLOCATE(phi_dt);
-    DEALLOCATE(phi_bounds);
-}
-
-void calc_reactor_isobar_adiabt(double t)
-{
-#ifdef DEBUG
-    UNUSED(t);
-#endif /* DEBUG */
-
-    update_state_isobaric(global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state);
-    calc_production_rate(global_state->C, global_state->T, global_chemistry);
-
-    specii_t *specii = global_chemistry->specii;
-    int n_specii = specii->n_specii;
-
-    for (int i = 0; i < n_specii; ++i)
-        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
-
-    phi_dt[0] = -calc_temp_equation(&phi_dt[i_Y0], global_state->T) / global_state->cp;
-}
-
-void calc_reactor_isobar_isotherm(double t)
-{
-#ifdef DEBUG
-    UNUSED(t);
-#endif /* DEBUG */
-
-    update_state_isobaric(global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state);
-    calc_production_rate(global_state->C, global_state->T, global_chemistry);
-
-    specii_t *specii = global_chemistry->specii;
-    int n_specii = specii->n_specii;
-
-    for (int i = 0; i < n_specii; ++i)
-        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
-
-    phi_dt[0] = 0.0;
-}
-
-void calc_reactor_isochor_adiabat(double t)
-{
-#ifdef DEBUG
-    UNUSED(t);
-#endif /* DEBUG */
-
-    update_state_isochoric(global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state);
-    calc_production_rate(global_state->C, global_state->T, global_chemistry);
-
-    specii_t *specii = global_chemistry->specii;
-    int n_specii = specii->n_specii;
-
-    for (int i = 0; i < n_specii; ++i)
-        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
-
-    phi_dt[0] = -calc_temp_equation(&phi_dt[i_Y0], global_state->T) / global_state->cv;
-}
-
-void calc_reactor_isochor_isotherm(double t)
-{
-#ifdef DEBUG
-    UNUSED(t);
-#endif /* DEBUG */
-
-    update_state_isochoric(global_state->p, global_state->rho, phi[0], &phi[i_Y0], global_state);
-    calc_production_rate(global_state->C, global_state->T, global_chemistry);
-
-    specii_t *specii = global_chemistry->specii;
-    int n_specii = specii->n_specii;
-
-    for (int i = 0; i < n_specii; ++i)
-        phi_dt[i_Y0 + i] = specii->omega[i] / global_state->rho;
-
-    phi_dt[0] = 0.0;
-}
-
-double calc_temp_equation(double *dY_dt, double T_old)
-{
-    specii_t *specii = global_chemistry->specii;
-    int n_specii = specii->n_specii;
-
-    double tmp = 0.0;
-    for (int i = 0; i < n_specii; ++i)
-        tmp += dY_dt[i] * calc_species_h_rt(i, T_old, global_chemistry) * specii->Rsp[i] * T_old;
-
-    return tmp;
 }

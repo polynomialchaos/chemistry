@@ -22,36 +22,9 @@ double **phi_old_restart = NULL;
 
 int n_stages_restart = 0;
 
-void restart_initialize();
-void restart_finalize();
-
-void read_restart_data();
-
-void restart_define()
-{
-    REGISTER_INITIALIZE_ROUTINE(restart_initialize);
-    REGISTER_FINALIZE_ROUTINE(restart_finalize);
-
-    SET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart, "The flag to start from restart", NULL, 0);
-}
-
-void restart_initialize()
-{
-    GET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart);
-
-    if (use_restart == 1)
-        read_restart_data();
-    else
-        create_file_header();
-}
-
-void restart_finalize()
-{
-    DEALLOCATE(phi_restart);
-    DEALLOCATE(phi_dt_restart);
-    DEALLOCATE(phi_old_restart);
-}
-
+/*******************************************************************************
+ * @brief Read restart data
+ ******************************************************************************/
 void read_restart_data()
 {
     hid_t file_id = open_hdf5_file(output_file);
@@ -66,12 +39,14 @@ void read_restart_data()
 
     {
         hsize_t dims[1] = {n_variables};
-        GET_HDF5_ATTRIBUTE_N(last_id, "phi", HDF5Double, dims[0], phi_restart);
+        GET_HDF5_ATTRIBUTE_N(last_id, "phi", HDF5Double, dims[0],
+                             phi_restart);
     }
 
     {
         hsize_t dims[1] = {n_variables};
-        GET_HDF5_ATTRIBUTE_N(last_id, "phi_dt", HDF5Double, dims[0], phi_dt_restart);
+        GET_HDF5_ATTRIBUTE_N(last_id, "phi_dt", HDF5Double, dims[0],
+                             phi_dt_restart);
     }
 
     if (n_bdf_stages > 0)
@@ -90,7 +65,8 @@ void read_restart_data()
             string_t tmp = allocate_strcat("phi_old:", iter_string);
 
             hsize_t dims[1] = {n_variables};
-            GET_HDF5_DATASET_N(last_id, tmp, HDF5Double, dims[0], phi_old_restart[i_stage]);
+            GET_HDF5_DATASET_N(last_id, tmp, HDF5Double, dims[0],
+                               phi_old_restart[i_stage]);
 
             DEALLOCATE(tmp);
         }
@@ -111,4 +87,39 @@ void read_restart_data()
     DEALLOCATE(phi_restart);
     DEALLOCATE(phi_dt_restart);
     DEALLOCATE(phi_old_restart);
+}
+
+/*******************************************************************************
+ * @brief Define restart
+ ******************************************************************************/
+void restart_define()
+{
+    REGISTER_INITIALIZE_ROUTINE(restart_initialize);
+    REGISTER_FINALIZE_ROUTINE(restart_finalize);
+
+    SET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart,
+                  "The flag to start from restart", NULL, 0);
+}
+
+/*******************************************************************************
+ * @brief Finalize restart
+ ******************************************************************************/
+void restart_finalize()
+{
+    DEALLOCATE(phi_restart);
+    DEALLOCATE(phi_dt_restart);
+    DEALLOCATE(phi_old_restart);
+}
+
+/*******************************************************************************
+ * @brief Initialize restart
+ ******************************************************************************/
+void restart_initialize()
+{
+    GET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart);
+
+    if (use_restart == 1)
+        read_restart_data();
+    else
+        create_file_header();
 }

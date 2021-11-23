@@ -61,13 +61,56 @@ double *dY_n = NULL;
 double *dY_dt_n = NULL;
 double *jac = NULL;
 
-void implicit_initialize();
-void implicit_finalize();
+/*******************************************************************************
+ * @brief Numerical jacobian routine
+ * @param n_var
+ ******************************************************************************/
+void calc_jacobian_numerical(int n_var)
+{
+    for (int i_var = 0; i_var < n_var; ++i_var)
+    {
+        double eps_fd = 0.0;
+        eps_fd = Y_n[i_var] * Y_n[i_var];
+        eps_fd = sqrt(eps_fd) * 1e-4;
 
-void calc_jacobian_numerical(int n_var);
-int matrix_vector_numerical(double *x, double *b, size_t n, size_t m);
-void time_step_newton(int iter, double t, double dt);
+        // positive + eps
+        for (int j = 0; j < n_var; ++j)
+            phi[j] = Y_n[j];
 
+        phi[i_var] += 0.5 * eps_fd;
+        phi[i_var] = MAX(phi_bounds[i_var * BOUNDDIM],
+                         MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
+
+        reactor_function_pointer(tpdt_loc);
+
+        for (int j = 0; j < n_var; ++j)
+        {
+            jac[i_var * n_var + j] = -phi_dt[j];
+        }
+
+        // negative + eps
+        for (int j = 0; j < n_var; ++j)
+            phi[j] = Y_n[j];
+
+        phi[i_var] -= 0.5 * eps_fd;
+        phi[i_var] = MAX(phi_bounds[i_var * BOUNDDIM],
+                         MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
+
+        reactor_function_pointer(tpdt_loc);
+
+        for (int j = 0; j < n_var; ++j)
+        {
+            jac[i_var * n_var + j] += phi_dt[j];
+            jac[i_var * n_var + j] *= bdf_b_loc / (eps_fd + SMALL);
+        }
+
+        jac[i_var * n_var + i_var] += 1.0 / dt_loc;
+    }
+}
+
+/*******************************************************************************
+ * @brief Define implicit timedisc
+ ******************************************************************************/
 void implicit_define()
 {
     REGISTER_INITIALIZE_ROUTINE(implicit_initialize);
@@ -92,37 +135,79 @@ void implicit_define()
     SET_PARAMETER("TimeDisc/Implicit/scheme", StringParameter, &tmp,
                   "The implicit timestep scheme", &tmp_opt, tmp_opt_n);
     SET_PARAMETER("TimeDisc/Implicit/method", StringParameter, &tmp2,
-                  "The method to solve the non-linear system of equations", &tmp2_opt, tmp2_opt_n);
-    SET_PARAMETER("TimeDisc/Implicit/max_iter_inner", DigitParameter, &max_iter_inner,
+                  "The method to solve the non-linear system of equations",
+                  &tmp2_opt, tmp2_opt_n);
+    SET_PARAMETER("TimeDisc/Implicit/max_iter_inner", DigitParameter,
+                  &max_iter_inner,
                   "The maximum number of inner iterations", NULL, 0);
     SET_PARAMETER("TimeDisc/Implicit/solver", StringParameter, &tmp4,
-                  "The linear system of equations solver", &tmp4_opt, tmp4_opt_n);
+                  "The linear system of equations solver", &tmp4_opt,
+                  tmp4_opt_n);
     SET_PARAMETER("TimeDisc/Implicit/jacobian_type", StringParameter, &tmp3,
                   "The type of jacobian generation", &tmp3_opt, tmp3_opt_n);
-    SET_PARAMETER("TimeDisc/Implicit/tolerance_lsoe", NumberParameter, &tolerance_lsoe,
+    SET_PARAMETER("TimeDisc/Implicit/tolerance_lsoe", NumberParameter,
+                  &tolerance_lsoe,
                   "The linear solver tolerance", NULL, 0);
-    SET_PARAMETER("TimeDisc/Implicit/max_iter_lsoe", DigitParameter, &max_iter_lsoe,
+    SET_PARAMETER("TimeDisc/Implicit/max_iter_lsoe", DigitParameter,
+                  &max_iter_lsoe,
                   "The linear solver maximum number of iterations", NULL, 0);
-    SET_PARAMETER("TimeDisc/Implicit/max_krylov_dims", DigitParameter, &max_krylov_dims,
+    SET_PARAMETER("TimeDisc/Implicit/max_krylov_dims", DigitParameter,
+                  &max_krylov_dims,
                   "The maximum Krylov space dimension in GMRes solver", NULL, 0);
-    SET_PARAMETER("TimeDisc/Implicit/max_krylov_restarts", DigitParameter, &max_krylov_restarts,
+    SET_PARAMETER("TimeDisc/Implicit/max_krylov_restarts", DigitParameter,
+                  &max_krylov_restarts,
                   "The maximum restarts performed in GMRes solver", NULL, 0);
 }
 
+/*******************************************************************************
+ * @brief Finalize implicit timedisc
+ ******************************************************************************/
+void implicit_finalize()
+{
+    DEALLOCATE(implicit_scheme_name);
+    DEALLOCATE(method_name);
+    DEALLOCATE(solver_name);
+    DEALLOCATE(jacobian_type_name);
+
+    for (int i = 0; i < n_bdf_stages; ++i)
+        DEALLOCATE(phi_old[i]);
+    DEALLOCATE(phi_old);
+
+    DEALLOCATE(work);
+
+    DEALLOCATE(Y_n);
+    DEALLOCATE(f_Y_n);
+    DEALLOCATE(dY_n);
+    DEALLOCATE(dY_dt_n);
+    DEALLOCATE(jac);
+}
+
+/*******************************************************************************
+ * @brief Initialize implicit timedisc
+ ******************************************************************************/
 void implicit_initialize()
 {
     if (implicit_active == 0)
         return;
 
-    GET_PARAMETER("TimeDisc/Implicit/scheme", StringParameter, &implicit_scheme_name);
-    GET_PARAMETER("TimeDisc/Implicit/method", StringParameter, &method_name);
-    GET_PARAMETER("TimeDisc/Implicit/max_iter_inner", DigitParameter, &max_iter_inner);
-    GET_PARAMETER("TimeDisc/Implicit/solver", StringParameter, &solver_name);
-    GET_PARAMETER("TimeDisc/Implicit/jacobian_type", StringParameter, &jacobian_type_name);
-    GET_PARAMETER("TimeDisc/Implicit/tolerance_lsoe", NumberParameter, &tolerance_lsoe);
-    GET_PARAMETER("TimeDisc/Implicit/max_iter_lsoe", DigitParameter, &max_iter_lsoe);
-    GET_PARAMETER("TimeDisc/Implicit/max_krylov_dims", DigitParameter, &max_krylov_dims);
-    GET_PARAMETER("TimeDisc/Implicit/max_krylov_restarts", DigitParameter, &max_krylov_restarts);
+    GET_PARAMETER("TimeDisc/Implicit/scheme", StringParameter,
+                  &implicit_scheme_name);
+    GET_PARAMETER("TimeDisc/Implicit/method", StringParameter,
+                  &method_name);
+    GET_PARAMETER("TimeDisc/Implicit/max_iter_inner", DigitParameter,
+                  &max_iter_inner);
+    GET_PARAMETER("TimeDisc/Implicit/solver", StringParameter,
+                  &solver_name);
+    GET_PARAMETER("TimeDisc/Implicit/jacobian_type", StringParameter,
+                  &jacobian_type_name);
+    GET_PARAMETER("TimeDisc/Implicit/tolerance_lsoe", NumberParameter,
+                  &tolerance_lsoe);
+    GET_PARAMETER("TimeDisc/Implicit/max_iter_lsoe", DigitParameter,
+                  &max_iter_lsoe);
+    GET_PARAMETER("TimeDisc/Implicit/max_krylov_dims", DigitParameter,
+                  &max_krylov_dims);
+    GET_PARAMETER("TimeDisc/Implicit/max_krylov_restarts", DigitParameter,
+                  &max_krylov_restarts);
 
     if (is_equal(implicit_scheme_name, "Euler"))
     {
@@ -187,26 +272,12 @@ void implicit_initialize()
     jac = ALLOCATE(sizeof(double) * n_variables * n_variables);
 }
 
-void implicit_finalize()
-{
-    DEALLOCATE(implicit_scheme_name);
-    DEALLOCATE(method_name);
-    DEALLOCATE(solver_name);
-    DEALLOCATE(jacobian_type_name);
-
-    for (int i = 0; i < n_bdf_stages; ++i)
-        DEALLOCATE(phi_old[i]);
-    DEALLOCATE(phi_old);
-
-    DEALLOCATE(work);
-
-    DEALLOCATE(Y_n);
-    DEALLOCATE(f_Y_n);
-    DEALLOCATE(dY_n);
-    DEALLOCATE(dY_dt_n);
-    DEALLOCATE(jac);
-}
-
+/*******************************************************************************
+ * @brief Implicit time discretizazion routine (Newton)
+ * @param iter
+ * @param t
+ * @param dt
+ ******************************************************************************/
 void time_step_newton(int iter, double t, double dt)
 {
     // discretization parameters
@@ -233,7 +304,8 @@ void time_step_newton(int iter, double t, double dt)
     for (int j = 0; j < n_variables; ++j)
     {
         int idx = j;
-        f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc + bdf_b_loc * dY_dt_n[idx];
+        f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc +
+                     bdf_b_loc * dY_dt_n[idx];
     }
 
     for (int i_stage = 0; i_stage < n_bdf_stages_loc; ++i_stage)
@@ -250,19 +322,23 @@ void time_step_newton(int iter, double t, double dt)
     {
         calc_jacobian_numerical(n_variables);
 
-        // Jac * dY = fY_n => dY ... Jacobian is determined via finite difference. fY_n = phi - dt * RHS
+        /* Jac * dY = fY_n => dY ... Jacobian is determined
+        via finite difference. fY_n = phi - dt * RHS */
         n_iter_lsoe = max_iter_lsoe;
         double residual_lsoe = tolerance_lsoe * err_f_Y_old;
 
         if (is_bicgstab)
         {
             solve_bicgstab_n_m(n_variables, 1, f_Y_n, dY_n,
-                               work, matrix_vector, &n_iter_lsoe, &residual_lsoe);
+                               work, matrix_vector,
+                               &n_iter_lsoe, &residual_lsoe);
         }
         else
         {
             solve_gmres_n_m(n_variables, 1, f_Y_n, dY_n,
-                            work, matrix_vector, &n_iter_lsoe, &residual_lsoe, max_krylov_dims, max_krylov_restarts);
+                            work, matrix_vector, &n_iter_lsoe,
+                            &residual_lsoe, max_krylov_dims,
+                            max_krylov_restarts);
         }
 
         // Y^(n+1) = Y^(n) + (Y^(n+1)-Y^(n))
@@ -279,14 +355,16 @@ void time_step_newton(int iter, double t, double dt)
         for (int j = 0; j < n_variables; ++j)
         {
             int idx = j;
-            f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc + bdf_b_loc * dY_dt_n[idx];
+            f_Y_n[idx] = -(Y_n[idx] - phi_old[0][idx]) / dt_loc +
+                         bdf_b_loc * dY_dt_n[idx];
         }
 
         for (int i_stage = 0; i_stage < n_bdf_stages_loc; ++i_stage)
             for (int j = 0; j < n_variables; ++j)
             {
                 int idx = j;
-                f_Y_n[idx] -= bdf_a_loc[i_stage] / dt_loc * phi_old[i_stage][idx];
+                f_Y_n[idx] -= bdf_a_loc[i_stage] / dt_loc *
+                              phi_old[i_stage][idx];
             }
 
         err_f_Y_old = len_n(f_Y_n, n_variables);
@@ -300,47 +378,14 @@ void time_step_newton(int iter, double t, double dt)
         check_abort(0);
 }
 
-void calc_jacobian_numerical(int n_var)
-{
-    for (int i_var = 0; i_var < n_var; ++i_var)
-    {
-        double eps_fd = 0.0;
-        eps_fd = Y_n[i_var] * Y_n[i_var];
-        eps_fd = sqrt(eps_fd) * 1e-4;
-
-        // positive + eps
-        for (int j = 0; j < n_var; ++j)
-            phi[j] = Y_n[j];
-
-        phi[i_var] += 0.5 * eps_fd;
-        phi[i_var] = MAX(phi_bounds[i_var * BOUNDDIM], MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
-
-        reactor_function_pointer(tpdt_loc);
-
-        for (int j = 0; j < n_var; ++j)
-        {
-            jac[i_var * n_var + j] = -phi_dt[j];
-        }
-
-        // negative + eps
-        for (int j = 0; j < n_var; ++j)
-            phi[j] = Y_n[j];
-
-        phi[i_var] -= 0.5 * eps_fd;
-        phi[i_var] = MAX(phi_bounds[i_var * BOUNDDIM], MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
-
-        reactor_function_pointer(tpdt_loc);
-
-        for (int j = 0; j < n_var; ++j)
-        {
-            jac[i_var * n_var + j] += phi_dt[j];
-            jac[i_var * n_var + j] *= bdf_b_loc / (eps_fd + SMALL);
-        }
-
-        jac[i_var * n_var + i_var] += 1.0 / dt_loc;
-    }
-}
-
+/*******************************************************************************
+ * @brief Matrix vector routine (called by solver)
+ * @param x
+ * @param b
+ * @param n_var
+ * @param m
+ * @return int
+ ******************************************************************************/
 int matrix_vector_numerical(double *x, double *b, size_t n_var, size_t m)
 {
 #ifdef DEBUG
