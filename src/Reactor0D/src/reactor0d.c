@@ -30,7 +30,7 @@ int main(int argc, string_t *argv)
     restart_define();
 
     // call the global initialize routine
-    global_initialize(argc, argv, false, false, false, true);
+    global_initialize(argc, argv, BFLS, BFLS, BFLS, BTRU);
 
     // calculation
     PRINTF("\n");

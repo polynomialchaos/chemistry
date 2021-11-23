@@ -17,7 +17,7 @@
  ******************************************************************************/
 int main(int argc, char **argv)
 {
-    global_initialize(argc, argv, false, false, false, false);
+    global_initialize(argc, argv, BFLS, BFLS, BFLS, BFLS);
 
     chemistry_t *chemistry =
         read_chemistry_data("../../tools/mechanisms/gri3/gri3.mech.h5");
