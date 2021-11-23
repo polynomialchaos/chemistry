@@ -8,6 +8,9 @@
  ******************************************************************************/
 #include "chemistry_private.h"
 
+#define PCSS '-'   /** Chemistry print separator symbol */
+#define PCIN " * " /** Chemistry print intent */
+
 /*******************************************************************************
  * @brief Allocate chemistry structure
  * @return chemistry_t*
@@ -224,67 +227,79 @@ void complete_chemistry(chemistry_t *chemistry)
                 reactions->idx_reactions_three,
                 sizeof(int) * reactions->n_reactions_three);
 
-            reactions->idx_reactions_three[reactions->n_reactions_three - 1] = i;
+            reactions->idx_reactions_three[reactions->n_reactions_three - 1] =
+                i;
         }
 
     reactions->n_reactions_low = 0;
     for (int i = 0; i < n_reactions; ++i)
-        if ((reactions->type[i] == ReactionPressure) && (reactions->has_low_arr[i] == 1))
+        if ((reactions->type[i] == ReactionPressure) &&
+            (reactions->has_low_arr[i] == 1))
         {
             reactions->n_reactions_low += 1;
 
             reactions->idx_reactions_low = REALLOCATE(
-                reactions->idx_reactions_low, sizeof(int) * reactions->n_reactions_low);
+                reactions->idx_reactions_low,
+                sizeof(int) * reactions->n_reactions_low);
 
             reactions->idx_reactions_low[reactions->n_reactions_low - 1] = i;
         }
 
     reactions->n_reactions_high = 0;
     for (int i = 0; i < n_reactions; ++i)
-        if ((reactions->type[i] == ReactionPressure) && (reactions->has_high_arr[i] == 1))
+        if ((reactions->type[i] == ReactionPressure) &&
+            (reactions->has_high_arr[i] == 1))
         {
             reactions->n_reactions_high += 1;
 
             reactions->idx_reactions_high = REALLOCATE(
-                reactions->idx_reactions_high, sizeof(int) * reactions->n_reactions_high);
+                reactions->idx_reactions_high,
+                sizeof(int) * reactions->n_reactions_high);
 
             reactions->idx_reactions_high[reactions->n_reactions_high - 1] = i;
         }
 
     reactions->n_reactions_troe = 0;
     for (int i = 0; i < n_reactions; ++i)
-        if ((reactions->type[i] == ReactionPressure) && (reactions->has_troe[i] == 1))
+        if ((reactions->type[i] == ReactionPressure) &&
+            (reactions->has_troe[i] == 1))
         {
             reactions->n_reactions_troe += 1;
 
             reactions->idx_reactions_troe = REALLOCATE(
-                reactions->idx_reactions_troe, sizeof(int) * reactions->n_reactions_troe);
+                reactions->idx_reactions_troe,
+                sizeof(int) * reactions->n_reactions_troe);
 
             reactions->idx_reactions_troe[reactions->n_reactions_troe - 1] = i;
         }
 
     reactions->n_reactions_rev = 0;
     for (int i = 0; i < n_reactions; ++i)
-        if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 0))
+        if ((reactions->is_reversible[i] == 1) &&
+            (reactions->has_rev_arr[i] == 0))
         {
             reactions->n_reactions_rev += 1;
 
             reactions->idx_reactions_rev = REALLOCATE(
-                reactions->idx_reactions_rev, sizeof(int) * reactions->n_reactions_rev);
+                reactions->idx_reactions_rev,
+                sizeof(int) * reactions->n_reactions_rev);
 
             reactions->idx_reactions_rev[reactions->n_reactions_rev - 1] = i;
         }
 
     reactions->n_reactions_rev_arr = 0;
     for (int i = 0; i < n_reactions; ++i)
-        if ((reactions->is_reversible[i] == 1) && (reactions->has_rev_arr[i] == 1))
+        if ((reactions->is_reversible[i] == 1) &&
+            (reactions->has_rev_arr[i] == 1))
         {
             reactions->n_reactions_rev_arr += 1;
 
             reactions->idx_reactions_rev_arr = REALLOCATE(
-                reactions->idx_reactions_rev_arr, sizeof(int) * reactions->n_reactions_rev_arr);
+                reactions->idx_reactions_rev_arr,
+                sizeof(int) * reactions->n_reactions_rev_arr);
 
-            reactions->idx_reactions_rev_arr[reactions->n_reactions_rev_arr - 1] = i;
+            reactions->idx_reactions_rev_arr
+                [reactions->n_reactions_rev_arr - 1] = i;
         }
 }
 
@@ -457,9 +472,13 @@ void print_elements(elements_t *elements)
 {
     if (elements == NULL)
         return;
-    PRINTF("Elements\n");
 
-    PRINTF("n_elementss = %d\n", elements->n_elements);
+    PRINTF("\n");
+    printf_r_sep_title(PCSS, "Elements");
+
+    PRINTF(PCIN "Number of elements = %d\n", elements->n_elements);
+
+    printf_r_sep(PCSS);
 }
 
 /*******************************************************************************
@@ -470,15 +489,26 @@ void print_reactions(reactions_t *reactions)
 {
     if (reactions == NULL)
         return;
-    PRINTF("Reactions\n");
 
-    PRINTF("n_reactions          = %d\n", reactions->n_reactions);
-    PRINTF("n_reactions_three    = %d\n", reactions->n_reactions_three);
-    PRINTF("n_reactions_low      = %d\n", reactions->n_reactions_low);
-    PRINTF("n_reactions_high     = %d\n", reactions->n_reactions_high);
-    PRINTF("n_reactions_troe     = %d\n", reactions->n_reactions_troe);
-    PRINTF("n_reactions_rev      = %d\n", reactions->n_reactions_rev);
-    PRINTF("n_reactions_rev_arr  = %d\n", reactions->n_reactions_rev_arr);
+    PRINTF("\n");
+    printf_r_sep_title(PCSS, "Reactions");
+
+    PRINTF(PCIN "Number of reactions = %d\n",
+        reactions->n_reactions);
+    PRINTF(PCIN "Number of three-body reactions = %d\n",
+        reactions->n_reactions_three);
+    PRINTF(PCIN "Number of pressure-dep. reactions (LOW) = %d\n",
+        reactions->n_reactions_low);
+    PRINTF(PCIN "Number of pressure-dep. reactions (HIGH) = %d\n",
+        reactions->n_reactions_high);
+    PRINTF(PCIN "Number of pressure-dep. reactions (TROE) = %d\n",
+        reactions->n_reactions_troe);
+    PRINTF(PCIN "Number of reversible reactions = %d\n",
+        reactions->n_reactions_rev);
+    PRINTF(PCIN "Number of reversible reactions (REV) = %d\n",
+        reactions->n_reactions_rev_arr);
+
+    printf_r_sep(PCSS);
 }
 
 /*******************************************************************************
@@ -489,7 +519,11 @@ void print_specii(specii_t *specii)
 {
     if (specii == NULL)
         return;
-    PRINTF("Specii\n");
 
-    PRINTF("n_specii = %d\n", specii->n_specii);
+    PRINTF("\n");
+    printf_r_sep_title(PCSS, "Specii");
+
+    PRINTF(PCIN "Number of specii = %d\n", specii->n_specii);
+
+    printf_r_sep(PCSS);
 }

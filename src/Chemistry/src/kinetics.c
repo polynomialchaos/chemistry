@@ -191,7 +191,7 @@ void calc_rate_of_progress(double *C, double T, chemistry_t *chemistry)
         reactions->q[i * KINDIM + 1] *= C[reactions->falloff_species[i]];
     }
 
-    /* pressure type reactions (unimolecular/recombination fall-off reactions) */
+    /* pressure type reactions (unim./rec. fall-off reactions) */
     for (int ii = 0; ii < n_reactions_low; ++ii)
     {
         int i = reactions->idx_reactions_low[ii];
@@ -213,7 +213,7 @@ void calc_rate_of_progress(double *C, double T, chemistry_t *chemistry)
         reactions->q[i * KINDIM + 1] *= tmp;
     }
 
-    /* pressure type reactions (chemically activated bimolecular reactions) */
+    /* pressure type reactions (chemic. activated bimolecular reactions) */
     for (int ii = 0; ii < n_reactions_high; ++ii)
     {
         int i = reactions->idx_reactions_high[ii];
@@ -226,7 +226,8 @@ void calc_rate_of_progress(double *C, double T, chemistry_t *chemistry)
                            C[reactions->sp_efficiencies[idx_sp]];
         }
 
-        reactions->pr[i] = C[reactions->falloff_species[i]] * reactions->k[i * KINDIM] /
+        reactions->pr[i] = C[reactions->falloff_species[i]] *
+                           reactions->k[i * KINDIM] /
                            calc_arr(T, &reactions->adv_arr_coeff[i * ARR]);
 
         double tmp = 1.0 / (1.0 + reactions->pr[i]);

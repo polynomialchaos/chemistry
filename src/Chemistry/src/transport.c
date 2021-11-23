@@ -199,7 +199,8 @@ double calc_species_dij(int i, int j, double p, double T,
                      (pot_lj * KB * col_lj_sq * col_lj);
 
     double tmp = p * MCPI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
-    return s316 * sqrt(2. * MCPI * pow(KB * T, 3) / calc_inter_param_molecule_weight(i, j, chemistry)) / tmp;
+    double M = calc_inter_param_molecule_weight(i, j, chemistry);
+    return s316 * sqrt(2. * MCPI * pow(KB * T, 3) / M) / tmp;
 }
 
 /*******************************************************************************

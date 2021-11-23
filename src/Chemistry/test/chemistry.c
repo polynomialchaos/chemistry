@@ -19,8 +19,9 @@ int main(int argc, char **argv)
 {
     global_initialize(argc, argv, BFLS, BFLS, BFLS, BFLS);
 
-    chemistry_t *chemistry =
-        read_chemistry_data("../../tools/mechanisms/gri3/gri3.mech.h5");
+    string_t chem_file = argc > 1 ? argv[1] : "../gri3.mech.h5";
+    chemistry_t *chemistry = read_chemistry_data(chem_file);
+
     print_chemistry_info(chemistry);
     deallocate_chemistry(chemistry);
     DEALLOCATE(chemistry);

@@ -85,7 +85,7 @@ void read_restart_data()
 
         for (int i_stage = 0; i_stage < n_stages_restart; ++i_stage)
         {
-            char iter_string[10];
+            char iter_string[11];
             sprintf(iter_string, "%d", i_stage);
             string_t tmp = allocate_strcat("phi_old:", iter_string);
 
