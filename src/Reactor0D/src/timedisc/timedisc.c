@@ -131,7 +131,7 @@ void timedisc()
         // check for NAN and INF
         if (is_nan_n(residual, n_variables) ||
             is_inf_n(residual, n_variables))
-            check_abort(0);
+            CHECK_EXPRESSION(0);
 
         t = t + dt;
         iter = iter + 1;
@@ -233,6 +233,6 @@ void timedisc_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 }

@@ -92,7 +92,9 @@ void print_state(state_t *state)
 {
     if (state == NULL)
         return;
-    PRINTF("State\n");
+
+    PRINTF("\n");
+    printf_r_sep_title('-', "State");
 
     PRINTF("%s = %e\n", "p", state->p);
     PRINTF("%s = %e\n", "T", state->T);
@@ -115,6 +117,9 @@ void print_state(state_t *state)
     PRINTF("%s = %e\n", "s", state->s);
     PRINTF("%s = %e\n", "u", state->u);
     PRINTF("%s = %e\n", "g", state->g);
+
+    printf_r_sep('-');
+    PRINTF("\n");
 }
 
 /*******************************************************************************

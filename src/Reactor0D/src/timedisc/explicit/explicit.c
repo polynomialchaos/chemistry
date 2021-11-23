@@ -106,7 +106,7 @@ void explicit_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 }
 

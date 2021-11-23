@@ -116,8 +116,8 @@ void output_define()
     REGISTER_FINALIZE_ROUTINE(output_finalize);
 
     SET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data,
-                  "The output file frequency \
-                  (-1 ... first/solutions/last, 0 ... disable)",
+                  "The output file frequency " \
+                  "(-1 ... first/solutions/last, 0 ... disable)",
                   NULL, 0);
 }
 

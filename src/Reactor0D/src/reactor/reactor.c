@@ -155,6 +155,21 @@ void reactor_define()
     string_t tmp1 = tmp1_opt[0];
     SET_PARAMETER("Reactor/type", StringParameter, &tmp1,
                   "The reactor type", tmp1_opt, tmp1_opt_n);
+
+    double p = 1e5;
+    SET_PARAMETER("Reactor/p", NumberParameter, &p, NULL, NULL, 0);
+
+    double T = 1200.0;
+    SET_PARAMETER("Reactor/T", NumberParameter, &T, NULL, NULL, 0);
+
+    double Y_CH4 = 0.05;
+    SET_PARAMETER("Reactor/Y/CH4", NumberParameter, &Y_CH4, NULL, NULL, 0);
+
+    double Y_O2 = 0.1;
+    SET_PARAMETER("Reactor/Y/O2", NumberParameter, &Y_O2, NULL, NULL, 0);
+
+    double Y_N2 = 0.85;
+    SET_PARAMETER("Reactor/Y/N2", NumberParameter, &Y_N2, NULL, NULL, 0);
 }
 
 /*******************************************************************************
@@ -206,7 +221,7 @@ void reactor_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 
     global_chemistry = read_chemistry_data(chem_file);
@@ -229,7 +244,7 @@ void reactor_initialize()
 
     double Y_sum = sum_n(global_state->Y, n_specii);
     if (ABS(Y_sum - 1.0) > YONE)
-        check_abort(0);
+        CHECK_EXPRESSION(0);
 
     update_state_isobaric(global_state->p, global_state->rho,
                           global_state->T, global_state->Y, global_state);

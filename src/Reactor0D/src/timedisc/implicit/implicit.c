@@ -223,7 +223,7 @@ void implicit_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 
     if (is_equal(method_name, "Newton"))
@@ -232,7 +232,7 @@ void implicit_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 
     if (is_equal(solver_name, "BiCGStab"))
@@ -249,7 +249,7 @@ void implicit_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 
     if (is_equal(jacobian_type_name, "Numerical"))
@@ -258,7 +258,7 @@ void implicit_initialize()
     }
     else
     {
-        check_abort(0);
+        CHECK_EXPRESSION(0);
     }
 
     phi_old = ALLOCATE(sizeof(double *) * n_bdf_stages);
@@ -375,7 +375,7 @@ void time_step_newton(int iter, double t, double dt)
     }
 
     if (n_iter_inner >= max_iter_inner)
-        check_abort(0);
+        CHECK_EXPRESSION(0);
 }
 
 /*******************************************************************************
