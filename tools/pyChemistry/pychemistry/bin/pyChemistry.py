@@ -45,7 +45,7 @@ def main():
 
     # define the argument parser
     parser = argparse.ArgumentParser(
-        description='Chemistry - Finite Rate Chemistry library - preprocessing')
+        description='Chemistry - Chemistry library preprocessing')
     parser.add_argument('-ck', '--chemkin', type=str,
                         help='The chemkin format output file')
     parser.add_argument('-d', '--debugging',
