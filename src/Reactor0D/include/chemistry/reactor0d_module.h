@@ -1,26 +1,17 @@
-//##################################################################################################################################
-// FV3D - Finite volume solver
-// (c) 2020 | Florian Eigentler
-//##################################################################################################################################
+/*******************************************************************************
+ * @file xxx.h
+ * @author Florian Eigentler
+ * @brief
+ * @version 1.0.0
+ * @date 2021-11-15
+ * @copyright Copyright (c) 2021
+ ******************************************************************************/
 #ifndef REACTOR0D_MODULE_H
 #define REACTOR0D_MODULE_H
 
-#include "libc/c_module.h"
-#include "libc/utilities_module.h"
-#include "libc/parameter_module.h"
-#include "libc/math_module.h"
-#include "libc/mpi_module.h"
-#include "libc/global_module.h"
-#include "libc/hdf5_module.h"
-
 #include "chemistry/chemistry_module.h"
 
-#define BOUNDDIM 2
-#define SMALL 1e-16
-
-
-
-
-
+#define BOUNDDIM 2  /** Solution vector boundary dimension */
+#define SMALL 1e-16 /** Numerical small value */
 
 #endif /* REACTOR0D_MODULE_H */

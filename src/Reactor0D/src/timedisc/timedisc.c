@@ -1,8 +1,12 @@
 
-//##################################################################################################################################
-// FV3D - Finite volume solver
-// (c) 2020 | Florian Eigentler
-//##################################################################################################################################
+/*******************************************************************************
+ * @file xxx.h
+ * @author Florian Eigentler
+ * @brief
+ * @version 1.0.0
+ * @date 2021-11-15
+ * @copyright Copyright (c) 2021
+ ******************************************************************************/
 #include "timedisc_module.h"
 #include "explicit/explicit_module.h"
 #include "implicit/implicit_module.h"
@@ -37,20 +41,20 @@ void print_residual(int iter, double t, double dt, int do_output);
 
 void timedisc_define()
 {
-    register_initialize_routine(timedisc_initialize);
-    register_finalize_routine(timedisc_finalize);
+    REGISTER_INITIALIZE_ROUTINE(timedisc_initialize);
+    REGISTER_FINALIZE_ROUTINE(timedisc_finalize);
 
     string_t tmp_opt[] = {"Explicit", "Implicit"};
     int tmp_opt_n = sizeof(tmp_opt) / sizeof(string_t);
     string_t tmp = tmp_opt[0];
 
-    set_parameter("TimeDisc/time_step", ParameterString, &tmp, "The timestep mehtod", &tmp_opt, tmp_opt_n);
-    set_parameter("TimeDisc/max_iter", ParameterDigit, &max_iter, "The maximum number of iterations", NULL, 0);
-    set_parameter("TimeDisc/transient", ParameterBool, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0);
-    set_parameter("TimeDisc/abort_residual", ParameterNumber, &abort_residual, "The abort residual", NULL, 0);
-    set_parameter("TimeDisc/dt", ParameterNumber, &dt, "The timestep", NULL, 0);
-    set_parameter("TimeDisc/t_start", ParameterNumber, &t_start, "The start time", NULL, 0);
-    set_parameter("TimeDisc/t_end", ParameterNumber, &t_end, "The end time", NULL, 0);
+    SET_PARAMETER("TimeDisc/time_step", StringParameter, &tmp, "The timestep mehtod", &tmp_opt, tmp_opt_n);
+    SET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter, "The maximum number of iterations", NULL, 0);
+    SET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0);
+    SET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual, "The abort residual", NULL, 0);
+    SET_PARAMETER("TimeDisc/dt", NumberParameter, &dt, "The timestep", NULL, 0);
+    SET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start, "The start time", NULL, 0);
+    SET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end, "The end time", NULL, 0);
 
     explicit_define();
     implicit_define();
@@ -58,16 +62,16 @@ void timedisc_define()
 
 void timedisc_initialize()
 {
-    get_parameter("TimeDisc/time_step", ParameterString, &time_step_name);
-    get_parameter("TimeDisc/max_iter", ParameterDigit, &max_iter);
-    get_parameter("TimeDisc/transient", ParameterBool, &is_transient);
-    get_parameter("TimeDisc/abort_residual", ParameterNumber, &abort_residual);
-    get_parameter("TimeDisc/dt", ParameterNumber, &dt);
-    get_parameter("TimeDisc/t_start", ParameterNumber, &t_start);
-    get_parameter("TimeDisc/t_end", ParameterNumber, &t_end);
+    GET_PARAMETER("TimeDisc/time_step", StringParameter, &time_step_name);
+    GET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter);
+    GET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient);
+    GET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual);
+    GET_PARAMETER("TimeDisc/dt", NumberParameter, &dt);
+    GET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start);
+    GET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end);
 
     if (is_transient == 0)
-        t_end = DOUBLE_MAX;
+        t_end = BDMX;
 
     if (is_equal(time_step_name, "Explicit"))
     {
@@ -79,7 +83,7 @@ void timedisc_initialize()
     }
     else
     {
-        check_error(0);
+        check_abort(0);
     }
 }
 
@@ -88,7 +92,7 @@ void timedisc_finalize()
     time_step_function_pointer = NULL;
     calc_time_step_function_pointer = NULL;
 
-    deallocate(time_step_name);
+    DEALLOCATE(time_step_name);
 }
 
 void timedisc()
@@ -133,7 +137,7 @@ void timedisc()
         // check for NAN and INF
         if (is_nan_n(residual, n_variables) ||
             is_inf_n(residual, n_variables))
-            check_error(0);
+            check_abort(0);
 
         t = t + dt;
         iter = iter + 1;
@@ -178,20 +182,20 @@ void print_residual_header()
 {
     if (explicit_active)
     {
-        printf_r("%9s %12s %12s %1s %1s:", "iter", "time", "dt", "V", "O");
+        PRINTF("%9s %12s %12s %1s %1s:", "iter", "time", "dt", "V", "O");
     }
     else
     {
-        printf_r("%9s %12s %12s %1s %1s %6s %6s:", "iter", "time", "dt", "V", "O", "inner", "lsoe");
+        PRINTF("%9s %12s %12s %1s %1s %6s %6s:", "iter", "time", "dt", "V", "O", "inner", "lsoe");
     }
 
-    printf_r(" %12s", "T");
-    printf_r(" %12s", "Y_mean");
-    printf_r(" %12s", "Y_max");
+    PRINTF(" %12s", "T");
+    PRINTF(" %12s", "Y_mean");
+    PRINTF(" %12s", "Y_max");
 
-    printf_r(" %12s", "T");
+    PRINTF(" %12s", "T");
 
-    printf_r("\n");
+    PRINTF("\n");
 }
 
 void print_residual(int iter, double t, double dt, int do_output)
@@ -201,18 +205,18 @@ void print_residual(int iter, double t, double dt, int do_output)
 
     if (explicit_active)
     {
-        printf_r("%09d %12.5e %12.5e %c %c:", iter, t, dt, viscous_str, output_str);
+        PRINTF("%09d %12.5e %12.5e %c %c:", iter, t, dt, viscous_str, output_str);
     }
     else
     {
-        printf_r("%09d %12.5e %12.5e %c %c %6d %6d:", iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe);
+        PRINTF("%09d %12.5e %12.5e %c %c %6d %6d:", iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe);
     }
 
-    printf_r(" %12.5e", residual[0]);
-    printf_r(" %12.5e", sum_n(&residual[i_Y0], n_variables - 1) / (n_variables - 1));
-    printf_r(" %12.5e", max_n(&residual[i_Y0], n_variables - 1));
+    PRINTF(" %12.5e", residual[0]);
+    PRINTF(" %12.5e", sum_n(&residual[i_Y0], n_variables - 1) / (n_variables - 1));
+    PRINTF(" %12.5e", max_n(&residual[i_Y0], n_variables - 1));
 
-    printf_r(" %12.5e", phi[0]);
+    PRINTF(" %12.5e", phi[0]);
 
-    printf_r("\n");
+    PRINTF("\n");
 }

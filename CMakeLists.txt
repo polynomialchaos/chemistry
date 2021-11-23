@@ -86,7 +86,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
          CACHE PATH "default install path" FORCE)
 endif()
 
-include( "${basec_dir}/share/cmake/basec.cmake" )
+include("${basec_dir}/share/cmake/basec.cmake")
 
 #*******************************************************************************
 # Add subdirecotries

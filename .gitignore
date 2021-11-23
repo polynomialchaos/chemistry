@@ -1,12 +1,5 @@
 # Compiled source #
 ###################
-*.o
-*.out
-*.a
-*.so
-*.mod
-*.pyc
-*.pdf
 *.h5
 
 # Logs #
@@ -29,6 +22,7 @@ bin/
 lib/
 build/
 share/
+install/
 *.egg-info/
 !/tools/pyChemistry/pychemistry/bin
 

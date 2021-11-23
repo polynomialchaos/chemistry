@@ -14,4 +14,9 @@ set(install_target ${target})
 #******************************************************************************/
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(Chemistry)
-# add_subdirectory( Reactor0D )
+add_subdirectory(Reactor0D)
+
+#*******************************************************************************
+# Install target
+#******************************************************************************/
+install(EXPORT ${install_target} DESTINATION share/cmake)
