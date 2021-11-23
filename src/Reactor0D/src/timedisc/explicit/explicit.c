@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file explicit.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -9,9 +9,6 @@
 #include "explicit_module.h"
 #include "reactor/reactor_module.h"
 #include "timedisc/timedisc_module.h"
-
-
-
 
 int explicit_active = 0;
 
@@ -47,12 +44,10 @@ double *rk_a = NULL;
 double *rk_b = NULL;
 double *rk_g = NULL;
 
-
 void explicit_initialize();
 void explicit_finalize();
 
 void time_step_lserkw2(int iter, double t, double dt);
-
 
 void explicit_define()
 {

@@ -1,6 +1,6 @@
 
 /*******************************************************************************
- * @file xxx.h
+ * @file timedisc.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -15,11 +15,8 @@
 #include "output/output_module.h"
 #include "reactor/reactor_module.h"
 
-
-
-
-void_timestep_fp_t time_step_function_pointer = NULL;
-double_calc_timestep_fp_t calc_time_step_function_pointer = NULL;
+void_timestep_ft time_step_function_pointer = NULL;
+double_calc_timestep_ft calc_time_step_function_pointer = NULL;
 
 int is_viscous_dt = 0;
 
@@ -31,13 +28,11 @@ double dt = 1e-6;
 double t_start = 0.0;
 double t_end = 0.2;
 
-
 void timedisc_initialize();
 void timedisc_finalize();
 
 void print_residual_header();
 void print_residual(int iter, double t, double dt, int do_output);
-
 
 void timedisc_define()
 {

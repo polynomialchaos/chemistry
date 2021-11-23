@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file analyze_module.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -11,11 +11,7 @@
 
 #include "chemistry/reactor0d_module.h"
 
-
-
-
 extern double *residual;
-
 
 void analyze_define();
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file analyze.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0

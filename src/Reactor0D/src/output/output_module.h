@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file output_module.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -11,13 +11,9 @@
 
 #include "chemistry/reactor0d_module.h"
 
-
-
-
 extern int do_output_data;
 extern int i_output_data;
 extern string_t output_file;
-
 
 void output_define();
 

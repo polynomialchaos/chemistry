@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file output.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -12,17 +12,12 @@
 #include "output_module.h"
 #include "timedisc/implicit/implicit_module.h"
 
-
-
-
 int i_output_data = -1;
 int do_output_data = 0;
 string_t output_file = NULL;
 
-
 void output_initialize();
 void output_finalize();
-
 
 void output_define()
 {

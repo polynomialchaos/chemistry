@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file reactor.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -8,10 +8,7 @@
  ******************************************************************************/
 #include "reactor_module.h"
 
-
-
-
-void_reactor_fp_t reactor_function_pointer = NULL;
+void_reactor_ft reactor_function_pointer = NULL;
 
 string_t chem_file = NULL;
 string_t reactor_type_name = NULL;
@@ -27,7 +24,6 @@ double *phi = NULL;
 double *phi_dt = NULL;
 double *phi_bounds = NULL;
 
-
 void reactor_initialize();
 void reactor_finalize();
 
@@ -36,7 +32,6 @@ void calc_reactor_isobar_isotherm(double t);
 void calc_reactor_isochor_adiabat(double t);
 void calc_reactor_isochor_isotherm(double t);
 double calc_temp_equation(double *dY_dt, double T_old);
-
 
 void reactor_define()
 {

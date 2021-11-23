@@ -1,6 +1,6 @@
 
 /*******************************************************************************
- * @file xxx.h
+ * @file implicit.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -11,9 +11,6 @@
 #include "implicit_module.h"
 #include "reactor/reactor_module.h"
 #include "timedisc/timedisc_module.h"
-
-
-
 
 int implicit_active = 0;
 int n_iter_inner = 0;
@@ -64,14 +61,12 @@ double *dY_n = NULL;
 double *dY_dt_n = NULL;
 double *jac = NULL;
 
-
 void implicit_initialize();
 void implicit_finalize();
 
 void calc_jacobian_numerical(int n_var);
 int matrix_vector_numerical(double *x, double *b, size_t n, size_t m);
 void time_step_newton(int iter, double t, double dt);
-
 
 void implicit_define()
 {

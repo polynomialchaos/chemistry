@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file reactor0d_private.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0

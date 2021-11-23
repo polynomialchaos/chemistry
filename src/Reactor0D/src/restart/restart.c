@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file xxx.h
+ * @file restart.h
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
@@ -10,9 +10,6 @@
 #include "reactor/reactor_module.h"
 #include "output/output_module.h"
 #include "timedisc/implicit/implicit_module.h"
-
-
-
 
 int use_restart = 0;
 
@@ -25,12 +22,10 @@ double **phi_old_restart = NULL;
 
 int n_stages_restart = 0;
 
-
 void restart_initialize();
 void restart_finalize();
 
 void read_restart_data();
-
 
 void restart_define()
 {
