@@ -1,18 +1,17 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file reaction.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import logging
 from enum import Enum, unique
 from collections import OrderedDict
-
 from .base import Base, BaseListContainer
 from .utilities import as_short, chunk_list
 from .constants import NA, CAL_JOULE, RM, CM_M
-
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
 
 @unique
@@ -28,15 +27,15 @@ conv_Ea = {'CAL/MOLE': CAL_JOULE, 'KCAL/MOLE': CAL_JOULE * 1000.0,
 def_unit_k0 = 'MOLES'
 def_unit_Ea = 'CAL/MOLE'
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
+
 class Reaction(Base):
     """Object for storing Reaction data."""
 
-    def __init__(self, reaction_type, reactants, products, is_reversible, arr_coeff=None, falloff_species=None,
-                 rev_arr_coeff=None, adv_arr_key=None, adv_arr_coeff=None, troe_coeff=None,
-                 f_orders=None, r_orders=None, flags=None, efficiencies=None, elementar=None):
+    def __init__(self, reaction_type, reactants, products, is_reversible,
+                 arr_coeff=None, falloff_species=None, rev_arr_coeff=None,
+                 adv_arr_key=None, adv_arr_coeff=None, troe_coeff=None,
+                 f_orders=None, r_orders=None, flags=None,
+                 efficiencies=None, elementar=None):
 
         self.reaction_type = reaction_type
         self.reactants = reactants
@@ -44,7 +43,8 @@ class Reaction(Base):
         self.is_reversible = is_reversible
 
         self.arr_coeff = [] if arr_coeff is None else arr_coeff
-        self.falloff_species = '' if falloff_species is None else falloff_species
+        self.falloff_species = \
+            '' if falloff_species is None else falloff_species
 
         self.rev_arr_coeff = [] if rev_arr_coeff is None else rev_arr_coeff
         self.adv_arr_key = '' if adv_arr_key is None else adv_arr_key
@@ -53,7 +53,8 @@ class Reaction(Base):
         self.f_orders = OrderedDict() if f_orders is None else f_orders
         self.r_orders = OrderedDict() if r_orders is None else r_orders
         self.flags = [] if flags is None else flags
-        self.efficiencies = OrderedDict() if efficiencies is None else efficiencies
+        self.efficiencies = \
+            OrderedDict() if efficiencies is None else efficiencies
 
         self.elementar = elementar
 
@@ -75,14 +76,16 @@ class Reaction(Base):
         return [
             (len(self.reactants.keys()) > 0, 'No reactants are speciefied'),
             (len(self.products.keys()) > 0, 'No products are speciefied'),
-            (last_troe, 'Last TROE coefficient must not be zero (set to SMALL)'),
+            (last_troe,
+                'Last TROE coefficient must not be zero (set to SMALL)'),
             (not (n_duplicates == 1 and is_duplicate),
              'Reaction has duplicate flag, but no duplicate reaction is found'),
             (not (n_duplicates > 1 and not is_duplicate),
              'Reaction is duplicate, but no duplicate flag is provided'),
             (check_element_balance(elements, specii, self),
              'Reaction does not balance in elements'),
-            (check_mass_balance(specii, self), 'Reaction does not balance in mass'),
+            (check_mass_balance(specii, self),
+                'Reaction does not balance in mass'),
         ]
 
     def __str__(self):
@@ -93,8 +96,10 @@ class Reaction(Base):
         return tmp + self._add_species_string()
 
     def _stoich_species_string(self, values):
-        tmp = '+'.join(['{:}{:}'.format(as_short(values[key],
-                       round_digits=12), key) for key in values])
+        tmp = '+'.join(
+            ['{:}{:}'.format(as_short(values[key],
+                                      round_digits=12), key) for key in values]
+        )
         return tmp + self._add_species_string()
 
     @property
@@ -113,28 +118,40 @@ class Reaction(Base):
     def arr_coeff(self, value):
         self._arr_coeff = [float(x) for x in value]
 
-    def chemkinify(self, min_len=45, reaction_string=None, unit_k0=def_unit_k0, unit_Ea=def_unit_Ea):
-        tmp_string = self.reaction_string() if reaction_string is None else reaction_string
+    def chemkinify(self, min_len=45, reaction_string=None,
+                   unit_k0=def_unit_k0, unit_Ea=def_unit_Ea):
+        tmp_string = self.reaction_string() \
+            if reaction_string is None else reaction_string
         efficiencies = [
-            '{:}/{:.2f}/'.format(key, self.efficiencies[key]) for key in self.efficiencies]
+            '{:}/{:.2f}/'.format(key, self.efficiencies[key])
+            for key in self.efficiencies
+        ]
         efficiencies = [' '.join(x) for x in chunk_list(efficiencies, 10)]
 
         return '\n'.join(
-            (['{1:{0:}} {2:10.3e} {3:10.4f} {4:10.3f}'.format(min_len, tmp_string,
-                                                              *si_to_cmsk(self.arr_coeff, self.f_conv_si(), unit_k0, unit_Ea))]) +
+            (['{1:{0:}} {2:10.3e} {3:10.4f} {4:10.3f}'.format(
+                min_len, tmp_string,
+                *si_to_cmsk(self.arr_coeff,
+                self.f_conv_si(), unit_k0, unit_Ea))]) +
             (['  {:}'.format(x) for x in efficiencies]) +
             (['  REV /{:10.3e} {:10.4f} {:10.3f}/'.format(
-                *si_to_cmsk(self.rev_arr_coeff, self.r_conv_si(), unit_k0, unit_Ea))]
+                *si_to_cmsk(self.rev_arr_coeff,
+                self.r_conv_si(), unit_k0, unit_Ea))]
                 if self.rev_arr_coeff else []) +
             (['  LOW /{:10.3e} {:10.4f} {:10.3f}/'.format(
-                *si_to_cmsk(self.adv_arr_coeff, self.f_conv_si(add=1.0), unit_k0, unit_Ea))]
+                *si_to_cmsk(self.adv_arr_coeff,
+                self.f_conv_si(add=1.0), unit_k0, unit_Ea))]
                 if self.adv_arr_coeff and self.adv_arr_key == 'LOW' else []) +
             (['  HIGH/{:10.3e} {:10.4f} {:10.3f}/'.format(
-                *si_to_cmsk(self.adv_arr_coeff, self.f_conv_si(add=-1.0), unit_k0, unit_Ea))]
+                *si_to_cmsk(self.adv_arr_coeff,
+                self.f_conv_si(add=-1.0), unit_k0, unit_Ea))]
                 if self.rev_arr_coeff and self.adv_arr_key == 'HIGH' else []) +
-            (['  TROE/{:}/'.format(' '.join(['{:.4e}'.format(x) for x in self.troe_coeff]))] if self.troe_coeff else []) +
-            (['  FORD/{:} {:.6f}/'.format(key, self.f_orders[key]) for key in self.f_orders]) +
-            (['  RORD/{:} {:.6f}/'.format(key, self.r_orders[key]) for key in self.r_orders]) +
+            (['  TROE/{:}/'.format(' '.join(['{:.4e}'.format(x)
+                for x in self.troe_coeff]))] if self.troe_coeff else []) +
+            (['  FORD/{:} {:.6f}/'.format(key, self.f_orders[key])
+                for key in self.f_orders]) +
+            (['  RORD/{:} {:.6f}/'.format(key, self.r_orders[key])
+                for key in self.r_orders]) +
             (['  {:}'.format(key) for key in self.flags])
         )
 
@@ -238,11 +255,13 @@ class Reaction(Base):
 
     def reaction_string(self):
         delimiter = '<=>' if self.is_reversible else '=>'
-        return ''.join([self._stoich_species_string(self.reactants), delimiter, self._stoich_species_string(self.products)])
+        return ''.join([self._stoich_species_string(self.reactants), delimiter,
+                        self._stoich_species_string(self.products)])
 
     def reaction_string_short(self):
         delimiter = '<=>' if self.is_reversible else '=>'
-        return ''.join([self._species_string(self.reactants), delimiter, self._species_string(self.products)])
+        return ''.join([self._species_string(self.reactants), delimiter,
+                        self._species_string(self.products)])
 
     @property
     def reaction_type(self):
@@ -272,6 +291,7 @@ class Reaction(Base):
     def troe_coeff(self, value):
         self._troe_coeff = [float(x) for x in value]
 
+
 class ReactionContainer(BaseListContainer):
     """Container (storage) object for Reaction class objects."""
     _type = Reaction
@@ -287,15 +307,14 @@ class ReactionContainer(BaseListContainer):
         max_len = max(len(x) for x in reaction_strings) + 1
 
         return [
-            '! --- Reaction #{:} ---\n{:}\n'.format(idx+1,
-                                                    x.chemkinify(
-                                                        min_len=max_len, reaction_string=reaction_strings[idx], unit_k0=unit_k0, unit_Ea=unit_Ea)
-                                                    ) for idx, x in enumerate(self)
+            '! --- Reaction #{:} ---\n{:}\n'.format(
+                idx + 1, x.chemkinify(
+                    min_len=max_len, reaction_string=reaction_strings[idx],
+                    unit_k0=unit_k0, unit_Ea=unit_Ea)
+            ) for idx, x in enumerate(self)
         ]
 
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
+
 def cmsk_to_si(coeff, si_conv, unit_k0, unit_Ea):
     """Convert the given coefficients to the specified units."""
     return [
@@ -303,6 +322,7 @@ def cmsk_to_si(coeff, si_conv, unit_k0, unit_Ea):
         coeff[1],
         coeff[2] * conv_Ea[unit_Ea],
     ]
+
 
 def si_to_cmsk(coeff, si_conv, unit_k0, unit_Ea):
     """Convert the given coefficients to the specified units."""
@@ -312,8 +332,10 @@ def si_to_cmsk(coeff, si_conv, unit_k0, unit_Ea):
         coeff[2] / conv_Ea[unit_Ea],
     ]
 
+
 def conv_si_nu(sum_nu):
     return CM_M ** (3 * (sum_nu - 1))
+
 
 def check_element_balance(elements, species, reaction, limit=1e-5):
     """Check the given reaction for their element balance."""
@@ -330,6 +352,7 @@ def check_element_balance(elements, species, reaction, limit=1e-5):
     if any(abs(x) > limit for x in elm_sum.values()):
         logging.warning('Element conservation violation: {:}'.format(elm_sum))
     return all(abs(x) <= limit for x in elm_sum.values())
+
 
 def check_mass_balance(species, reaction, limit=1e-5):
     """Check the given reaction for their mass balance."""

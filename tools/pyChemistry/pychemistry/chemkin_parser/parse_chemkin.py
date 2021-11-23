@@ -1,22 +1,13 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
-
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
+################################################################################
+# @file parse_chemkin.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 def read_encoded_file(path, encodings=['utf-8', 'latin-1']):
     """Return list of strings and try different encodings."""
-
     for key in encodings:
         try:
             with open(path, 'r', encoding=key) as f:
@@ -26,9 +17,10 @@ def read_encoded_file(path, encodings=['utf-8', 'latin-1']):
 
     raise UnicodeDecodeError('Could not decode file: "{:}"!'.format(path))
 
-def chemkin_format_reader(path, start_keys=None, end_keys=None, comment='!'):
-    """Return list of strings and comments for a given path, start- and end-keys."""
 
+def chemkin_format_reader(path, start_keys=None, end_keys=None, comment='!'):
+    """Return list of strings and comments for a given path,
+    start- and end-keys."""
     # sort keys by length to ensure the right replacement
     start_keys = sorted([] if start_keys is None else start_keys,
                         key=(lambda x: len(x)), reverse=True)

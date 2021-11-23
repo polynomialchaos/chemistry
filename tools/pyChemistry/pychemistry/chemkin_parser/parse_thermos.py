@@ -1,25 +1,19 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file parse_thermos.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import logging
 import re
 from collections import OrderedDict
-
-from pychemistry.utilities import ThermoContainer, Thermo, REF_ELEMENTS, is_number
+from pychemistry.utilities import ThermoContainer, Thermo
+from pychemistry.utilities import REF_ELEMENTS, is_number
 from .parse_chemkin import chemkin_format_reader
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
 def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
     """Parse the thermo section for a given list of strings."""
     logging.info('Parse thermo datas from path "{:}"'.format(path))
@@ -58,7 +52,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                 counter = 999 if parse_extra else int(string[79:80])
             except:
                 raise Exception(
-                    'No line integer found (length={:})'.format(len(string.strip())))
+                    'No line integer found (length={:})'.format(
+                        len(string.strip())))
 
             if string.strip()[-1] == '&':
                 parse_extra = True
@@ -75,7 +70,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                     tmp = [(tmp[idx:idx+2].strip(), tmp[idx+2:idx+5].strip())
                            for idx in range(0, len(tmp), 5)]
                     tmp_composition = OrderedDict(
-                        (key, float(nu)) for key, nu in tmp if key and float(nu) != 0.0)
+                        (key, float(nu)) for key, nu in tmp
+                        if key and float(nu) != 0.0)
 
                     tmp_phase = string[44:45].strip() or 'G'
                     tmp_bounds = [
@@ -88,7 +84,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                     ]
 
                     logging.debug('Values "{:}"'.format(
-                        [tmp_symbol, tmp_info, tmp_composition, tmp_phase, tmp_bounds]))
+                        [tmp_symbol, tmp_info, tmp_composition,
+                         tmp_phase, tmp_bounds]))
                 except:
                     raise Exception(
                         'Invalid data in line counter "{:}"'.format(counter))
@@ -101,7 +98,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                         tmp_composition[el] = float(nA)
 
                 logging.debug(
-                    'Updated elemental composition "{:}"'.format(tmp_composition))
+                    'Updated elemental composition "{:}"'.format(
+                        tmp_composition))
             elif counter == 2:
                 tmp_coeff_high = [float(string[idx:idx+15])
                                   for idx in range(0, 75, 15)]
@@ -117,7 +115,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                 logging.debug('Coeff High "{:}"'.format(tmp_coeff_low))
             else:
                 raise(
-                    Exception('Got unsupported line counter "{:}"!'.format(counter)))
+                    Exception('Got unsupported line counter "{:}"!'.format(
+                        counter)))
 
             if counter == 4:
                 logging.debug(

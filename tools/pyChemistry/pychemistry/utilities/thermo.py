@@ -1,23 +1,22 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file thermo.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import numpy as np
 from collections import OrderedDict
-
 from .base import Base, BaseOrderedDictContainer
 from .constants import REF_ELEMENTS, RM
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-PHASE_NUM = {'G': 0}  # Conversion: Phase string
-N_BOUNDS = 3         # Number of temperature bounds
-N_NASA = 7         # Number of NASA polynomial coefficients
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
+PHASE_NUM = {'G': 0}    # Conversion: Phase string
+N_BOUNDS = 3            # Number of temperature bounds
+N_NASA = 7              # Number of NASA polynomial coefficients
+
+
 class Thermo(Base):
     """Object for storing thermo data. Inputs in SI units."""
 
@@ -42,9 +41,11 @@ class Thermo(Base):
             (len(self.bounds) == N_BOUNDS,
              'NASA temp. bounds of wrong size ({:})'.format(len(self.bounds))),
             (len(self.coeff_low) == N_NASA,
-             'NASA low temp. coefficients of wrong size ({:})'.format(len(self.coeff_low))),
+             'NASA low temp. coefficients of wrong size ({:})'.format(
+                 len(self.coeff_low))),
             (len(self.coeff_high) == N_NASA,
-             'NASA high temp. coefficients of wrong size ({:})'.format(len(self.coeff_high))),
+             'NASA high temp. coefficients of wrong size ({:})'.format(len(
+                 self.coeff_high))),
             (self.phase == 0, 'Phase not valid'),
         ]
 
@@ -76,11 +77,11 @@ class Thermo(Base):
             ),
             '' if not long_comps else ' &\n{:}'.format(long_comps),
             ''.join(['{: 15.8E}'.format(coeff)
-                    for coeff in self.coeff_high[:5]]),
+                     for coeff in self.coeff_high[:5]]),
             ''.join(['{: 15.8E}'.format(coeff)
-                    for coeff in self.coeff_high[5:] + self.coeff_low[:3]]),
+                     for coeff in self.coeff_high[5:] + self.coeff_low[:3]]),
             ''.join(['{: 15.8E}'.format(coeff)
-                    for coeff in self.coeff_low[3:]]),
+                     for coeff in self.coeff_low[3:]]),
         )
 
     @property
@@ -152,25 +153,35 @@ class Thermo(Base):
     def symbol(self, value):
         self._symbol = value.strip()
 
+
 class ThermoContainer(BaseOrderedDictContainer):
     """Container (storage) object for Thermo class objects."""
     _type = Thermo
 
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
+
 def calc_dimless_cp(T, a):
-    """Return the dimensionless heat capacity in constant pressure polynomial at the given temperature(s)."""
+    """Return the dimensionless heat capacity in constant pressure
+    polynomial at the given temperature(s)."""
     return a[0] + T * (a[1] + T * (a[2] + T * (a[3] + T * a[4])))
 
+
 def calc_dimless_h(T, a):
-    """Return the dimensionless enthalpy polynomial at the given temperature(s)."""
-    return a[0] + T * (a[1] / 2 + T * (a[2] / 3 + T * (a[3] / 4 + T * a[4] / 5))) + a[5] / T
+    """Return the dimensionless enthalpy polynomial
+    at the given temperature(s)."""
+    return a[0] + T * (
+        a[1] / 2 + T * (a[2] / 3 + T * (a[3] / 4 + T * a[4] / 5))) + a[5] / T
+
 
 def calc_dimless_s(T, a):
-    """Return the dimensionless entropy polynomial at the given temperature(s)."""
-    return a[0] * np.log(T) + T * (a[1] + T * (a[2] / 2 + T * (a[3] / 3 + T * a[4] / 4))) + a[6]
+    """Return the dimensionless entropy polynomial
+    at the given temperature(s)."""
+    return a[0] * np.log(T) + T * (
+        a[1] + T * (a[2] / 2 + T * (a[3] / 3 + T * a[4] / 4))) + a[6]
+
 
 def calc_dimless_g(T, a):
-    """Return the dimensionless free gibbs energy polynomial at the given temperature(s)."""
-    return a[0] * (1 - np.log(T)) - T * (a[1] / 2 + T * (a[2] / 6 + T * (a[3] / 12 + T * a[4] / 20))) + a[5] / T - a[6]
+    """Return the dimensionless free gibbs energy polynomial
+    at the given temperature(s)."""
+    return a[0] * (1 - np.log(T)) - T * (
+        a[1] / 2 + T * (
+            a[2] / 6 + T * (a[3] / 12 + T * a[4] / 20))) + a[5] / T - a[6]

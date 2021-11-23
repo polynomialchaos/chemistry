@@ -1,11 +1,14 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file mechanism.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import sys
 from collections import OrderedDict
 from copy import deepcopy
-
 from .base import Base
 from .element import ElementContainer
 from .species import SpeciesContainer
@@ -13,13 +16,7 @@ from .reaction import ReactionContainer, def_unit_k0, def_unit_Ea
 from .thermo import ThermoContainer
 from .transport import TransportContainer
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 class Mechanism(Base):
     """Object for storing mechanism data."""
 
@@ -55,14 +52,16 @@ class Mechanism(Base):
         else:
             raise(TypeError(Mechanism, type(other)))
 
-    def __init__(self, name, elements=None, specii=None, reactions=None, thermos=None, transports=None, models=None):
+    def __init__(self, name, elements=None, specii=None,
+                 reactions=None, thermos=None, transports=None, models=None):
 
         self.name = name
         self.elements = ElementContainer() if elements is None else elements
         self.specii = SpeciesContainer() if specii is None else specii
         self.reactions = ReactionContainer() if reactions is None else reactions
         self.thermos = ThermoContainer() if thermos is None else thermos
-        self.transports = TransportContainer() if transports is None else transports
+        self.transports = TransportContainer() \
+            if transports is None else transports
         self.models = OrderedDict() if models is None else models
 
     def __str__(self):
@@ -74,8 +73,11 @@ class Mechanism(Base):
         return [
             (self.elements.is_valid(), 'Element data not valid'),
             (self.specii.is_valid(), 'Species data not valid'),
-            (self.reactions.is_valid(elements=self.elements, specii=self.specii,
-                                     reaction_strings=reaction_strings), 'Reaction data not valid'),
+            (self.reactions.is_valid(
+                elements=self.elements, specii=self.specii,
+                reaction_strings=reaction_strings),
+                'Reaction data not valid'
+             ),
             (self.thermos.is_valid(), 'Thermo data not valid'),
             (self.transports.is_valid(), 'Transport data not valid'),
             (len(self.inert_specii()) >= 1, 'Missing inert species'),
@@ -108,12 +110,17 @@ class Mechanism(Base):
             if unit_Ea != def_unit_Ea:
                 tmp += ' {:}'.format(unit_Ea)
 
-            fp.writelines(['{:}\n'.format(
-                tmp)] + self.reactions.chemkinify(unit_k0=unit_k0, unit_Ea=unit_Ea) + ['END\n'])
+            fp.writelines(['{:}\n'.format(tmp)] +
+                          self.reactions.chemkinify(
+                unit_k0=unit_k0, unit_Ea=unit_Ea) + ['END\n'])
 
         with open('{:}.thermo'.format(prefix), 'w') as fp:
-            fp.writelines(['THERMO\n', '{:}\n'.format(' '.join(str(x) for x in self.thermos.bounds))] +
-                          self.thermos.chemkinify(**{'keys': self.specii.keys()}) + ['END\n'])
+            fp.writelines([
+                'THERMO\n',
+                '{:}\n'.format(' '.join(str(x) for x in self.thermos.bounds))] +
+                self.thermos.chemkinify(**{'keys': self.specii.keys()}) +
+                ['END\n']
+            )
 
         with open('{:}.transport'.format(prefix), 'w') as fp:
             fp.writelines(self.transports.chemkinify(
@@ -122,7 +129,8 @@ class Mechanism(Base):
     def inert_specii(self):
         species_list = [y for x in self.reactions for y in x.reactants]
         species_list += [y for x in self.reactions for y in x.products]
-        return [x for x in self.specii.keys() if x not in list(set(species_list))]
+        return [x for x in self.specii.keys()
+                if x not in list(set(species_list))]
 
     def overwrite_all_flags(self, state):
         self.elements.all_flag = state
@@ -148,7 +156,3 @@ class Mechanism(Base):
     def transports(self, value):
         self._transports = value
         self._update_transports()
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------

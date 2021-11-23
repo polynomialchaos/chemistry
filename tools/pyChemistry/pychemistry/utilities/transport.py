@@ -1,24 +1,25 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file transport.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 from .base import Base, BaseOrderedDictContainer
 from .constants import ANGSTROM_SI, DEBYE_SI
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-CGS_TO_SI_COLLJ = ANGSTROM_SI       # Conversion: Lennard-Jones collision diametre
-CGS_TO_SI_DIPMO = DEBYE_SI          # Conversion: Dipole monent
-CGS_TO_SI_POL = ANGSTROM_SI**3    # Conversion: Polarizeability
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
+CGS_TO_SI_COLLJ = ANGSTROM_SI   # Conversion: Lennard-Jones collision diametre
+CGS_TO_SI_DIPMO = DEBYE_SI      # Conversion: Dipole monent
+CGS_TO_SI_POL = ANGSTROM_SI**3  # Conversion: Polarizeability
+
+
 class Transport(Base):
     """Object for storing transport data. Inputs in SI units."""
 
-    def __init__(self, symbol, geom=0, pot_lj=0.0, col_lj=0.0, dip_mo=0.0, pol=0.0, rot_rel=0.0):
+    def __init__(self, symbol, geom=0, pot_lj=0.0, col_lj=0.0,
+                 dip_mo=0.0, pol=0.0, rot_rel=0.0):
 
         self.symbol = symbol
 
@@ -44,8 +45,12 @@ class Transport(Base):
 
     def chemkinify(self):
         return '{:<16}{:<4}{:10.3f} {:10.3f} {:10.3f} {:10.3f}{:10.3f}'.format(
-            self.symbol, self.geom, self.pot_lj, self.col_lj / CGS_TO_SI_COLLJ,
-            self.dip_mo / CGS_TO_SI_DIPMO, self.pol / CGS_TO_SI_POL, self.rot_rel
+            self.symbol, self.geom,
+            self.pot_lj,
+            self.col_lj / CGS_TO_SI_COLLJ,
+            self.dip_mo / CGS_TO_SI_DIPMO,
+            self.pol / CGS_TO_SI_POL,
+            self.rot_rel
         )
 
     @property
@@ -104,10 +109,7 @@ class Transport(Base):
     def symbol(self, value):
         self._symbol = value.strip()
 
+
 class TransportContainer(BaseOrderedDictContainer):
     """Container (storage) object for Transport class objects."""
     _type = Transport
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------

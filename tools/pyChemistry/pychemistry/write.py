@@ -1,7 +1,11 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) 2020 | Florian Eigentler
-####################################################################################################################################
+################################################################################
+# @file write.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import logging
 import h5py
 import datetime
@@ -9,20 +13,9 @@ import numpy as np
 
 from .version import __version__
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
 def get_specii_reaction_points(specii, reactions):
     """Generate the list of reaction points."""
-
     reac_points, reac_nus = [], []
     for species in specii:
         sp_reac_points, sp_reac_nus = [], []
@@ -48,6 +41,7 @@ def get_specii_reaction_points(specii, reactions):
 
     return reac_points, reac_nus
 
+
 def write_chemistry_data(path, mechanism):
     """Generate the Chemistry format mechanism file."""
     logging.info('Write Chemistry format mechanism file')
@@ -62,8 +56,8 @@ def write_chemistry_data(path, mechanism):
     tmpInerts = mechanism.inert_specii()
     spIsInert = [x in tmpInerts for x in spSymbol]
 
-    sortIdx = [x[0]
-               for x in sorted(enumerate(spIsInert), key=(lambda x: x[1] is True))]
+    sortIdx = [x[0] for x in
+               sorted(enumerate(spIsInert), key=(lambda x: x[1] is True))]
     spSymbol = [spSymbol[x] for x in sortIdx]
     spIsInert = [spIsInert[x] for x in sortIdx]
     spSymbolM = spSymbol + ['M']
@@ -94,8 +88,8 @@ def write_chemistry_data(path, mechanism):
 
     # --- reactions ---
     reType = [x.reaction_type.value for x in mechanism.reactions]
-    reFallOffSpecies = [spSymbolM.index(
-        x.falloff_species) if x.falloff_species else -1 for x in mechanism.reactions]
+    reFallOffSpecies = [spSymbolM.index(x.falloff_species) if
+                        x.falloff_species else -1 for x in mechanism.reactions]
 
     reArrCoeff = [x.arr_coeff for x in mechanism.reactions]
     reIsReversible = [x.is_reversible for x in mechanism.reactions]
@@ -133,15 +127,16 @@ def write_chemistry_data(path, mechanism):
     reHasEfficiencies = [
         True if x.efficiencies else False for x in mechanism.reactions]
     reNEfficiencies = [len(x.efficiencies.keys()) for x in mechanism.reactions]
-    reSpEfficiencies = [
-        [spSymbolM.index(y) for y in x.efficiencies] for x in mechanism.reactions]
+    reSpEfficiencies = [[spSymbolM.index(y) for y in x.efficiencies]
+                        for x in mechanism.reactions]
     reEfficiencies = [[x.efficiencies[y]
                        for y in x.efficiencies] for x in mechanism.reactions]
 
     # --- output ---
     getMaxCount = (lambda x: max([len(y) for y in x]))
-    fillArray = (lambda lists, fill, maxLength=getMaxCount: [
-                 x + [fill for _ in range(maxLength(lists)-len(x))] for x in lists])
+    fillArray = (lambda lists, fill, maxLength=getMaxCount:
+                 [x + [fill for _ in range(maxLength(lists)-len(x))]
+                  for x in lists])
 
     with h5py.File(path, 'w') as h5f:
         h5f.attrs['date'] = np.string_(str(datetime.datetime.now()))

@@ -1,29 +1,26 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file parse_reactions.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import logging
 import re
 from collections import OrderedDict
-
-from pychemistry.utilities import ReactionContainer, Reaction, ReactionType, conv_k0, def_unit_k0, conv_Ea, def_unit_Ea, cmsk_to_si
+from pychemistry.utilities import ReactionContainer, Reaction, ReactionType
+from pychemistry.utilities import conv_k0, def_unit_k0, conv_Ea, def_unit_Ea
+from pychemistry.utilities import cmsk_to_si
 from .parse_chemkin import chemkin_format_reader
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
+
 regex_pressure = re.compile(r'\(\+.*?\)')
 regex_three = re.compile(r'\+\s*M')
 ndef_keys = ['SRI', 'LT', 'JAN', 'FIT1', 'HV',
              'TDEP', 'EXCI', 'MOME', 'XSMI', 'PLOG', 'UNITS']
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
 def parse_auxiliary_data(strings):
     """Parse auxiliary data for a given list of strings."""
     result = OrderedDict()
@@ -78,9 +75,9 @@ def parse_auxiliary_data(strings):
 
     return result
 
+
 def parse_reaction_line(string):
     """Parse reactants and products strings."""
-
     # remove unwanted characters and split into parts
     tmp_string = regex_pressure.sub('', string)
     tmp_string = regex_three.sub('', tmp_string)
@@ -100,6 +97,7 @@ def parse_reaction_line(string):
             result[match_sp] = match_nu
 
     return result
+
 
 def parse_reaction(strings, unit_k0, unit_Ea):
     """Parse a reaction for a given list of strings."""
@@ -181,11 +179,14 @@ def parse_reaction(strings, unit_k0, unit_Ea):
             tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si(add=1.0), unit_k0, unit_Ea)
     elif 'HIGH' in tmp_auxiliary:
         raise(NotImplementedError(
-            'HIGH keyword is not supported. If use, check add parameter in unit conversion (may be 0)'))
-        reaction.adv_arr_coeff = cmsk_to_si(
-            tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si(add=-1.0), unit_k0, unit_Ea)
+            'HIGH keyword is not supported. ' + \
+                'If use, check add parameter in unit conversion (may be 0)'))
+        # reaction.adv_arr_coeff = cmsk_to_si(
+        #     tmp_auxiliary[tmp_adv_arr_key],
+        #     reaction.f_conv_si(add=-1.0), unit_k0, unit_Ea)
 
     return reaction
+
 
 def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
     """Parse the reactions section for a given list of strings."""
@@ -209,8 +210,8 @@ def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
             elif key in conv_Ea.keys():
                 reactions.unit_Ea = key
             else:
-                raise(
-                    KeyError('Provided unsupported reaction unit: "{:}"!'.format(key)))
+                raise(KeyError(
+                    'Provided unsupported reaction unit: "{:}"!'.format(key)))
 
         strings = strings[1:]
 

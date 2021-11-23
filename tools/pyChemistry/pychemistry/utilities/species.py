@@ -1,22 +1,20 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file species.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import numpy as np
-
 from .base import Base
 from .element import ElementContainer
 from .constants import NA
 from .utilities import chunk_list
-from .thermo import calc_dimless_cp, calc_dimless_h, calc_dimless_s, calc_dimless_g
+from .thermo import calc_dimless_cp, calc_dimless_h
+from .thermo import calc_dimless_s, calc_dimless_g
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 class Species(Base):
     """Object for storing species data. Inputs in SI units."""
 
@@ -39,7 +37,8 @@ class Species(Base):
             cp_poly = self._get_dimless_cp(T)
 
             add_checks.append(
-                (all(cp_poly >= 0.0), 'Cp polynomial not valid (reduce bounds to {:.2f})'.format(
+                (all(cp_poly >= 0.0),
+                    'Cp polynomial not valid (reduce bounds to {:.2f})'.format(
                     T[np.where(cp_poly >= 0)[-1][-1]])),
             )
 
@@ -65,9 +64,12 @@ class Species(Base):
     def _vector_handler(self, T, function):
         if isinstance(T, (list, np.ndarray)):
             T_l, T_h = splitAt(T, self.thermo.bounds[1])
-            return np.concatenate((function(T_l, self.thermo.coeff_low), function(T_h, self.thermo.coeff_high)))
+            return np.concatenate((function(T_l, self.thermo.coeff_low),
+                                   function(T_h, self.thermo.coeff_high)))
         else:
-            return function(T, self.thermo.coeff_low if T < self.thermo.bounds[1] else self.thermo.coeff_high)
+            return function(T, self.thermo.coeff_low
+                            if T < self.thermo.bounds[1]
+                            else self.thermo.coeff_high)
 
     @property
     def molar_mass(self):
@@ -77,7 +79,8 @@ class Species(Base):
             return self.thermo.molar_mass
         else:
             raise(ValueError('Neither molar mass nor elements/thermo properties '
-                             'have been set for species "{:}"!'.format(self.symbol)))
+                             'have been set for species "{:}"!'.format(
+                                 self.symbol)))
 
     @molar_mass.setter
     def molar_mass(self, value):
@@ -116,13 +119,12 @@ class Species(Base):
     def chemkinify(self):
         return self.symbol
 
+
 class SpeciesContainer(ElementContainer):
     """Container (storage) object for Species class objects."""
     _type = Species
 
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
+
 def splitAt(x, position):
     """Return two lists of provided values, splid at the given position."""
     idx = np.where(x > position)[0][0]

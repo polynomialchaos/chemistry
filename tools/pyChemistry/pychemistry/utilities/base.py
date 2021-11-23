@@ -1,18 +1,16 @@
-####################################################################################################################################
-# pyChemistry - Python package for FV3D preprocessing
-# (c) Florian Eigentler | 2020
-####################################################################################################################################
+################################################################################
+# @file base.py
+# @author Florian Eigentler
+# @brief
+# @version 1.0.0
+# @date 2021-11-23
+# @copyright Copyright (c) 2021
+################################################################################
 import logging
 from collections import OrderedDict
 from copy import deepcopy
 
-####################################################################################################################################
-# Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 
-####################################################################################################################################
-# Class Definitions
-# ----------------------------------------------------------------------------------------------------------------------------------
 class Base(object):
     """Object for storing data."""
 
@@ -35,6 +33,7 @@ class Base(object):
 
         return (not warnings)
 
+
 class BaseOrderedDictContainer(object):
     """Container (storage) object for Base class objects."""
     _type = Base
@@ -47,7 +46,8 @@ class BaseOrderedDictContainer(object):
                 return deepcopy(other)
 
             if self.all_flag or other.all_flag:
-                raise(Exception('Addition of data with ALL flag set is not supported!'))
+                raise(Exception(
+                    'Addition of data with ALL flag set is not supported!'))
             else:
                 new = deepcopy(self)
                 new._combine(other)
@@ -112,6 +112,7 @@ class BaseOrderedDictContainer(object):
     def values(self):
         return self._items.values()
 
+
 class BaseListContainer(object):
     """Container (storage) object for Base class objects."""
     _type = Base
@@ -124,7 +125,8 @@ class BaseListContainer(object):
                 return deepcopy(other)
 
             if self.all_flag or other.all_flag:
-                raise(Exception('Addition of data with ALL flag set is not supported!'))
+                raise(Exception(
+                    'Addition of data with ALL flag set is not supported!'))
             else:
                 new = deepcopy(self)
                 new._combine(other)
@@ -170,7 +172,3 @@ class BaseListContainer(object):
 
     def is_valid(self, **kwargs):
         return all([x.is_valid(**kwargs) for x in self])
-
-####################################################################################################################################
-# Functions
-# ----------------------------------------------------------------------------------------------------------------------------------
