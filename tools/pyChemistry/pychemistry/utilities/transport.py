@@ -18,11 +18,9 @@ CGS_TO_SI_POL = ANGSTROM_SI**3  # Conversion: Polarizeability
 class Transport(Base):
     """Transport object (storing data)."""
 
-    def __init__(self, symbol, geom=0, pot_lj=0.0, col_lj=0.0,
-                 dip_mo=0.0, pol=0.0, rot_rel=0.0):
-
+    def __init__(self, symbol, geom=None, pot_lj=None, col_lj=None,
+                 dip_mo=None, pol=None, rot_rel=None):
         self.symbol = symbol
-
         self.geom = geom
         self.pot_lj = pot_lj
         self.col_lj = col_lj
@@ -33,20 +31,19 @@ class Transport(Base):
     def __str__(self):
         return self.symbol
 
-    def _data_check(self):
+    def _check_list(self):
         return [
-            (self.geom in [0, 1, 2], 'Geometrical configuration not valid'),
-            (self.pot_lj >= 0.0, 'Lennard-Jones potential not valid'),
+            (self.geom in [0, 1, 2], 'Geometrical configuration not valid!'),
+            (self.pot_lj >= 0.0, 'Lennard-Jones potential not valid!'),
             (self.col_lj >= 0.0, 'Lennard-Jones collision diameter not valid!'),
             (self.dip_mo >= 0.0, 'Dipole moment not valid!'),
             (self.pol >= 0.0, 'Polarizability not valid!'),
-            (self.rot_rel >= 0.0, 'Rotational relaxation not valid'),
+            (self.rot_rel >= 0.0, 'Rotational relaxation not valid!'),
         ]
 
     def chemkinify(self):
         return '{:<16}{:<4}{:10.3f} {:10.3f} {:10.3f} {:10.3f}{:10.3f}'.format(
-            self.symbol, self.geom,
-            self.pot_lj,
+            self.symbol, self.geom, self.pot_lj,
             self.col_lj / CGS_TO_SI_COLLJ,
             self.dip_mo / CGS_TO_SI_DIPMO,
             self.pol / CGS_TO_SI_POL,
@@ -59,6 +56,8 @@ class Transport(Base):
 
     @col_lj.setter
     def col_lj(self, value):
+        if value is None:
+            return
         self._col_lj = float(value)
 
     @property
@@ -67,6 +66,8 @@ class Transport(Base):
 
     @dip_mo.setter
     def dip_mo(self, value):
+        if value is None:
+            return
         self._dip_mo = float(value)
 
     @property
@@ -75,6 +76,8 @@ class Transport(Base):
 
     @geom.setter
     def geom(self, value):
+        if value is None:
+            return
         self._geom = int(value)
 
     @property
@@ -83,6 +86,8 @@ class Transport(Base):
 
     @pol.setter
     def pol(self, value):
+        if value is None:
+            return
         self._pol = float(value)
 
     @property
@@ -91,6 +96,8 @@ class Transport(Base):
 
     @pot_lj.setter
     def pot_lj(self, value):
+        if value is None:
+            return
         self._pot_lj = float(value)
 
     @property
@@ -99,6 +106,8 @@ class Transport(Base):
 
     @rot_rel.setter
     def rot_rel(self, value):
+        if value is None:
+            return
         self._rot_rel = float(value)
 
     @property

@@ -19,11 +19,11 @@ class Base(object):
     def __str__(self):
         return str(self.__dict__)
 
-    def _data_check(self, **kwargs):
-        return [(False, 'No data check defined')]
+    def _check_list(self, **kwargs):
+        return [(False, 'No data check defined!')]
 
     def is_valid(self, **kwargs):
-        errors = [w for c, w in self._data_check(**kwargs) if not c]
+        errors = [w for c, w in self._check_list(**kwargs) if not c]
 
         # provide logging warnings for each failed check
         for err in errors:

@@ -6,7 +6,6 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-import sys
 from copy import deepcopy
 from .base import Base
 from .element import ElementContainer
@@ -20,67 +19,59 @@ class Mechanism(Base):
     """Object for storing mechanism data."""
 
     def __add__(self, other):
-        if other is None:
-            return deepcopy(self)
+        if type(self) == type(other):
+            if other is None:
+                return deepcopy(self)
 
-        if isinstance(self, other.__class__):
-            new = deepcopy(self)
-
-            new.name += '+{:}'.format(other.name)
-            new.models.update({key: other.models[key] for key in other.models})
-
-            for key in other.elements.keys():
-                new.elements[key] = other.elements[key]
-
-            for key in other.specii.keys():
-                new.specii[key] = other.specii[key]
-
-            for x in other.reactions:
-                new.reactions.append(x)
-
-            for key in other.thermos.keys():
-                new.thermos[key] = other.thermos[key]
-
-            for key in other.transports.keys():
-                new.transports[key] = other.transports[key]
-
-            new._update_thermos()
-            new._update_transports()
-
-            return new
+                new = deepcopy(self)
+                new._combine(other)
+                return new
         else:
-            raise(TypeError(Mechanism, type(other)))
+            raise(TypeError(type(self), type(other)))
 
     def __init__(self, name, elements=None, specii=None,
-                 reactions=None, thermos=None, transports=None, models=None):
-
+                 reactions=None, thermos=None, transports=None):
         self.name = name
-        self.elements = ElementContainer() if elements is None else elements
-        self.specii = SpeciesContainer() if specii is None else specii
-        self.reactions = ReactionContainer() if reactions is None else reactions
-        self.thermos = ThermoContainer() if thermos is None else thermos
-        self.transports = TransportContainer() \
-            if transports is None else transports
-        self.models = {} if models is None else models
+        self.elements = elements
+        self.specii = specii
+        self.reactions = reactions
+        self.thermos = thermos
+        self.transports = transports
 
     def __str__(self):
         return self.name
 
-    def _data_check(self):
+    def _check_list(self):
         reaction_strings = [x.reaction_string_short() for x in self.reactions]
 
         return [
-            (self.elements.is_valid(), 'Element data not valid'),
-            (self.specii.is_valid(), 'Species data not valid'),
-            (self.reactions.is_valid(
-                elements=self.elements, specii=self.specii,
-                reaction_strings=reaction_strings),
-                'Reaction data not valid'
-             ),
-            (self.thermos.is_valid(), 'Thermo data not valid'),
-            (self.transports.is_valid(), 'Transport data not valid'),
-            (len(self.inert_specii()) >= 1, 'Missing inert species'),
+            (self.elements.is_valid(), 'Element data not valid!'),
+            (self.specii.is_valid(), 'Species data not valid!'),
+            (self.reactions.is_valid(elements=self.elements, specii=self.specii,
+             reaction_strings=reaction_strings), 'Reaction data not valid!'),
+            (self.thermos.is_valid(), 'Thermo data not valid!'),
+            (self.transports.is_valid(), 'Transport data not valid!'),
+            (len(self.inert_specii()) >= 1, 'Missing inert species!'),
         ]
+
+    def _combine(self, other):
+        for key, value in other.elements.items():
+            self.elements[key] = value
+
+        for key, value in other.thermos.items():
+            self.thermos[key] = value
+
+        for key, value in other.transports.items():
+            self.transports[key] = value
+
+        for key, value in other.specii.items():
+            self.specii[key] = value
+
+        for value in other.reactions:
+            self.reactions.append(value)
+
+        self._update_thermos()
+        self._update_transports()
 
     def _update_thermos(self):
         for key in self.thermos:
@@ -94,14 +85,15 @@ class Mechanism(Base):
 
     def chemkinify(self, prefix, unit_k0=None, unit_Ea=None):
         with open('{:}.mech'.format(prefix), 'w') as fp:
-            fp.writelines(['ELEMENTS\n'] +
-                          self.elements.chemkinify() + ['END\n'])
-            fp.writelines(['SPECIES\n'] + self.specii.chemkinify() + ['END\n'])
+            fp.writelines(
+                ['ELEMENTS\n'] + self.elements.chemkinify() + ['END\n']
+            )
+            fp.writelines(
+                ['SPECIES\n'] + self.specii.chemkinify() + ['END\n']
+            )
 
-            if unit_k0 is None:
-                unit_k0 = self.reactions.unit_k0
-            if unit_Ea is None:
-                unit_Ea = self.reactions.unit_Ea
+            unit_k0 = self.reactions.unit_k0 if unit_k0 is None else unit_k0
+            unit_Ea = self.reactions.unit_Ea if unit_Ea is None else unit_Ea
 
             tmp = 'REACTIONS'
             if unit_k0 != def_unit_k0:
@@ -109,9 +101,10 @@ class Mechanism(Base):
             if unit_Ea != def_unit_Ea:
                 tmp += ' {:}'.format(unit_Ea)
 
-            fp.writelines(['{:}\n'.format(tmp)] +
-                          self.reactions.chemkinify(
-                unit_k0=unit_k0, unit_Ea=unit_Ea) + ['END\n'])
+            fp.writelines(
+                ['{:}\n'.format(tmp)] + self.reactions.chemkinify(
+                    unit_k0=unit_k0, unit_Ea=unit_Ea) + ['END\n']
+            )
 
         with open('{:}.thermo'.format(prefix), 'w') as fp:
             fp.writelines([

@@ -6,8 +6,8 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-import logging
 import os
+import logging
 from pychemistry.utilities import Mechanism
 from .parse_elements import parse_elements
 from .parse_specii import parse_specii

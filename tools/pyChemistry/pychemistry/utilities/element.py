@@ -6,8 +6,8 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
+import pychemistry.utilities.constants as cst
 from .base import Base, BaseDictContainer
-from .constants import REF_ELEMENTS
 from .utilities import chunk_list
 
 
@@ -18,7 +18,7 @@ class Element(Base):
         self.symbol = symbol
         self.mass = mass
 
-    def _data_check(self):
+    def _check_list(self):
         return [
             (self.mass > 0.0,
              'Atomic mass not valid (am={:})'.format(self.mass)),
@@ -30,14 +30,14 @@ class Element(Base):
 
     @property
     def mass(self):
-        return REF_ELEMENTS[self.symbol]
+        return cst.REF_ELEMENTS[self.symbol]
 
     @mass.setter
     def mass(self, value):
         if value is None:
             return
         self._mass = float(value)
-        REF_ELEMENTS[self.symbol] = self._mass
+        cst. REF_ELEMENTS[self.symbol] = self._mass
 
     @property
     def symbol(self):
@@ -52,16 +52,12 @@ class ElementContainer(BaseDictContainer):
     """Element dict container object (storing datas)."""
     _store_type = Element
 
-    def __str__(self):
-        return self.symbol
-
-    def chemkinify(self, keys=None, lineLength=80, **kwargs):
+    def chemkinify(self, keys=None, length=80, **kwargs):
         tmp = self.keys() if keys is None else keys
-        element_strings = [self.__getitem__(
-            key).chemkinify(**kwargs) for key in tmp]
+        element_strings = [self[key].chemkinify(**kwargs) for key in tmp]
         max_len = max(len(x) for x in element_strings) + 1
 
         return [
             ' '.join(['{1:{0:}}'.format(max_len, x) for x in chunk]) + '\n'
-            for chunk in chunk_list(element_strings, int(lineLength / max_len))
+            for chunk in chunk_list(element_strings, int(length / max_len))
         ]

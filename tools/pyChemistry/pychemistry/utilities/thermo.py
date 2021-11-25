@@ -19,33 +19,32 @@ N_NASA = 7              # Number of NASA polynomial coefficients
 class Thermo(Base):
     """Thermo object (storing data)."""
 
-    def __init__(self, symbol, info='', composition=None, phase='',
+    def __init__(self, symbol, info=None, composition=None, phase=None,
                  bounds=None, coeff_low=None, coeff_high=None):
-
         self.symbol = symbol
-
         self.info = info
-        self.composition = {} if composition is None else composition
+        self.composition = composition
         self.phase = phase
-        self.bounds = [] if bounds is None else bounds
-        self.coeff_low = [] if coeff_low is None else coeff_low
-        self.coeff_high = [] if coeff_high is None else coeff_high
+        self.bounds = bounds
+        self.coeff_low = coeff_low
+        self.coeff_high = coeff_high
 
     def __str__(self):
         return self.symbol
 
-    def _data_check(self):
+    def _check_list(self):
         return [
-            (bool(self.composition), 'Elemental composition empty'),
+            (bool(self.composition), 'Elemental composition empty!'),
             (len(self.bounds) == N_BOUNDS,
-             'NASA temp. bounds of wrong size ({:})'.format(len(self.bounds))),
+             'NASA temp. bounds of wrong size ({:})!'.format(
+                 len(self.bounds))),
             (len(self.coeff_low) == N_NASA,
-             'NASA low temp. coefficients of wrong size ({:})'.format(
+             'NASA low temp. coefficients of wrong size ({:})!'.format(
                  len(self.coeff_low))),
             (len(self.coeff_high) == N_NASA,
-             'NASA high temp. coefficients of wrong size ({:})'.format(len(
-                 self.coeff_high))),
-            (self.phase == 0, 'Phase not valid'),
+             'NASA high temp. coefficients of wrong size ({:})!'.format(
+                 len(self.coeff_high))),
+            (self.phase == 0, 'Phase not valid!'),
         ]
 
     def _get_comp_strings(self):
@@ -63,24 +62,26 @@ class Thermo(Base):
 
     @bounds.setter
     def bounds(self, value):
+        if value is None:
+            return
         tmp = sorted([float(x) for x in value])
-        self._bounds = [min(tmp), max(tmp)]
-        self._bounds += [x for x in tmp if x not in self._bounds]
+        self._bounds = [tmp[0], tmp[2], tmp[1]]
 
     def chemkinify(self):
         symb_info = '{:} {:}'.format(self.symbol, self.info)
         short_comps, long_comps = self._get_comp_strings()
+        line1 = '{:24}{:20}{:1}{:-10.3f}{:-10.3f}{:-10.3f}'.format(
+            symb_info[:24], short_comps, self._phase, *self._bounds)
+        line1_long = '' if not long_comps else ' &\n{:}'.format(long_comps)
+        line2 = ''.join(['{: 15.8E}'.format(coeff)
+                        for coeff in self.coeff_high[:5]])
+        line3 = ''.join(['{: 15.8E}'.format(coeff)
+                        for coeff in self.coeff_high[5:] + self.coeff_low[:3]])
+        line4 = ''.join(['{: 15.8E}'.format(coeff)
+                        for coeff in self.coeff_low[3:]])
+
         return '{:79}1{:}\n{:79}2\n{:79}3\n{:79}4'.format(
-            '{:24}{:20}{:1}{:-10.3f}{:-10.3f}{:-10.3f}'.format(
-                symb_info[:24], short_comps, self._phase, *self._bounds
-            ),
-            '' if not long_comps else ' &\n{:}'.format(long_comps),
-            ''.join(['{: 15.8E}'.format(coeff)
-                     for coeff in self.coeff_high[:5]]),
-            ''.join(['{: 15.8E}'.format(coeff)
-                     for coeff in self.coeff_high[5:] + self.coeff_low[:3]]),
-            ''.join(['{: 15.8E}'.format(coeff)
-                     for coeff in self.coeff_low[3:]]),
+            line1, line1_long, line2, line3, line4
         )
 
     @property
@@ -89,6 +90,8 @@ class Thermo(Base):
 
     @coeff_high.setter
     def coeff_high(self, value):
+        if value is None:
+            return
         self._coeff_high = [float(x) for x in value]
 
     @property
@@ -97,6 +100,8 @@ class Thermo(Base):
 
     @coeff_low.setter
     def coeff_low(self, value):
+        if value is None:
+            return
         self._coeff_low = [float(x) for x in value]
 
     @property
@@ -105,6 +110,8 @@ class Thermo(Base):
 
     @composition.setter
     def composition(self, value):
+        if value is None:
+            return
         self._composition = {key: float(value) for key, value in value.items()}
 
     @property
@@ -113,13 +120,15 @@ class Thermo(Base):
 
     @info.setter
     def info(self, value):
+        if value is None:
+            return
         self._info = value.strip()
 
     @property
     def molar_mass(self):
         return sum(
-            REF_ELEMENTS[key] * self.composition[key]
-            for key in self.composition
+            REF_ELEMENTS[key] * value
+            for key, value in self.composition.items()
         )
 
     @property
@@ -128,6 +137,8 @@ class Thermo(Base):
 
     @phase.setter
     def phase(self, value):
+        if value is None:
+            return
         self._phase = value.strip()
 
     @property

@@ -35,24 +35,20 @@ class Reaction(Base):
                  adv_arr_key=None, adv_arr_coeff=None, troe_coeff=None,
                  f_orders=None, r_orders=None, flags=None,
                  efficiencies=None):
-
         self.reaction_type = reaction_type
         self.reactants = reactants
         self.products = products
         self.is_reversible = is_reversible
-
-        self.arr_coeff = [] if arr_coeff is None else arr_coeff
-        self.falloff_species = \
-            '' if falloff_species is None else falloff_species
-
-        self.rev_arr_coeff = [] if rev_arr_coeff is None else rev_arr_coeff
-        self.adv_arr_key = '' if adv_arr_key is None else adv_arr_key
-        self.adv_arr_coeff = [] if adv_arr_coeff is None else adv_arr_coeff
-        self.troe_coeff = [] if troe_coeff is None else troe_coeff
-        self.f_orders = {} if f_orders is None else f_orders
-        self.r_orders = {} if r_orders is None else r_orders
-        self.flags = [] if flags is None else flags
-        self.efficiencies = {} if efficiencies is None else efficiencies
+        self.arr_coeff = arr_coeff
+        self.falloff_species = falloff_species
+        self.rev_arr_coeff = rev_arr_coeff
+        self.adv_arr_key = adv_arr_key
+        self.adv_arr_coeff = adv_arr_coeff
+        self.troe_coeff = troe_coeff
+        self.f_orders = f_orders
+        self.r_orders = r_orders
+        self.flags = flags
+        self.efficiencies = efficiencies
 
     def _add_species_string(self):
         if self.reaction_type == ReactionType.DEFAULT:
@@ -62,7 +58,7 @@ class Reaction(Base):
         elif self.reaction_type == ReactionType.PRESSURE:
             return '(+{:})'.format(self.falloff_species)
 
-    def _data_check(self, elements, specii, reaction_strings):
+    def _check_list(self, elements, specii, reaction_strings):
         string = self.reaction_string_short()
         n_duplicates = reaction_strings.count(string)
         is_duplicate = self.is_duplicate()
@@ -70,18 +66,18 @@ class Reaction(Base):
             self.troe_coeff) == 4 else True
 
         return [
-            (len(self.reactants.keys()) > 0, 'No reactants are speciefied'),
-            (len(self.products.keys()) > 0, 'No products are speciefied'),
+            (len(self.reactants.keys()) > 0, 'No reactants are speciefied!'),
+            (len(self.products.keys()) > 0, 'No products are speciefied!'),
             (last_troe,
-                'Last TROE coefficient must not be zero (set to SMALL)'),
+             'Last TROE coefficient must not be zero (set to SMALL)!'),
             (not (n_duplicates == 1 and is_duplicate),
-             'Reaction has duplicate flag, but no duplicate reaction is found'),
+             'Reaction has duplicate flag, but no duplicate reaction is found!'),
             (not (n_duplicates > 1 and not is_duplicate),
-             'Reaction is duplicate, but no duplicate flag is provided'),
+             'Reaction is duplicate, but no duplicate flag is provided!'),
             (check_element_balance(elements, specii, self),
-             'Reaction does not balance in elements'),
+             'Reaction does not balance in elements!'),
             (check_mass_balance(specii, self),
-                'Reaction does not balance in mass'),
+             'Reaction does not balance in mass!'),
         ]
 
     def __str__(self):
@@ -104,7 +100,8 @@ class Reaction(Base):
 
     @adv_arr_coeff.setter
     def adv_arr_coeff(self, value):
-        self._adv_arr_coeff = [float(x) for x in value]
+        self._adv_arr_coeff = [] if value is None else [
+            float(x) for x in value]
 
     @property
     def arr_coeff(self):
@@ -112,6 +109,8 @@ class Reaction(Base):
 
     @arr_coeff.setter
     def arr_coeff(self, value):
+        if value is None:
+            return
         self._arr_coeff = [float(x) for x in value]
 
     def chemkinify(self, min_len=45, reaction_string=None,
@@ -157,8 +156,8 @@ class Reaction(Base):
 
     @efficiencies.setter
     def efficiencies(self, value):
-        self._efficiencies = {key: float(value)
-                              for key, value in value.items()}
+        self._efficiencies = {} if value is None else \
+            {key: float(value) for key, value in value.items()}
 
     @property
     def falloff_species(self):
@@ -166,16 +165,36 @@ class Reaction(Base):
 
     @falloff_species.setter
     def falloff_species(self, value):
+        if value is None:
+            return
         self._falloff_species = value.strip()
 
+    @property
+    def flags(self):
+        return self._flags
+
+    @flags.setter
+    def flags(self, value):
+        self._flags = [] if value is None else [str(x) for x in value]
+
     def f_conv_si(self, add=0.0):
-        return conv_si_nu(self.f_order() + add)
+        sum_nu = self.f_order() + add
+        return CM_M ** (3 * (sum_nu - 1))
 
     def f_order(self):
         for_order = sum(self.reactant_orders)
         for_order += (1.0 if self.reaction_type ==
                       ReactionType.THREE_BODY else 0.0)
         return for_order
+
+    @property
+    def f_orders(self):
+        return self._f_orders
+
+    @f_orders.setter
+    def f_orders(self, value):
+        self._f_orders = {} if value is None else \
+            {key: float(value) for key, value in value.items()}
 
     def is_duplicate(self):
         return any('DUPL' in x for x in self.flags)
@@ -210,13 +229,23 @@ class Reaction(Base):
         self._products = {key: float(value) for key, value in value.items()}
 
     def r_conv_si(self, add=0.0):
-        return conv_si_nu(self.r_order() + add)
+        sum_nu = self.r_order() + add
+        return CM_M ** (3 * (sum_nu - 1))
 
     def r_order(self):
         rev_order = sum(self.product_orders)
         rev_order += (1.0 if self.reaction_type ==
                       ReactionType.THREE_BODY else 0.0)
         return rev_order
+
+    @property
+    def r_orders(self):
+        return self._r_orders
+
+    @r_orders.setter
+    def r_orders(self, value):
+        self._r_orders = {} if value is None else \
+            {key: float(value) for key, value in value.items()}
 
     @property
     def reactant_orders(self):
@@ -255,7 +284,8 @@ class Reaction(Base):
 
     @rev_arr_coeff.setter
     def rev_arr_coeff(self, value):
-        self._rev_arr_coeff = [float(x) for x in value]
+        self._rev_arr_coeff = [] if value is None else [
+            float(x) for x in value]
 
     @property
     def sum_nu(self):
@@ -267,7 +297,7 @@ class Reaction(Base):
 
     @troe_coeff.setter
     def troe_coeff(self, value):
-        self._troe_coeff = [float(x) for x in value]
+        self._troe_coeff = [] if value is None else [float(x) for x in value]
 
 
 class ReactionContainer(BaseListContainer):
@@ -276,7 +306,6 @@ class ReactionContainer(BaseListContainer):
 
     def __init__(self, items=None, all_flag=False):
         super().__init__(items=items, all_flag=all_flag)
-
         self.unit_k0 = def_unit_k0
         self.unit_Ea = def_unit_Ea
 
@@ -311,10 +340,6 @@ def si_to_cmsk(coeff, si_conv, unit_k0, unit_Ea):
     ]
 
 
-def conv_si_nu(sum_nu):
-    return CM_M ** (3 * (sum_nu - 1))
-
-
 def check_element_balance(elements, species, reaction, limit=1e-5):
     """Check the given reaction for their element balance."""
     elm_sum = {key: 0.0 for key in elements.keys()}
@@ -328,7 +353,8 @@ def check_element_balance(elements, species, reaction, limit=1e-5):
             elm_sum[key] -= species[x].thermo.composition[key] * y
 
     if any(abs(x) > limit for x in elm_sum.values()):
-        logging.warning('Element conservation violation: {:}'.format(elm_sum))
+        logging.warning('Element conservation violation: {:}!'.format(elm_sum))
+
     return all(abs(x) <= limit for x in elm_sum.values())
 
 
@@ -343,5 +369,6 @@ def check_mass_balance(species, reaction, limit=1e-5):
         mass_sum -= species[x].molar_mass * y
 
     if abs(mass_sum) > limit:
-        logging.warning('Mass conservation violation: {:}'.format(mass_sum))
+        logging.warning('Mass conservation violation: {:}!'.format(mass_sum))
+
     return abs(mass_sum) <= limit

@@ -17,9 +17,7 @@ class Species(Base):
     """Species object (storing data)."""
 
     def __init__(self, symbol, molar_mass=None, thermo=None, transport=None):
-
         self.symbol = symbol
-
         self.molar_mass = molar_mass
         self.thermo = thermo
         self.transport = transport
@@ -27,24 +25,27 @@ class Species(Base):
     def __str__(self):
         return self.symbol
 
-    def _data_check(self):
+    def _check_list(self):
         return [
-            (self.thermo is not None, 'Missing thermo data'),
-            (self.transport is not None, 'Missing transport data'),
             (self.molar_mass >= 0.0,
-             'Molar mass not valid (mm={:})'.format(self.molar_mass)),
+             'Molar mass not valid (mm={:})!'.format(self.molar_mass)),
+            (self.thermo is not None, 'Missing thermo data!'),
+            (self.transport is not None, 'Missing transport data!'),
         ]
+
+    def chemkinify(self):
+        return self.symbol
 
     @property
     def molar_mass(self):
         if hasattr(self, '_molar_mass'):
             return self._molar_mass
-        elif self.thermo:
+        elif hasattr(self, '_thermo') and self.thermo:
             return self.thermo.molar_mass
         else:
-            raise(ValueError('Neither molar mass nor elements/thermo properties '
-                             'have been set for species "{:}"!'.format(
-                                 self.symbol)))
+            raise(ValueError(
+                'Neither molar_mass nor thermo data for {:} specified!'.format(
+                    self.symbol)))
 
     @molar_mass.setter
     def molar_mass(self, value):
@@ -57,22 +58,6 @@ class Species(Base):
         return self.molar_mass / NA
 
     @property
-    def thermo(self):
-        return self._thermo
-
-    @thermo.setter
-    def thermo(self, x):
-        self._thermo = x
-
-    @property
-    def transport(self):
-        return self._transport
-
-    @transport.setter
-    def transport(self, x):
-        self._transport = x
-
-    @property
     def symbol(self):
         return self._symbol
 
@@ -80,8 +65,25 @@ class Species(Base):
     def symbol(self, value):
         self._symbol = value.strip()
 
-    def chemkinify(self):
-        return self.symbol
+    @property
+    def thermo(self):
+        return self._thermo
+
+    @thermo.setter
+    def thermo(self, value):
+        if value is None:
+            return
+        self._thermo = value
+
+    @property
+    def transport(self):
+        return self._transport
+
+    @transport.setter
+    def transport(self, value):
+        if value is None:
+            return
+        self._transport = value
 
 
 class SpeciesContainer(ElementContainer):
