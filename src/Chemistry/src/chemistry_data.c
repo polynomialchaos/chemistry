@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @file chemistry_data.h
+ * @file chemistry_data.c
  * @author Florian Eigentler
  * @brief
  * @version 1.0.0
