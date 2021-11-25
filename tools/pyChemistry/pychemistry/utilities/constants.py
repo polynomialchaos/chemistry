@@ -6,9 +6,6 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-from collections import OrderedDict
-
-
 NA = 6.022140857e23  # Avogadro number (mol-1)
 ENH_VW = 2.2         # Van Waals enhancement factor (-)
 
@@ -23,12 +20,12 @@ JOULE_KELVINS = RM          # Conversion from (J) to (K)
 ANGSTROM_SI = 10.0**(-10)   # Conversion from (Angstrom) to (m)
 DEBYE_SI = 10.0**(-24.5)    # Conversion from (Debye) to (m3 m-2 J J-2)
 
-REF_ELEMENTS = OrderedDict([
-    ('H',   0.00100794),
-    ('HE',  0.0040026022),
-    ('C',   0.0120107),
-    ('N',   0.0140067),
-    ('O',   0.0159994),
-    ('NE',  0.0201797),
-    ('AR',  0.039948),
-])
+REF_ELEMENTS = {
+    'H':  0.00100794,
+    'HE':  0.0040026022,
+    'C':  0.0120107,
+    'N':  0.0140067,
+    'O':  0.0159994,
+    'NE':  0.0201797,
+    'AR':  0.039948,
+}

@@ -8,7 +8,6 @@
 ################################################################################
 import logging
 import re
-from collections import OrderedDict
 from pychemistry.utilities import ReactionContainer, Reaction, ReactionType
 from pychemistry.utilities import conv_k0, def_unit_k0, conv_Ea, def_unit_Ea
 from pychemistry.utilities import cmsk_to_si
@@ -23,7 +22,7 @@ ndef_keys = ['SRI', 'LT', 'JAN', 'FIT1', 'HV',
 
 def parse_auxiliary_data(strings):
     """Parse auxiliary data for a given list of strings."""
-    result = OrderedDict()
+    result = {}
 
     for idx, string in enumerate(strings):
         # split the provided string into its parts
@@ -49,7 +48,7 @@ def parse_auxiliary_data(strings):
             result[key] = [float(x) for x in tmpString[1:]]
         elif key in ['FORD', 'RORD']:
             if not key in result:
-                result[key] = OrderedDict()
+                result[key] = {}
 
             for idx in range(1, len(tmpString[1:]), 2):
                 result[key][tmpString[idx]] = float(tmpString[idx+1])
@@ -66,7 +65,7 @@ def parse_auxiliary_data(strings):
         else:
             key = 'EFFS'
             if not key in result:
-                result[key] = OrderedDict()
+                result[key] = {}
 
             for idx in range(0, len(tmpString), 2):
                 result[key][tmpString[idx]] = float(tmpString[idx+1])
@@ -85,7 +84,7 @@ def parse_reaction_line(string):
 
     # split into nu and species
     # (take care of multiple species definitions)
-    result = OrderedDict()
+    result = {}
     for tmp in tmp_string:
         match = re.search(r'[^\W\d]', tmp)
         match_sp = tmp[match.start():].strip()

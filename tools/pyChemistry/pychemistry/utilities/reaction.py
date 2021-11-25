@@ -8,7 +8,6 @@
 ################################################################################
 import logging
 from enum import Enum, unique
-from collections import OrderedDict
 from .base import Base, BaseListContainer
 from .utilities import as_short, chunk_list
 from .constants import NA, CAL_JOULE, RM, CM_M
@@ -29,13 +28,13 @@ def_unit_Ea = 'CAL/MOLE'
 
 
 class Reaction(Base):
-    """Object for storing Reaction data."""
+    """Reaction object (storing data)."""
 
     def __init__(self, reaction_type, reactants, products, is_reversible,
                  arr_coeff=None, falloff_species=None, rev_arr_coeff=None,
                  adv_arr_key=None, adv_arr_coeff=None, troe_coeff=None,
                  f_orders=None, r_orders=None, flags=None,
-                 efficiencies=None, elementar=None):
+                 efficiencies=None):
 
         self.reaction_type = reaction_type
         self.reactants = reactants
@@ -50,13 +49,10 @@ class Reaction(Base):
         self.adv_arr_key = '' if adv_arr_key is None else adv_arr_key
         self.adv_arr_coeff = [] if adv_arr_coeff is None else adv_arr_coeff
         self.troe_coeff = [] if troe_coeff is None else troe_coeff
-        self.f_orders = OrderedDict() if f_orders is None else f_orders
-        self.r_orders = OrderedDict() if r_orders is None else r_orders
+        self.f_orders = {} if f_orders is None else f_orders
+        self.r_orders = {} if r_orders is None else r_orders
         self.flags = [] if flags is None else flags
-        self.efficiencies = \
-            OrderedDict() if efficiencies is None else efficiencies
-
-        self.elementar = elementar
+        self.efficiencies = {} if efficiencies is None else efficiencies
 
     def _add_species_string(self):
         if self.reaction_type == ReactionType.DEFAULT:
@@ -66,7 +62,7 @@ class Reaction(Base):
         elif self.reaction_type == ReactionType.PRESSURE:
             return '(+{:})'.format(self.falloff_species)
 
-    def _checklist(self, elements, specii, reaction_strings):
+    def _data_check(self, elements, specii, reaction_strings):
         string = self.reaction_string_short()
         n_duplicates = reaction_strings.count(string)
         is_duplicate = self.is_duplicate()
@@ -132,22 +128,22 @@ class Reaction(Base):
             (['{1:{0:}} {2:10.3e} {3:10.4f} {4:10.3f}'.format(
                 min_len, tmp_string,
                 *si_to_cmsk(self.arr_coeff,
-                self.f_conv_si(), unit_k0, unit_Ea))]) +
+                            self.f_conv_si(), unit_k0, unit_Ea))]) +
             (['  {:}'.format(x) for x in efficiencies]) +
             (['  REV /{:10.3e} {:10.4f} {:10.3f}/'.format(
                 *si_to_cmsk(self.rev_arr_coeff,
-                self.r_conv_si(), unit_k0, unit_Ea))]
+                            self.r_conv_si(), unit_k0, unit_Ea))]
                 if self.rev_arr_coeff else []) +
             (['  LOW /{:10.3e} {:10.4f} {:10.3f}/'.format(
                 *si_to_cmsk(self.adv_arr_coeff,
-                self.f_conv_si(add=1.0), unit_k0, unit_Ea))]
+                            self.f_conv_si(add=1.0), unit_k0, unit_Ea))]
                 if self.adv_arr_coeff and self.adv_arr_key == 'LOW' else []) +
             (['  HIGH/{:10.3e} {:10.4f} {:10.3f}/'.format(
                 *si_to_cmsk(self.adv_arr_coeff,
-                self.f_conv_si(add=-1.0), unit_k0, unit_Ea))]
+                            self.f_conv_si(add=-1.0), unit_k0, unit_Ea))]
                 if self.rev_arr_coeff and self.adv_arr_key == 'HIGH' else []) +
             (['  TROE/{:}/'.format(' '.join(['{:.4e}'.format(x)
-                for x in self.troe_coeff]))] if self.troe_coeff else []) +
+                                             for x in self.troe_coeff]))] if self.troe_coeff else []) +
             (['  FORD/{:} {:.6f}/'.format(key, self.f_orders[key])
                 for key in self.f_orders]) +
             (['  RORD/{:} {:.6f}/'.format(key, self.r_orders[key])
@@ -161,9 +157,8 @@ class Reaction(Base):
 
     @efficiencies.setter
     def efficiencies(self, value):
-        self._efficiencies = OrderedDict(
-            (key, float(value[key])) for key in value
-        )
+        self._efficiencies = {key: float(value)
+                              for key, value in value.items()}
 
     @property
     def falloff_species(self):
@@ -181,19 +176,6 @@ class Reaction(Base):
         for_order += (1.0 if self.reaction_type ==
                       ReactionType.THREE_BODY else 0.0)
         return for_order
-
-    @property
-    def elementar(self):
-        if hasattr(self, '_elementar'):
-            return self._elementar
-        else:
-            return self.is_elementar()
-
-    @elementar.setter
-    def elementar(self, value):
-        if value is None:
-            return
-        self._elementar = value
 
     def is_duplicate(self):
         return any('DUPL' in x for x in self.flags)
@@ -225,9 +207,7 @@ class Reaction(Base):
 
     @products.setter
     def products(self, value):
-        self._products = OrderedDict(
-            (key, float(value[key])) for key in value
-        )
+        self._products = {key: float(value) for key, value in value.items()}
 
     def r_conv_si(self, add=0.0):
         return conv_si_nu(self.r_order() + add)
@@ -249,9 +229,7 @@ class Reaction(Base):
 
     @reactants.setter
     def reactants(self, value):
-        self._reactants = OrderedDict(
-            (key, float(value[key])) for key in value
-        )
+        self._reactants = {key: float(value) for key, value in value.items()}
 
     def reaction_string(self):
         delimiter = '<=>' if self.is_reversible else '=>'
@@ -293,8 +271,8 @@ class Reaction(Base):
 
 
 class ReactionContainer(BaseListContainer):
-    """Container (storage) object for Reaction class objects."""
-    _type = Reaction
+    """Reaction list container object (storing datas)."""
+    _store_type = Reaction
 
     def __init__(self, items=None, all_flag=False):
         super().__init__(items=items, all_flag=all_flag)

@@ -6,7 +6,7 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-from .base import Base, BaseOrderedDictContainer
+from .base import Base, BaseDictContainer
 from .constants import ANGSTROM_SI, DEBYE_SI
 
 
@@ -16,7 +16,7 @@ CGS_TO_SI_POL = ANGSTROM_SI**3  # Conversion: Polarizeability
 
 
 class Transport(Base):
-    """Object for storing transport data. Inputs in SI units."""
+    """Transport object (storing data)."""
 
     def __init__(self, symbol, geom=0, pot_lj=0.0, col_lj=0.0,
                  dip_mo=0.0, pol=0.0, rot_rel=0.0):
@@ -33,7 +33,7 @@ class Transport(Base):
     def __str__(self):
         return self.symbol
 
-    def _checklist(self):
+    def _data_check(self):
         return [
             (self.geom in [0, 1, 2], 'Geometrical configuration not valid'),
             (self.pot_lj >= 0.0, 'Lennard-Jones potential not valid'),
@@ -110,6 +110,6 @@ class Transport(Base):
         self._symbol = value.strip()
 
 
-class TransportContainer(BaseOrderedDictContainer):
-    """Container (storage) object for Transport class objects."""
-    _type = Transport
+class TransportContainer(BaseDictContainer):
+    """Transport dict container object (storing datas)."""
+    _store_type = Transport

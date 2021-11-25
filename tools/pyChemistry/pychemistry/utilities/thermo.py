@@ -7,8 +7,7 @@
 # @copyright Copyright (c) 2021
 ################################################################################
 import numpy as np
-from collections import OrderedDict
-from .base import Base, BaseOrderedDictContainer
+from .base import Base, BaseDictContainer
 from .constants import REF_ELEMENTS, RM
 
 
@@ -18,7 +17,7 @@ N_NASA = 7              # Number of NASA polynomial coefficients
 
 
 class Thermo(Base):
-    """Object for storing thermo data. Inputs in SI units."""
+    """Thermo object (storing data)."""
 
     def __init__(self, symbol, info='', composition=None, phase='',
                  bounds=None, coeff_low=None, coeff_high=None):
@@ -26,7 +25,7 @@ class Thermo(Base):
         self.symbol = symbol
 
         self.info = info
-        self.composition = OrderedDict() if composition is None else composition
+        self.composition = {} if composition is None else composition
         self.phase = phase
         self.bounds = [] if bounds is None else bounds
         self.coeff_low = [] if coeff_low is None else coeff_low
@@ -35,7 +34,7 @@ class Thermo(Base):
     def __str__(self):
         return self.symbol
 
-    def _checklist(self):
+    def _data_check(self):
         return [
             (bool(self.composition), 'Elemental composition empty'),
             (len(self.bounds) == N_BOUNDS,
@@ -106,21 +105,7 @@ class Thermo(Base):
 
     @composition.setter
     def composition(self, value):
-        self._composition = OrderedDict(
-            (key, float(value[key])) for key in value
-        )
-
-    def fit_nasa_polynomial(self, ref_T, cp, h298, s298):
-        polyFit = np.flip(np.polyfit(ref_T, cp, deg=(7-1-2)), axis=0)
-        tmpCoeff = [x for x in polyFit] + [0.0, 0.0]
-
-        tmpCoeff[-2:] = [
-            h298 - calc_dimless_h(298.0, tmpCoeff) * 298.0,
-            s298 - calc_dimless_s(298.0, tmpCoeff)
-        ]
-
-        self.coeff_low = [x * self.molar_mass / RM for x in tmpCoeff]
-        self.coeff_high = [x for x in self.coeff_low]
+        self._composition = {key: float(value) for key, value in value.items()}
 
     @property
     def info(self):
@@ -154,34 +139,6 @@ class Thermo(Base):
         self._symbol = value.strip()
 
 
-class ThermoContainer(BaseOrderedDictContainer):
-    """Container (storage) object for Thermo class objects."""
-    _type = Thermo
-
-
-def calc_dimless_cp(T, a):
-    """Return the dimensionless heat capacity in constant pressure
-    polynomial at the given temperature(s)."""
-    return a[0] + T * (a[1] + T * (a[2] + T * (a[3] + T * a[4])))
-
-
-def calc_dimless_h(T, a):
-    """Return the dimensionless enthalpy polynomial
-    at the given temperature(s)."""
-    return a[0] + T * (
-        a[1] / 2 + T * (a[2] / 3 + T * (a[3] / 4 + T * a[4] / 5))) + a[5] / T
-
-
-def calc_dimless_s(T, a):
-    """Return the dimensionless entropy polynomial
-    at the given temperature(s)."""
-    return a[0] * np.log(T) + T * (
-        a[1] + T * (a[2] / 2 + T * (a[3] / 3 + T * a[4] / 4))) + a[6]
-
-
-def calc_dimless_g(T, a):
-    """Return the dimensionless free gibbs energy polynomial
-    at the given temperature(s)."""
-    return a[0] * (1 - np.log(T)) - T * (
-        a[1] / 2 + T * (
-            a[2] / 6 + T * (a[3] / 12 + T * a[4] / 20))) + a[5] / T - a[6]
+class ThermoContainer(BaseDictContainer):
+    """Thermo dict container object (storing datas)."""
+    _store_type = Thermo

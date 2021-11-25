@@ -7,7 +7,6 @@
 # @copyright Copyright (c) 2021
 ################################################################################
 import sys
-from collections import OrderedDict
 from copy import deepcopy
 from .base import Base
 from .element import ElementContainer
@@ -62,12 +61,12 @@ class Mechanism(Base):
         self.thermos = ThermoContainer() if thermos is None else thermos
         self.transports = TransportContainer() \
             if transports is None else transports
-        self.models = OrderedDict() if models is None else models
+        self.models = {} if models is None else models
 
     def __str__(self):
         return self.name
 
-    def _checklist(self):
+    def _data_check(self):
         reaction_strings = [x.reaction_string_short() for x in self.reactions]
 
         return [

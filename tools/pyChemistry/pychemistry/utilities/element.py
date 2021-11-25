@@ -6,19 +6,19 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-from .base import Base, BaseOrderedDictContainer
+from .base import Base, BaseDictContainer
 from .constants import REF_ELEMENTS
 from .utilities import chunk_list
 
 
 class Element(Base):
-    """Object for storing element data. Inputs in SI units."""
+    """Element object (storing data)."""
 
     def __init__(self, symbol, mass=None):
         self.symbol = symbol
         self.mass = mass
 
-    def _checklist(self):
+    def _data_check(self):
         return [
             (self.mass > 0.0,
              'Atomic mass not valid (am={:})'.format(self.mass)),
@@ -48,9 +48,9 @@ class Element(Base):
         self._symbol = value.strip()
 
 
-class ElementContainer(BaseOrderedDictContainer):
-    """Container (storage) object for Element class objects."""
-    _type = Element
+class ElementContainer(BaseDictContainer):
+    """Element dict container object (storing datas)."""
+    _store_type = Element
 
     def __str__(self):
         return self.symbol

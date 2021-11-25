@@ -8,7 +8,6 @@
 ################################################################################
 import logging
 import re
-from collections import OrderedDict
 from pychemistry.utilities import ThermoContainer, Thermo
 from pychemistry.utilities import REF_ELEMENTS, is_number
 from .parse_chemkin import chemkin_format_reader
@@ -69,9 +68,8 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
                     tmp = string[24:44].strip()
                     tmp = [(tmp[idx:idx+2].strip(), tmp[idx+2:idx+5].strip())
                            for idx in range(0, len(tmp), 5)]
-                    tmp_composition = OrderedDict(
-                        (key, float(nu)) for key, nu in tmp
-                        if key and float(nu) != 0.0)
+                    tmp_composition = {key: float(
+                        value) for key, value in tmp if key and float(value) != 0}
 
                     tmp_phase = string[44:45].strip() or 'G'
                     tmp_bounds = [

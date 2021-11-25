@@ -20,7 +20,7 @@ def parse_transports(path, start_keys=None, end_keys=None):
         path, start_keys=start_keys, end_keys=end_keys)
     transports = TransportContainer()
 
-    # check if END flag is provided
+    # check if TRANS flag is provided
     if strings:
         if not start_keys and 'TRANS' in strings[0][0]:
             strings = strings[1:]
