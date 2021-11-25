@@ -8,11 +8,7 @@
 ################################################################################
 from copy import deepcopy
 from .base import Base
-from .element import ElementContainer
-from .species import SpeciesContainer
-from .reaction import ReactionContainer, def_unit_k0, def_unit_Ea
-from .thermo import ThermoContainer
-from .transport import TransportContainer
+from .reaction import def_unit_k0, def_unit_Ea
 
 
 class Mechanism(Base):

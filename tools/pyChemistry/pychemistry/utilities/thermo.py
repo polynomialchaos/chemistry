@@ -6,9 +6,8 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-import numpy as np
 from .base import Base, BaseDictContainer
-from .constants import REF_ELEMENTS, RM
+from .constants import REF_ELEMENTS
 
 
 PHASE_NUM = {'G': 0}    # Conversion: Phase string

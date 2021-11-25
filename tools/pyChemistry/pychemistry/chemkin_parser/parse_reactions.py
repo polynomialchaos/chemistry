@@ -9,7 +9,7 @@
 import logging
 import re
 from pychemistry.utilities import ReactionContainer, Reaction, ReactionType
-from pychemistry.utilities import conv_k0, def_unit_k0, conv_Ea, def_unit_Ea
+from pychemistry.utilities import conv_k0, conv_Ea
 from pychemistry.utilities import cmsk_to_si
 from .parse_chemkin import chemkin_format_reader
 

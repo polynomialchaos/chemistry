@@ -6,11 +6,9 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-import numpy as np
 from .base import Base
 from .element import ElementContainer
 from .constants import NA
-from .utilities import chunk_list
 
 
 class Species(Base):
