@@ -16,7 +16,7 @@
 string_t title = NULL;
 
 /*******************************************************************************
- * @brief Main test function
+ * @brief Main function
  * @param argc
  * @param argv
  * @return int
