@@ -73,7 +73,7 @@ void calc_jacobian_numerical(int n_var)
         eps_fd = Y_n[i_var] * Y_n[i_var];
         eps_fd = sqrt(eps_fd) * 1e-4;
 
-        // positive + eps
+        /* positive + eps */
         for (int j = 0; j < n_var; ++j)
             phi[j] = Y_n[j];
 
@@ -88,7 +88,7 @@ void calc_jacobian_numerical(int n_var)
             jac[i_var * n_var + j] = -phi_dt[j];
         }
 
-        // negative + eps
+        /* negative + eps */
         for (int j = 0; j < n_var; ++j)
             phi[j] = Y_n[j];
 
@@ -280,27 +280,27 @@ void implicit_initialize()
  ******************************************************************************/
 void time_step_newton(int iter, double t, double dt)
 {
-    // discretization parameters
+    /* discretization parameters */
     n_bdf_stages_loc = (iter < n_bdf_stages) ? NBDFStagesEuler : n_bdf_stages;
     bdf_a_loc = (iter < n_bdf_stages) ? bdf_a_euler : bdf_a;
     bdf_b_loc = (iter < n_bdf_stages) ? bdf_b_euler : bdf_b;
 
-    // set local timestep
+    /* set local timestep */
     dt_loc = dt;
     tpdt_loc = t + dt_loc;
 
-    // store the old state before calculating the FVTimeDerivative
+    /* store the old state before calculating the FVTimeDerivative */
     for (int i = n_bdf_stages_loc - 1; i > 0; --i)
         copy_n(phi_old[i - 1], n_variables, phi_old[i]);
 
     for (int j = 0; j < n_variables; ++j)
         phi_old[0][j] = phi[j];
 
-    // fill inital values for newton iteration
+    /* fill inital values for newton iteration */
     copy_n(phi_old[0], n_variables, Y_n);
     copy_n(phi_dt, n_variables, dY_dt_n);
 
-    // calculate the inital error for newton abort criterion
+    /* calculate the inital error for newton abort criterion */
     for (int j = 0; j < n_variables; ++j)
     {
         int idx = j;
@@ -341,7 +341,7 @@ void time_step_newton(int iter, double t, double dt)
                             max_krylov_restarts);
         }
 
-        // Y^(n+1) = Y^(n) + (Y^(n+1)-Y^(n))
+        /* Y^(n+1) = Y^(n) + (Y^(n+1)-Y^(n)) */
         for (int j = 0; j < n_variables; ++j)
         {
             int idx = j;

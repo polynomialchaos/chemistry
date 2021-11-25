@@ -124,17 +124,17 @@ void time_step_lserkw2(int iter, double t, double dt)
 
     double phi_dt_tmp[n_variables];
 
-    // first stage
-    double t_stage = t; // + dt * rk_b[i_stage] = 0
+    /* first stage */
+    double t_stage = t; /* + dt * rk_b[i_stage] = 0 */
     reactor_function_pointer(t_stage);
 
     for (int i = 0; i < n_variables; ++i)
-        phi_dt_tmp[i] = phi_dt[i]; // + phi_dt_tmp * rk_a[i_stage] = 0
+        phi_dt_tmp[i] = phi_dt[i]; /* + phi_dt_tmp * rk_a[i_stage] = 0 */
 
     for (int i = 0; i < n_variables; ++i)
         phi[i] += phi_dt_tmp[i] * dt * rk_g[0];
 
-    // ! 2nd to n_rk_stages
+    /* 2nd to n_rk_stages */
     for (int i_stage = 1; i_stage < n_rk_stages; ++i_stage)
     {
         t_stage = t + dt * rk_b[i_stage];

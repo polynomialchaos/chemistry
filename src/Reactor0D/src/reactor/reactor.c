@@ -227,7 +227,7 @@ void reactor_initialize()
     global_chemistry = read_chemistry_data(chem_file);
     global_state = allocate_state(global_chemistry);
 
-    // read the input parameters
+    /* read the input parameters */
     specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
@@ -249,7 +249,7 @@ void reactor_initialize()
     update_state_isobaric(global_state->p, global_state->rho,
                           global_state->T, global_state->Y, global_state);
 
-    // initialize thermochemical vectors
+    /* initialize thermochemical vectors */
     n_variables = i_Y0 + specii->n_specii;
     variables = ALLOCATE(sizeof(string_t) * n_variables);
 

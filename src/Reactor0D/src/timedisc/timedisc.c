@@ -91,7 +91,7 @@ void print_residual_header()
  ******************************************************************************/
 void timedisc()
 {
-    // check for errors
+    /* check for errors */
     check_abort(0);
 
     int do_output = 0;
@@ -113,10 +113,10 @@ void timedisc()
 
     while (1)
     {
-        // check for errors
+        /* check for errors */
         check_abort(0);
 
-        // calculate time step dt
+        /* calculate time step dt */
         if (t + dt > t_end)
         {
             dt = t_end - t;
@@ -124,11 +124,11 @@ void timedisc()
             do_finalize = 1;
         }
 
-        // the timestep to be called
+        /* the timestep to be called */
         time_step_function_pointer(iter, t, dt);
         calc_global_residual(dt);
 
-        // check for NAN and INF
+        /* check for NAN and INF */
         if (is_nan_n(residual, n_variables) ||
             is_inf_n(residual, n_variables))
             CHECK_EXPRESSION(0);
@@ -136,7 +136,7 @@ void timedisc()
         t = t + dt;
         iter = iter + 1;
 
-        // steady-state simulation
+        /* steady-state simulation */
         if ((is_transient == 0) && (min_n(residual, n_variables) < abort_residual))
         {
             t_end = t;
@@ -149,7 +149,7 @@ void timedisc()
             do_output = 1;
         }
 
-        // maximum iteration number reacher
+        /* maximum iteration number reacher */
         if (iter >= iter_restart + max_iter)
         {
             t_end = t;
@@ -159,14 +159,14 @@ void timedisc()
 
         print_residual(iter, t, dt, do_output);
 
-        // output
+        /* output */
         if ((do_output_data == 1) && (do_output == 1))
         {
             write_output(iter, t);
             do_output = 0;
         }
 
-        // stop if required
+        /* stop if required */
         if (do_finalize)
             break;
     }
