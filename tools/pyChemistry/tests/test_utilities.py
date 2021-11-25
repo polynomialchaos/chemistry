@@ -7,27 +7,129 @@
 # @copyright Copyright (c) 2021
 ################################################################################
 import unittest
-from pychemistry.utilities import Base, BaseDictContainer, BaseListContainer
+from pychemistry.utilities import Base, BaseDictContainer, BaseListContainer, transport
+from pychemistry.utilities import Element, ElementContainer, REF_ELEMENTS
+from pychemistry.utilities import Species, SpeciesContainer, NA
+from pychemistry.utilities import Thermo, ThermoContainer
+from pychemistry.utilities import Transport, TransportContainer
+from pychemistry.utilities import Reaction, ReactionContainer
 from pychemistry.utilities import as_int, as_short, chunk_list, is_number
+from pychemistry.utilities import species
+from pychemistry.utilities.reaction import ReactionType
+from pychemistry.utilities.species import SpeciesContainer
 
 
 class TestBase(unittest.TestCase):
 
-    def test_base_object(self):
+    def test_base(self):
         base = Base()
         self.assertEqual(base.is_valid(), False)
 
     def test_base_dict_container(self):
-        base_container = BaseDictContainer()
+        elements = [('E1', Base()), ('E2', Base())]
+        container = BaseDictContainer()
         self.assertRaises(TypeError, BaseDictContainer, {'key': 'value'})
-        self.assertRaises(TypeError, base_container.__add__, 12)
-        base_container['test'] = Base()
+        self.assertRaises(TypeError, container.__add__, 12)
+        for k, v in elements:
+            container[k] = v
+        self.assertEqual(len(container), 2)
+        self.assertListEqual(list(container.keys()), [x[0] for x in elements])
+        self.assertListEqual(list(container.values()),
+                             [x[1] for x in elements])
+        self.assertListEqual(list(container.items()), [
+                             (x[0], x[1]) for x in elements])
 
     def test_base_list_container(self):
-        base_container = BaseListContainer()
+        elements = [Base(), Base()]
+        container = BaseListContainer()
         self.assertRaises(TypeError, BaseListContainer, [12])
-        self.assertRaises(TypeError, base_container.__add__, 12)
-        base_container.append(Base())
+        self.assertRaises(TypeError, container.__add__, 12)
+        container.append(elements[0])
+        container.append(elements[1])
+        self.assertEqual(len(container), 2)
+
+
+class TestElement(unittest.TestCase):
+    def test_element(self):
+        element = Element('H')
+        self.assertEqual(element.mass, REF_ELEMENTS['H'])
+        element.mass = 13.0
+        self.assertEqual(element.mass, 13.0)
+        element.chemkinify()
+
+    def test_element_container(self):
+        elements = [Element('H'), Element('H2')]
+        container = ElementContainer({elements[0].symbol: elements[0]})
+        for element in elements:
+            container[element.symbol] = element
+        self.assertEqual(len(container), 2)
+        container.chemkinify()
+
+
+class TestReaction(unittest.TestCase):
+    def test_reaction(self):
+        reaction = Reaction(ReactionType.DEFAULT, reactants={'H2O': 1},
+                            products={'H2O': 1}, is_reversible=True, arr_coeff=(1,2,3))
+        reaction.chemkinify()
+
+    def test_reaction_container(self):
+        elements = [Reaction(ReactionType.DEFAULT, reactants={'H2O': 1},
+                             products={'H2O': 1}, is_reversible=True, arr_coeff=(1,2,3)),
+                    Reaction(ReactionType.DEFAULT, reactants={'H2O': 1},
+                             products={'H2O': 1}, is_reversible=True, arr_coeff=(1,2,3)),
+                    ]
+        container = ReactionContainer(elements)
+        self.assertEqual(len(container), 2)
+
+
+class TestSpecies(unittest.TestCase):
+    def test_species(self):
+        species = Species('H')
+        self.assertRaises(ValueError, getattr, species, 'molecule_weight')
+        self.assertRaises(ValueError, getattr, species, 'molar_mass')
+        self.assertRaises(AttributeError, setattr,
+                          species, 'molecule_weight', 12.0)
+        species.molar_mass = 12.0
+        self.assertEqual(species.molar_mass, 12.0)
+        self.assertEqual(species.molecule_weight, 12.0 / NA)
+        species.chemkinify()
+
+    def test_species_container(self):
+        elements = [Species('H'), Species('H2')]
+        container = SpeciesContainer({elements[0].symbol: elements[0]})
+        for element in elements:
+            container[element.symbol] = element
+        self.assertEqual(len(container), 2)
+        container.chemkinify()
+
+
+class TestThermo(unittest.TestCase):
+    def test_thermo(self):
+        thermo = Thermo('H', info='test', composition={'H': 1},
+                        phase='G', bounds=(1, 2, 3), coeff_low=(1, 2, 3, 4, 5, 6, 7),
+                        coeff_high=(8, 9, 10, 11, 12, 13, 14))
+        thermo.chemkinify()
+
+    def test_thermo_container(self):
+        elements = [Thermo('H'), Thermo('H2')]
+        container = ThermoContainer({elements[0].symbol: elements[0]})
+        for element in elements:
+            container[element.symbol] = element
+        self.assertEqual(len(container), 2)
+
+
+class TestTransport(unittest.TestCase):
+    def test_transport(self):
+        transport = Transport('H', geom=0, pot_lj=1,
+                              col_lj=1, dip_mo=1, pol=1, rot_rel=1)
+        transport.chemkinify()
+
+    def test_transport_container(self):
+        elements = [Transport('H'), Transport('H2')]
+        container = TransportContainer({elements[0].symbol: elements[0]})
+        for element in elements:
+            container[element.symbol] = element
+        self.assertEqual(len(container), 2)
 
 
 class TestUtilities(unittest.TestCase):
