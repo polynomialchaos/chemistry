@@ -44,6 +44,39 @@ void create_file_header()
 }
 
 /*******************************************************************************
+ * @brief Define output
+ ******************************************************************************/
+void output_define()
+{
+    REGISTER_INITIALIZE_ROUTINE(output_initialize);
+    REGISTER_FINALIZE_ROUTINE(output_finalize);
+
+    SET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data,
+                  "The output file frequency "
+                  "(-1 ... first/solutions/last, 0 ... disable)",
+                  NULL, 0);
+}
+
+/*******************************************************************************
+ * @brief Finalize analyze
+ ******************************************************************************/
+void output_finalize()
+{
+    DEALLOCATE(output_file);
+}
+
+/*******************************************************************************
+ * @brief Initialize output
+ ******************************************************************************/
+void output_initialize()
+{
+    GET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data);
+    do_output_data = (i_output_data != 0);
+
+    output_file = allocate_strcat(title, ".h5");
+}
+
+/*******************************************************************************
  * @brief Write data to file
  * @param iter
  * @param t
@@ -105,37 +138,4 @@ void write_output(int iter, double t)
     DEALLOCATE(tmp);
 
     close_hdf5_file(file_id);
-}
-
-/*******************************************************************************
- * @brief Define output
- ******************************************************************************/
-void output_define()
-{
-    REGISTER_INITIALIZE_ROUTINE(output_initialize);
-    REGISTER_FINALIZE_ROUTINE(output_finalize);
-
-    SET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data,
-                  "The output file frequency " \
-                  "(-1 ... first/solutions/last, 0 ... disable)",
-                  NULL, 0);
-}
-
-/*******************************************************************************
- * @brief Finalize analyze
- ******************************************************************************/
-void output_finalize()
-{
-    DEALLOCATE(output_file);
-}
-
-/*******************************************************************************
- * @brief Initialize output
- ******************************************************************************/
-void output_initialize()
-{
-    GET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data);
-    do_output_data = (i_output_data != 0);
-
-    output_file = allocate_strcat(title, ".h5");
 }
