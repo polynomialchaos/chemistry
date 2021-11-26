@@ -65,7 +65,7 @@ def main():
     # setup additional output for debugging
     if args.debugging:
         debug_handler = logging.FileHandler(
-            '{:}.log'.format(args.inifile), mode='w')
+            '{:}.log'.format(args.input), mode='w')
         debug_handler.setLevel(logging.DEBUG)
         debug_handler.setFormatter(logging.Formatter(
             '%(levelname)s:%(name)s:%(message)s'))
