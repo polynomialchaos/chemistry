@@ -60,7 +60,7 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
             if counter == 1:
                 try:
                     # remove to long comment section and append data to info
-                    tmp_symbol = string[0:18].split(' ')
+                    tmp_symbol = string[0:18].split()
                     tmp_info = ' '.join(
                         tmp_symbol[1:]).strip() + string[18:24].strip()
                     tmp_symbol = tmp_symbol[0]
@@ -73,12 +73,9 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
 
                     tmp_phase = string[44:45].strip() or 'G'
                     tmp_bounds = [
-                        float(string[45:55].strip().split(' ')[
-                              0].strip() or thermos.bounds[0]),
-                        float(string[55:65].strip().split(' ')[
-                              0].strip() or thermos.bounds[2]),
-                        float(string[65:78].strip().split(' ')[
-                              0].strip() or thermos.bounds[1]),
+                        float(string[45:55].split()[0] or thermos.bounds[0]),
+                        float(string[55:65].split()[0] or thermos.bounds[2]),
+                        float(string[65:78].split()[0] or thermos.bounds[1]),
                     ]
 
                     logging.debug('Values "{:}"'.format(
@@ -90,10 +87,17 @@ def parse_thermos(path, start_keys=['THERMO', 'THER'], end_keys=['END']):
             elif counter == 999:
                 # add additional element information provided after & delimiter
                 parse_extra = False
-                data = string.split(' ')
+                data = string.split()
+                if (len(data) % 2) != 0:
+                    raise Exception('Invalid number of additional '\
+                        'composition strings!')
+
                 for el, nA in zip(data[::2], data[1::2]):
                     if el in REF_ELEMENTS and is_number(nA):
                         tmp_composition[el] = float(nA)
+                    else:
+                        raise Exception(
+                            'Invalid element in line!')
 
                 logging.debug(
                     'Updated elemental composition "{:}"'.format(

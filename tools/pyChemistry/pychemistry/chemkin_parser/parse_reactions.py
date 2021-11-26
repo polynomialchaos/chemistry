@@ -13,7 +13,7 @@ from pychemistry.utilities import conv_k0, conv_Ea
 from pychemistry.utilities import cmsk_to_si
 from .parse_chemkin import chemkin_format_reader
 
-
+regex_nu = re.compile(r'^([-+]?((\d+\.\d*)|(\.\d+)|(\d+))([eE][-+]?\d+)?)')
 regex_pressure = re.compile(r'\(\+.*?\)')
 regex_three = re.compile(r'\+\s*M')
 ndef_keys = ['SRI', 'LT', 'JAN', 'FIT1', 'HV',
@@ -86,9 +86,10 @@ def parse_reaction_line(string):
     # (take care of multiple species definitions)
     result = {}
     for tmp in tmp_string:
-        match = re.search(r'[^\W\d]', tmp)
-        match_sp = tmp[match.start():].strip()
-        match_nu = float(tmp[:match.start()]) if tmp[:match.start()] else 1.0
+        match = regex_nu.search(tmp)
+        idx = 0 if match is None else match.span()[-1]
+        match_nu = float(tmp[:idx]) if tmp[:idx] else 1.0
+        match_sp = tmp[idx:].strip()
 
         if match_sp in result:
             result[match_sp] += match_nu
@@ -108,10 +109,10 @@ def parse_reaction(strings, unit_k0, unit_Ea):
         logging.debug('Additional line "{:}"'.format(string))
 
     # reaction type and falloff species
-    if regex_pressure.search(strings[0]):
+    if regex_pressure.search(tmp_reaction_line):
         tmp_type = ReactionType.PRESSURE
-        tmp_falloff_species = strings[0].split('(+')[1].split(')')[0].strip()
-    elif regex_three.search(strings[0]):
+        tmp_falloff_species = tmp_reaction_line.split('(+')[1].split(')')[0].strip()
+    elif regex_three.search(tmp_reaction_line):
         tmp_type = ReactionType.THREE_BODY
         tmp_falloff_species = 'M'
     else:
@@ -203,7 +204,7 @@ def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
 
     # check if units are provided
     if not '=' in strings[0][0]:
-        for key in [x.strip() for x in strings[0][0].split(' ') if x]:
+        for key in strings[0][0].split():
             if key in conv_k0.keys():
                 reactions.unit_k0 = key
             elif key in conv_Ea.keys():
