@@ -17,21 +17,15 @@ CGS_TO_SI_POL = ANGSTROM_SI**3  # Conversion: Polarizeability
 
 class Transport(Base):
     """Transport object (storing data)."""
+    # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, symbol, geom=None, pot_lj=None, col_lj=None,
-                 dip_mo=None, pol=None, rot_rel=None):
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.geom = geom
-        self.pot_lj = pot_lj
-        self.col_lj = col_lj
-        self.dip_mo = dip_mo
-        self.pol = pol
-        self.rot_rel = rot_rel
 
     def __str__(self):
         return self.symbol
 
-    def _check_list(self):
+    def _check_list(self, **_):
         return [
             (self.geom in [0, 1, 2], 'Geometrical configuration not valid!'),
             (self.pot_lj >= 0.0, 'Lennard-Jones potential not valid!'),
@@ -41,7 +35,7 @@ class Transport(Base):
             (self.rot_rel >= 0.0, 'Rotational relaxation not valid!'),
         ]
 
-    def chemkinify(self):
+    def chemkinify(self, **_):
         return '{:<16}{:<4}{:10.3f} {:10.3f} {:10.3f} {:10.3f}{:10.3f}'.format(
             self.symbol, self.geom, self.pot_lj,
             self.col_lj / CGS_TO_SI_COLLJ,
@@ -52,66 +46,61 @@ class Transport(Base):
 
     @property
     def col_lj(self):
+        """Transport Lennard-Jones collision diameter."""
         return self._col_lj
 
     @col_lj.setter
     def col_lj(self, value):
-        if value is None:
-            return
         self._col_lj = float(value)
 
     @property
     def dip_mo(self):
+        """Transport dipole momentum."""
         return self._dip_mo
 
     @dip_mo.setter
     def dip_mo(self, value):
-        if value is None:
-            return
         self._dip_mo = float(value)
 
     @property
     def geom(self):
+        """Transport geometry."""
         return self._geom
 
     @geom.setter
     def geom(self, value):
-        if value is None:
-            return
         self._geom = int(value)
 
     @property
     def pol(self):
+        """Transport polarizability."""
         return self._pol
 
     @pol.setter
     def pol(self, value):
-        if value is None:
-            return
         self._pol = float(value)
 
     @property
     def pot_lj(self):
+        """Transport Lennard-Jones potential."""
         return self._pot_lj
 
     @pot_lj.setter
     def pot_lj(self, value):
-        if value is None:
-            return
         self._pot_lj = float(value)
 
     @property
     def rot_rel(self):
+        """Transport rotational relaxation."""
         return self._rot_rel
 
     @rot_rel.setter
     def rot_rel(self, value):
-        if value is None:
-            return
         self._rot_rel = float(value)
 
     @property
     def symbol(self):
+        """Transport symbol."""
         return self._symbol
 
     @symbol.setter

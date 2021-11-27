@@ -42,7 +42,7 @@ logging.getLogger().addHandler(out_handler)
 
 
 def main():
-
+    """Main function entrance point."""
     # define the argument parser
     parser = argparse.ArgumentParser(
         description='Chemistry - Chemistry library preprocessing')
@@ -88,7 +88,7 @@ def main():
 
     # write the chemkin format
     if args.chemkin:
-        mechanism.chemkinify(args.chemkin, unit_Ea='KELVINS')
+        mechanism.chemkinify(prefix=args.chemkin, unit_ea='KELVINS')
 
 
 ################################################################################

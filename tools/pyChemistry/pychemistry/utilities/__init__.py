@@ -12,7 +12,7 @@ from .constants import CM_M, CAL_JOULE, JOULE_KELVINS, ANGSTROM_SI, DEBYE_SI
 from .element import Element, ElementContainer
 from .mechanism import Mechanism
 from .reaction import Reaction, ReactionContainer, ReactionType
-from .reaction import conv_k0, def_unit_k0, conv_Ea, def_unit_Ea, cmsk_to_si
+from .reaction import conv_k0, DEF_UNIT_K0, conv_Ea, DEF_UNIT_EA, cmsk_to_si
 from .species import Species, SpeciesContainer
 from .thermo import Thermo, ThermoContainer
 from .transport import Transport, TransportContainer

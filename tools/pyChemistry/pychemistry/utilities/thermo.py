@@ -17,21 +17,15 @@ N_NASA = 7              # Number of NASA polynomial coefficients
 
 class Thermo(Base):
     """Thermo object (storing data)."""
+    # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, symbol, info=None, composition=None, phase=None,
-                 bounds=None, coeff_low=None, coeff_high=None):
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.info = info
-        self.composition = composition
-        self.phase = phase
-        self.bounds = bounds
-        self.coeff_low = coeff_low
-        self.coeff_high = coeff_high
 
     def __str__(self):
         return self.symbol
 
-    def _check_list(self):
+    def _check_list(self, **_):
         return [
             (bool(self.composition), 'Elemental composition empty!'),
             (len(self.bounds) == N_BOUNDS,
@@ -57,27 +51,27 @@ class Thermo(Base):
 
     @property
     def bounds(self):
+        """Thermo NASA polynomials temperature bounds (sorted)."""
         return list(sorted(self._bounds))
 
     @bounds.setter
     def bounds(self, value):
-        if value is None:
-            return
         tmp = sorted([float(x) for x in value])
         self._bounds = [tmp[0], tmp[2], tmp[1]]
 
-    def chemkinify(self):
+    def chemkinify(self, **_):
         symb_info = '{:} {:}'.format(self.symbol, self.info)
         short_comps, long_comps = self._get_comp_strings()
+
         line1 = '{:24}{:20}{:1}{:-10.3f}{:-10.3f}{:-10.3f}'.format(
             symb_info[:24], short_comps, self._phase, *self._bounds)
         line1_long = '' if not long_comps else ' &\n{:}'.format(long_comps)
         line2 = ''.join(['{: 15.8E}'.format(coeff)
-                        for coeff in self.coeff_high[:5]])
+                         for coeff in self.coeff_high[:5]])
         line3 = ''.join(['{: 15.8E}'.format(coeff)
-                        for coeff in self.coeff_high[5:] + self.coeff_low[:3]])
+                         for coeff in self.coeff_high[5:] + self.coeff_low[:3]])
         line4 = ''.join(['{: 15.8E}'.format(coeff)
-                        for coeff in self.coeff_low[3:]])
+                         for coeff in self.coeff_low[3:]])
 
         return '{:79}1{:}\n{:79}2\n{:79}3\n{:79}4'.format(
             line1, line1_long, line2, line3, line4
@@ -85,46 +79,43 @@ class Thermo(Base):
 
     @property
     def coeff_high(self):
+        """Thermo NASA polynomials (high temperature range)."""
         return self._coeff_high
 
     @coeff_high.setter
     def coeff_high(self, value):
-        if value is None:
-            return
         self._coeff_high = [float(x) for x in value]
 
     @property
     def coeff_low(self):
+        """Thermo NASA polynomials (low temperature range)."""
         return self._coeff_low
 
     @coeff_low.setter
     def coeff_low(self, value):
-        if value is None:
-            return
         self._coeff_low = [float(x) for x in value]
 
     @property
     def composition(self):
+        """Thermo elemental composition."""
         return self._composition
 
     @composition.setter
     def composition(self, value):
-        if value is None:
-            return
         self._composition = {key: float(value) for key, value in value.items()}
 
     @property
     def info(self):
+        """Thermo info string."""
         return self._info
 
     @info.setter
     def info(self, value):
-        if value is None:
-            return
         self._info = value.strip()
 
     @property
     def molar_mass(self):
+        """Thermo molar mass by composition (kg mol-1)."""
         return sum(
             REF_ELEMENTS[key] * value
             for key, value in self.composition.items()
@@ -132,16 +123,16 @@ class Thermo(Base):
 
     @property
     def phase(self):
+        """Thermo phase number."""
         return PHASE_NUM[self._phase]
 
     @phase.setter
     def phase(self, value):
-        if value is None:
-            return
         self._phase = value.strip()
 
     @property
     def symbol(self):
+        """Thermo symbol."""
         return self._symbol
 
     @symbol.setter

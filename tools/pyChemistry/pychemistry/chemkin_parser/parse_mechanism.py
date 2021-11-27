@@ -18,7 +18,7 @@ from .parse_transports import parse_transports
 
 def parse_mechanism(path):
     """Parse the provided path."""
-    logging.info('Parse mechanism from path "{:}"'.format(path))
+    logging.info('Parse mechanism from path "%s"', path)
 
     return Mechanism(
         name=os.path.basename(path),

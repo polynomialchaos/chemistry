@@ -14,16 +14,13 @@ from .constants import NA
 class Species(Base):
     """Species object (storing data)."""
 
-    def __init__(self, symbol, molar_mass=None, thermo=None, transport=None):
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.molar_mass = molar_mass
-        self.thermo = thermo
-        self.transport = transport
 
     def __str__(self):
         return self.symbol
 
-    def _check_list(self):
+    def _check_list(self, **_):
         return [
             (self.molar_mass >= 0.0,
              'Molar mass not valid (mm={:})!'.format(self.molar_mass)),
@@ -36,14 +33,15 @@ class Species(Base):
 
     @property
     def molar_mass(self):
+        """Species molar mass (kg mol-1)."""
         if hasattr(self, '_molar_mass'):
             return self._molar_mass
-        elif hasattr(self, '_thermo') and self.thermo:
+        if hasattr(self, '_thermo') and self.thermo:
             return self.thermo.molar_mass
-        else:
-            raise(ValueError(
-                'Neither molar_mass nor thermo data for {:} specified!'.format(
-                    self.symbol)))
+
+        raise ValueError(
+            'Neither molar_mass nor thermo data for {:} specified!'.format(
+                self.symbol))
 
     @molar_mass.setter
     def molar_mass(self, value):
@@ -53,10 +51,12 @@ class Species(Base):
 
     @property
     def molecule_weight(self):
+        """Species molecule weigth (kg)."""
         return self.molar_mass / NA
 
     @property
     def symbol(self):
+        """Species symbol."""
         return self._symbol
 
     @symbol.setter
@@ -65,6 +65,7 @@ class Species(Base):
 
     @property
     def thermo(self):
+        """Species thermo data."""
         return self._thermo
 
     @thermo.setter
@@ -75,6 +76,7 @@ class Species(Base):
 
     @property
     def transport(self):
+        """Species transport data."""
         return self._transport
 
     @transport.setter

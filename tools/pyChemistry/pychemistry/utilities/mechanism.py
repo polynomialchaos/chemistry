@@ -8,7 +8,7 @@
 ################################################################################
 from copy import deepcopy
 from .base import Base
-from .reaction import def_unit_k0, def_unit_Ea
+from .reaction import DEF_UNIT_K0, DEF_UNIT_EA
 
 
 class Mechanism(Base):
@@ -23,7 +23,8 @@ class Mechanism(Base):
                 new._combine(other)
                 return new
         else:
-            raise(TypeError(type(self), type(other)))
+            raise TypeError('Wrong type "{:}" ({:})!'.format(
+            type(other), type(self)))
 
     def __init__(self, name, elements=None, specii=None,
                  reactions=None, thermos=None, transports=None):
@@ -37,14 +38,14 @@ class Mechanism(Base):
     def __str__(self):
         return self.name
 
-    def _check_list(self):
+    def _check_list(self, **_):
         reaction_strings = [x.reaction_string_short() for x in self.reactions]
 
         return [
             (self.elements.is_valid(), 'Element data not valid!'),
             (self.specii.is_valid(), 'Species data not valid!'),
             (self.reactions.is_valid(elements=self.elements, specii=self.specii,
-             reaction_strings=reaction_strings), 'Reaction data not valid!'),
+                                     reaction_strings=reaction_strings), 'Reaction data not valid!'),
             (self.thermos.is_valid(), 'Thermo data not valid!'),
             (self.transports.is_valid(), 'Transport data not valid!'),
             (len(self.inert_specii()) >= 1, 'Missing inert species!'),
@@ -79,7 +80,11 @@ class Mechanism(Base):
             if key in self.specii:
                 self.specii[key].transport = self.transports[key]
 
-    def chemkinify(self, prefix, unit_k0=None, unit_Ea=None):
+    def chemkinify(self, **kwargs):
+        prefix  = kwargs['prefix']
+        unit_k0 = kwargs.get('unit_k0', self.reactions.unit_k0)
+        unit_ea = kwargs.get('unit_ea', self.reactions.unit_ea)
+
         with open('{:}.mech'.format(prefix), 'w') as fp:
             fp.writelines(
                 ['ELEMENTS\n'] + self.elements.chemkinify() + ['END\n']
@@ -88,18 +93,15 @@ class Mechanism(Base):
                 ['SPECIES\n'] + self.specii.chemkinify() + ['END\n']
             )
 
-            unit_k0 = self.reactions.unit_k0 if unit_k0 is None else unit_k0
-            unit_Ea = self.reactions.unit_Ea if unit_Ea is None else unit_Ea
-
             tmp = 'REACTIONS'
-            if unit_k0 != def_unit_k0:
+            if unit_k0 != DEF_UNIT_K0:
                 tmp += ' {:}'.format(unit_k0)
-            if unit_Ea != def_unit_Ea:
-                tmp += ' {:}'.format(unit_Ea)
+            if unit_ea != DEF_UNIT_EA:
+                tmp += ' {:}'.format(unit_ea)
 
             fp.writelines(
                 ['{:}\n'.format(tmp)] + self.reactions.chemkinify(
-                    unit_k0=unit_k0, unit_Ea=unit_Ea) + ['END\n']
+                    unit_k0=unit_k0, unit_ea=unit_ea) + ['END\n']
             )
 
         with open('{:}.thermo'.format(prefix), 'w') as fp:

@@ -11,9 +11,11 @@ from pychemistry.utilities import SpeciesContainer, Species
 from .parse_chemkin import chemkin_format_reader
 
 
-def parse_specii(path, start_keys=['SPECIES', 'SPEC'], end_keys=['END']):
+def parse_specii(path, start_keys=None, end_keys=None):
     """Parse the species section for a given list of strings."""
-    logging.info('Parse species from path "{:}"'.format(path))
+    logging.info('Parse species from path "%s"', path)
+    start_keys = ['SPECIES', 'SPEC'] if start_keys is None else start_keys
+    end_keys = ['END'] if end_keys is None else end_keys
 
     strings = chemkin_format_reader(
         path, start_keys=start_keys, end_keys=end_keys)
@@ -29,13 +31,13 @@ def parse_specii(path, start_keys=['SPECIES', 'SPEC'], end_keys=['END']):
     try:
         for _, (string, _) in enumerate(strings):
             for tmp_string in string.split():
-                logging.debug('Add species "{:}"'.format(tmp_string))
+                logging.debug('Add species "%s"', tmp_string)
 
                 species[tmp_string] = Species(
                     symbol=tmp_string
                 )
     except:
-        logging.error('Parse error in line "{:}"'.format(string))
+        logging.error('Parse error in line "%s"', string)
         raise
 
     return species

@@ -36,14 +36,14 @@ def parse_auxiliary_data(strings):
         # search for unsupported keys
         key = tmpString[0]
         if key in ndef_keys:
-            raise(
-                KeyError('Unsupported auxiliary key "{:}" provided!'.format(key)))
+            raise KeyError(
+                'Unsupported auxiliary key "{:}" provided!'.format(key))
 
         # depending on the keyword store the data in the auxiliary dict
         if key in ['LOW', 'HIGH', 'TROE', 'REV']:
             if key in result:
-                raise(
-                    KeyError('Redefinition of auxiliary key "{:}"!'.format(key)))
+                raise KeyError(
+                    'Redefinition of auxiliary key "{:}"!'.format(key))
 
             result[key] = [float(x) for x in tmpString[1:]]
         elif key in ['FORD', 'RORD']:
@@ -70,7 +70,7 @@ def parse_auxiliary_data(strings):
             for idx in range(0, len(tmpString), 2):
                 result[key][tmpString[idx]] = float(tmpString[idx+1])
 
-        logging.debug('Auxiliary data "{:}" = "{:}"'.format(key, result[key]))
+        logging.debug('Auxiliary data "%s" = "%s"', key, result[key])
 
     return result
 
@@ -99,19 +99,19 @@ def parse_reaction_line(string):
     return result
 
 
-def parse_reaction(strings, unit_k0, unit_Ea):
+def parse_reaction(strings, unit_k0, unit_ea):
     """Parse a reaction for a given list of strings."""
     tmp_reaction_line = strings[0]
-    logging.debug('Add reaction "{:}"'.format(tmp_reaction_line))
-
     tmp_auxiliary_lines = strings[1:]
+    logging.debug('Add reaction "%s"', tmp_reaction_line)
     for string in tmp_auxiliary_lines:
-        logging.debug('Additional line "{:}"'.format(string))
+        logging.debug('Additional line "%s"', string)
 
     # reaction type and falloff species
     if regex_pressure.search(tmp_reaction_line):
         tmp_type = ReactionType.PRESSURE
-        tmp_falloff_species = tmp_reaction_line.split('(+')[1].split(')')[0].strip()
+        tmp_falloff_species = tmp_reaction_line.split(
+            '(+')[1].split(')')[0].strip()
     elif regex_three.search(tmp_reaction_line):
         tmp_type = ReactionType.THREE_BODY
         tmp_falloff_species = 'M'
@@ -119,11 +119,11 @@ def parse_reaction(strings, unit_k0, unit_Ea):
         tmp_type = ReactionType.DEFAULT
         tmp_falloff_species = ''
 
-    logging.debug('Reaction type: {:}'.format(tmp_type))
+    logging.debug('Reaction type: %s', tmp_type)
 
     # arrhenius coefficients
     tmp_arr_coeff = [float(x) for x in tmp_reaction_line.split()[-3:]]
-    logging.debug('Arrhenius coefficients: {:}'.format(tmp_arr_coeff))
+    logging.debug('Arrhenius coefficients: "%s"', tmp_arr_coeff)
 
     # reversibility
     tmp_line = ''.join(tmp_reaction_line.split()[:-3])
@@ -137,60 +137,69 @@ def parse_reaction(strings, unit_k0, unit_Ea):
         tmp_delimiter = '='
         tmp_is_reversible = True
     else:
-        raise(
-            Exception('No supported delimiter string "{:}" provided!'.format(tmp_line)))
+        raise Exception(
+            'No supported delimiter string "{:}" provided!'.format(tmp_line))
 
-    logging.debug('Reversibility: {:}'.format(tmp_is_reversible))
+    logging.debug('Reversibility: %i', tmp_is_reversible)
 
     # reactants and products
     tmp_reactants = parse_reaction_line(tmp_line.split(tmp_delimiter)[0])
     tmp_products = parse_reaction_line(tmp_line.split(tmp_delimiter)[1])
 
-    logging.debug('Reactants "{:}"'.format(tmp_reactants))
-    logging.debug('Products "{:}"'.format(tmp_products))
+    logging.debug('Reactants "%s"', tmp_reactants)
+    logging.debug('Products "%s"', tmp_products)
 
     # auxiliary data
     tmp_auxiliary = parse_auxiliary_data(tmp_auxiliary_lines)
     tmp_adv_arr_key = 'HIGH' if 'HIGH' in tmp_auxiliary else 'LOW'
 
-    reaction = Reaction(
-        reaction_type=tmp_type,
-        reactants=tmp_reactants,
-        products=tmp_products,
-        is_reversible=tmp_is_reversible,
-        falloff_species=tmp_falloff_species,
-        adv_arr_key=tmp_adv_arr_key,
-        troe_coeff=tmp_auxiliary.get('TROE', None),
-        f_orders=tmp_auxiliary.get('FORD', None),
-        r_orders=tmp_auxiliary.get('RORD', None),
-        flags=tmp_auxiliary.get('FLAGS', None),
-        efficiencies=tmp_auxiliary.get('EFFS', None)
-    )
+    reaction = Reaction(reaction_type=tmp_type, reactants=tmp_reactants,
+                        products=tmp_products, is_reversible=tmp_is_reversible)
+
+    reaction.falloff_species = tmp_falloff_species
+    reaction.adv_arr_key = tmp_adv_arr_key
+
+    if 'TROE' in tmp_auxiliary:
+        reaction.troe_coeff = tmp_auxiliary['TROE']
+
+    if 'FORD' in tmp_auxiliary:
+        reaction.f_orders = tmp_auxiliary['FORD']
+
+    if 'RORD' in tmp_auxiliary:
+        reaction.r_orders = tmp_auxiliary['RORD']
+
+    if 'FLAGS' in tmp_auxiliary:
+        reaction.flags = tmp_auxiliary['FLAGS']
+
+    if 'EFFS' in tmp_auxiliary:
+        reaction.efficiencies = tmp_auxiliary['EFFS']
 
     reaction.arr_coeff = cmsk_to_si(
-        tmp_arr_coeff, reaction.f_conv_si(), unit_k0, unit_Ea)
+        tmp_arr_coeff, reaction.f_conv_si(), unit_k0, unit_ea)
 
     if 'REV' in tmp_auxiliary:
         reaction.rev_arr_coeff = cmsk_to_si(
-            tmp_auxiliary['REV'], reaction.r_conv_si(), unit_k0, unit_Ea)
+            tmp_auxiliary['REV'], reaction.r_conv_si(), unit_k0, unit_ea)
 
     if 'LOW' in tmp_auxiliary:
         reaction.adv_arr_coeff = cmsk_to_si(
-            tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si(add=1.0), unit_k0, unit_Ea)
+            tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si(add=1.0), unit_k0, unit_ea)
     elif 'HIGH' in tmp_auxiliary:
-        raise(NotImplementedError(
-            'HIGH keyword is not supported. ' + \
-                'If use, check add parameter in unit conversion (may be 0)'))
+        raise NotImplementedError(
+            'HIGH keyword is not supported. ' +
+            'If use, check add parameter in unit conversion (may be 0)')
         # reaction.adv_arr_coeff = cmsk_to_si(
         #     tmp_auxiliary[tmp_adv_arr_key],
-        #     reaction.f_conv_si(add=-1.0), unit_k0, unit_Ea)
+        #     reaction.f_conv_si(add=-1.0), unit_k0, unit_ea)
 
     return reaction
 
 
-def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
+def parse_reactions(path, start_keys=None, end_keys=None):
     """Parse the reactions section for a given list of strings."""
-    logging.info('Parse reactions from path "{:}"'.format(path))
+    logging.info('Parse reactions from path "%s"', path)
+    start_keys = ['REACTIONS', 'REAC'] if start_keys is None else start_keys
+    end_keys = ['END'] if end_keys is None else end_keys
 
     strings = chemkin_format_reader(
         path, start_keys=start_keys, end_keys=end_keys)
@@ -208,15 +217,15 @@ def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
             if key in conv_k0.keys():
                 reactions.unit_k0 = key
             elif key in conv_Ea.keys():
-                reactions.unit_Ea = key
+                reactions.unit_ea = key
             else:
-                raise(KeyError(
-                    'Provided unsupported reaction unit: "{:}"!'.format(key)))
+                raise KeyError(
+                    'Provided unsupported reaction unit: "{:}"!'.format(key))
 
         strings = strings[1:]
 
-    logging.debug('Reaction default units "{:}" and "{:}"'.format(
-        reactions.unit_k0, reactions.unit_Ea))
+    logging.debug('Reaction default units "%s" and "%s"',
+                  reactions.unit_k0, reactions.unit_ea)
 
     # parse reactions data
     try:
@@ -226,7 +235,7 @@ def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
             if '=' in string and tmp_reaction:
                 reactions.append(
                     parse_reaction(
-                        tmp_reaction, reactions.unit_k0, reactions.unit_Ea)
+                        tmp_reaction, reactions.unit_k0, reactions.unit_ea)
                 )
 
                 # free the tmpReactions
@@ -239,10 +248,10 @@ def parse_reactions(path, start_keys=['REACTIONS', 'REAC'], end_keys=['END']):
         if tmp_reaction:
             reactions.append(
                 parse_reaction(tmp_reaction, reactions.unit_k0,
-                               reactions.unit_Ea)
+                               reactions.unit_ea)
             )
     except:
-        logging.error('Parse error in line "{:}"'.format(string))
+        logging.error('Parse error in line "%s"', string)
         raise
 
     return reactions

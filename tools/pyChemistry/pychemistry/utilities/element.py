@@ -18,10 +18,10 @@ class Element(Base):
         self.symbol = symbol
         self.mass = mass
 
-    def _check_list(self):
+    def _check_list(self, **_):
         return [
             (self.mass > 0.0,
-             'Atomic mass not valid (am={:})'.format(self.mass)),
+             'Element mass not valid (am={:})'.format(self.mass)),
         ]
 
     def chemkinify(self):
@@ -30,6 +30,7 @@ class Element(Base):
 
     @property
     def mass(self):
+        """Element mass (kg mol-1)."""
         return cst.REF_ELEMENTS[self.symbol]
 
     @mass.setter
@@ -41,6 +42,7 @@ class Element(Base):
 
     @property
     def symbol(self):
+        """Element symbol."""
         return self._symbol.upper()
 
     @symbol.setter
@@ -52,7 +54,9 @@ class ElementContainer(BaseDictContainer):
     """Element dict container object (storing datas)."""
     _store_type = Element
 
-    def chemkinify(self, keys=None, length=80, **kwargs):
+    def chemkinify(self, keys=None, **kwargs):
+        length = kwargs.get('length', 80)
+
         tmp = self.keys() if keys is None else keys
         element_strings = [self[key].chemkinify(**kwargs) for key in tmp]
         max_len = max(len(x) for x in element_strings) + 1

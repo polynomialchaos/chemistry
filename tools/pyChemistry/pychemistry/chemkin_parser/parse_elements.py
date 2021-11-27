@@ -11,9 +11,11 @@ from pychemistry.utilities import ElementContainer, Element
 from .parse_chemkin import chemkin_format_reader
 
 
-def parse_elements(path, start_keys=['ELEMENTS', 'ELEM'], end_keys=['END']):
+def parse_elements(path, start_keys=None, end_keys=None):
     """Parse the elements section for a given list of strings."""
-    logging.info('Parse elements from path "{:}"'.format(path))
+    logging.info('Parse elements from path "%s"', path)
+    start_keys = ['ELEMENTS', 'ELEM'] if start_keys is None else start_keys
+    end_keys = ['END'] if end_keys is None else end_keys
 
     strings = chemkin_format_reader(
         path, start_keys=start_keys, end_keys=end_keys)
@@ -31,13 +33,13 @@ def parse_elements(path, start_keys=['ELEMENTS', 'ELEM'], end_keys=['END']):
             for tmp_string in string.replace('/', ' ').split():
                 if tmp_string.isalpha():
                     tmp_symbol = tmp_string
-                    logging.debug('Add element "{:}"'.format(tmp_symbol))
+                    logging.debug('Add element "%s"', tmp_symbol)
                     elements[tmp_symbol] = Element(
                         symbol=tmp_symbol
                     )
                 else:
                     logging.debug(
-                        'Add additional element mass "{:}"'.format(tmp_string))
+                        'Add additional element mass "%s"', tmp_string)
                     elements[tmp_symbol].mass = tmp_string
     except:
         raise Exception('Parse error in line "{:}"'.format(string))
