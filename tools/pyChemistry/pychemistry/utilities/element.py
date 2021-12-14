@@ -6,8 +6,8 @@
 # @date 2021-11-23
 # @copyright Copyright (c) 2021
 ################################################################################
-import pychemistry.utilities.constants as cst
 from .base import Base, BaseDictContainer
+from .constants import REF_ELEMENTS
 from .utilities import chunk_list
 
 
@@ -31,14 +31,14 @@ class Element(Base):
     @property
     def mass(self):
         """Element mass (kg mol-1)."""
-        return cst.REF_ELEMENTS[self.symbol]
+        return REF_ELEMENTS[self.symbol]
 
     @mass.setter
     def mass(self, value):
         if value is None:
             return
         self._mass = float(value)
-        cst. REF_ELEMENTS[self.symbol] = self._mass
+        REF_ELEMENTS[self.symbol] = self._mass
 
     @property
     def symbol(self):

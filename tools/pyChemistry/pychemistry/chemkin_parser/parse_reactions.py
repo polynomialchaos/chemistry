@@ -24,7 +24,7 @@ def parse_auxiliary_data(strings):
     """Parse auxiliary data for a given list of strings."""
     result = {}
 
-    for idx, string in enumerate(strings):
+    for _, string in enumerate(strings):
         # split the provided string into its parts
         tmpString = [y.strip() for x in string.split('/')
                      for y in x.split() if len(y) != 0]
@@ -50,8 +50,8 @@ def parse_auxiliary_data(strings):
             if not key in result:
                 result[key] = {}
 
-            for idx in range(1, len(tmpString[1:]), 2):
-                result[key][tmpString[idx]] = float(tmpString[idx+1])
+            for i in range(1, len(tmpString[1:]), 2):
+                result[key][tmpString[i]] = float(tmpString[i+1])
         elif key in ['FLAGS']:
             if not key in result:
                 result[key] = []
@@ -67,8 +67,8 @@ def parse_auxiliary_data(strings):
             if not key in result:
                 result[key] = {}
 
-            for idx in range(0, len(tmpString), 2):
-                result[key][tmpString[idx]] = float(tmpString[idx+1])
+            for i in range(0, len(tmpString), 2):
+                result[key][tmpString[i]] = float(tmpString[i+1])
 
         logging.debug('Auxiliary data "%s" = "%s"', key, result[key])
 
@@ -140,7 +140,7 @@ def parse_reaction(strings, unit_k0, unit_ea):
         raise Exception(
             'No supported delimiter string "{:}" provided!'.format(tmp_line))
 
-    logging.debug('Reversibility: %i', tmp_is_reversible)
+    logging.debug('Reversibility: %s', tmp_is_reversible)
 
     # reactants and products
     tmp_reactants = parse_reaction_line(tmp_line.split(tmp_delimiter)[0])
@@ -183,7 +183,10 @@ def parse_reaction(strings, unit_k0, unit_ea):
 
     if 'LOW' in tmp_auxiliary:
         reaction.adv_arr_coeff = cmsk_to_si(
-            tmp_auxiliary[tmp_adv_arr_key], reaction.f_conv_si(add=1.0), unit_k0, unit_ea)
+            tmp_auxiliary[tmp_adv_arr_key],
+            reaction.f_conv_si(add=1.0),
+            unit_k0, unit_ea
+        )
     elif 'HIGH' in tmp_auxiliary:
         raise NotImplementedError(
             'HIGH keyword is not supported. ' +

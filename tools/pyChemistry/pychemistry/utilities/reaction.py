@@ -8,7 +8,6 @@
 ################################################################################
 import logging
 from enum import Enum, unique
-import re
 from .base import Base, BaseListContainer
 from .utilities import as_short, chunk_list
 from .constants import NA, CAL_JOULE, RM, CM_M

@@ -12,18 +12,19 @@ from .reaction import DEF_UNIT_K0, DEF_UNIT_EA
 
 
 class Mechanism(Base):
-    """Object for storing mechanism data."""
+    """Mechanism object (storing data)."""
+    # pylint: disable=too-many-instance-attributes
 
     def __add__(self, other):
-        if type(self) == type(other):
+        if isinstance(other, type(self)):
             if other is None:
                 return deepcopy(self)
 
-                new = deepcopy(self)
-                new._combine(other)
-                return new
-        else:
-            raise TypeError('Wrong type "{:}" ({:})!'.format(
+            new = deepcopy(self)
+            new._combine(other)
+            return new
+
+        raise TypeError('Wrong type "{:}" ({:})!'.format(
             type(other), type(self)))
 
     def __init__(self, name, elements=None, specii=None,
@@ -45,7 +46,8 @@ class Mechanism(Base):
             (self.elements.is_valid(), 'Element data not valid!'),
             (self.specii.is_valid(), 'Species data not valid!'),
             (self.reactions.is_valid(elements=self.elements, specii=self.specii,
-                                     reaction_strings=reaction_strings), 'Reaction data not valid!'),
+                                     reaction_strings=reaction_strings),
+             'Reaction data not valid!'),
             (self.thermos.is_valid(), 'Thermo data not valid!'),
             (self.transports.is_valid(), 'Transport data not valid!'),
             (len(self.inert_specii()) >= 1, 'Missing inert species!'),
@@ -81,15 +83,16 @@ class Mechanism(Base):
                 self.specii[key].transport = self.transports[key]
 
     def chemkinify(self, **kwargs):
-        prefix  = kwargs['prefix']
+        """Return a CHEMKIN formatted string."""
+        prefix = kwargs['prefix']
         unit_k0 = kwargs.get('unit_k0', self.reactions.unit_k0)
         unit_ea = kwargs.get('unit_ea', self.reactions.unit_ea)
 
-        with open('{:}.mech'.format(prefix), 'w') as fp:
-            fp.writelines(
+        with open('{:}.mech'.format(prefix), 'w') as fptr:
+            fptr.writelines(
                 ['ELEMENTS\n'] + self.elements.chemkinify() + ['END\n']
             )
-            fp.writelines(
+            fptr.writelines(
                 ['SPECIES\n'] + self.specii.chemkinify() + ['END\n']
             )
 
@@ -99,38 +102,33 @@ class Mechanism(Base):
             if unit_ea != DEF_UNIT_EA:
                 tmp += ' {:}'.format(unit_ea)
 
-            fp.writelines(
+            fptr.writelines(
                 ['{:}\n'.format(tmp)] + self.reactions.chemkinify(
                     unit_k0=unit_k0, unit_ea=unit_ea) + ['END\n']
             )
 
-        with open('{:}.thermo'.format(prefix), 'w') as fp:
-            fp.writelines([
+        with open('{:}.thermo'.format(prefix), 'w') as fptr:
+            fptr.writelines([
                 'THERMO\n',
                 '{:}\n'.format(' '.join(str(x) for x in self.thermos.bounds))] +
                 self.thermos.chemkinify(**{'keys': self.specii.keys()}) +
                 ['END\n']
             )
 
-        with open('{:}.transport'.format(prefix), 'w') as fp:
-            fp.writelines(self.transports.chemkinify(
+        with open('{:}.transport'.format(prefix), 'w') as fptr:
+            fptr.writelines(self.transports.chemkinify(
                 **{'keys': self.specii.keys()}))
 
     def inert_specii(self):
+        """Return a list of inert specii."""
         species_list = [y for x in self.reactions for y in x.reactants]
         species_list += [y for x in self.reactions for y in x.products]
         return [x for x in self.specii.keys()
                 if x not in list(set(species_list))]
 
-    def overwrite_all_flags(self, state):
-        self.elements.all_flag = state
-        self.specii.all_flag = state
-        self.reactions.all_flag = state
-        self.thermos.all_flag = state
-        self.transports.all_flag = state
-
     @property
     def thermos(self):
+        """Thermo datas."""
         return self._thermos
 
     @thermos.setter
@@ -140,6 +138,7 @@ class Mechanism(Base):
 
     @property
     def transports(self):
+        """Transport datas."""
         return self._transports
 
     @transports.setter
