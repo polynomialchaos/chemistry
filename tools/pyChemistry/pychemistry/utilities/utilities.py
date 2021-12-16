@@ -12,7 +12,7 @@ from .constants import RM
 def as_int(value, round_digits=None):
     """Return a float value if possible as integer."""
     tmp = float(value) if round_digits is None else round(value, round_digits)
-    return int(value) if float(value).is_integer() else tmp
+    return int(tmp) if float(tmp).is_integer() else tmp
 
 
 def as_short(value, round_digits=None):
