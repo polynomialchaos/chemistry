@@ -173,7 +173,8 @@ double calc_species_dii(int i, double p, double T,
                      (specii->pot_lj[i] * KB * col_lj_sq * specii->col_lj[i]);
 
     double tmp = p * BC_PI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
-    return s38 * sqrt(BC_PI * pow(KB * T, 3) / specii->molecule_weight[i]) / tmp;
+    return s38 *
+           sqrt(BC_PI * pow(KB * T, 3) / specii->molecule_weight[i]) / tmp;
 }
 
 /*******************************************************************************

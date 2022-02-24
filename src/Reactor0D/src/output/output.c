@@ -106,7 +106,8 @@ void write_output(int iter, double t)
 
     {
         hsize_t dims[1] = {n_variables};
-        BM_SET_HDF5_DATASET_N(solution_id, "phi_dt", HDF5Double, phi_dt, dims[0]);
+        BM_SET_HDF5_DATASET_N(solution_id, "phi_dt",
+                              HDF5Double, phi_dt, dims[0]);
     }
 
     if (n_bdf_stages > 0)

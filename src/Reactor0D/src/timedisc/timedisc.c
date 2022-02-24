@@ -48,7 +48,8 @@ void print_residual(int iter, double t, double dt, int do_output)
     else
     {
         BM_PRINT("%09d %12.5e %12.5e %c %c %6d %6d:",
-                 iter, t, dt, viscous_str, output_str, n_iter_inner, n_iter_lsoe);
+                 iter, t, dt, viscous_str, output_str,
+                 n_iter_inner, n_iter_lsoe);
     }
 
     BM_PRINT(" %12.5e", residual[0]);
@@ -137,7 +138,8 @@ void timedisc()
         iter = iter + 1;
 
         /* steady-state simulation */
-        if ((is_transient == 0) && (min_n(residual, n_variables) < abort_residual))
+        if ((is_transient == 0) &&
+            (min_n(residual, n_variables) < abort_residual))
         {
             t_end = t;
             do_output = 1;
@@ -184,13 +186,22 @@ void timedisc_define()
     int tmp_opt_n = sizeof(tmp_opt) / sizeof(string_t);
     string_t tmp = tmp_opt[0];
 
-    BM_SET_PARAMETER("TimeDisc/time_step", StringParameter, &tmp, "The timestep mehtod", &tmp_opt, tmp_opt_n);
-    BM_SET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter, "The maximum number of iterations", NULL, 0);
-    BM_SET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient, "The flag wheter to be transient or steady-state", NULL, 0);
-    BM_SET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual, "The abort residual", NULL, 0);
-    BM_SET_PARAMETER("TimeDisc/dt", NumberParameter, &dt, "The timestep", NULL, 0);
-    BM_SET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start, "The start time", NULL, 0);
-    BM_SET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end, "The end time", NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/time_step", StringParameter, &tmp,
+                     "The timestep mehtod", &tmp_opt, tmp_opt_n);
+    BM_SET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter,
+                     "The maximum number of iterations", NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient,
+                     "The flag wheter to be transient or steady-state",
+                     NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/abort_residual",
+                     NumberParameter, &abort_residual,
+                     "The abort residual", NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/dt", NumberParameter, &dt,
+                     "The timestep", NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start,
+                     "The start time", NULL, 0);
+    BM_SET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end,
+                     "The end time", NULL, 0);
 
     explicit_define();
     implicit_define();
@@ -215,7 +226,8 @@ void timedisc_initialize()
     BM_GET_PARAMETER("TimeDisc/time_step", StringParameter, &time_step_name);
     BM_GET_PARAMETER("TimeDisc/max_iter", DigitParameter, &max_iter);
     BM_GET_PARAMETER("TimeDisc/transient", LogicalParameter, &is_transient);
-    BM_GET_PARAMETER("TimeDisc/abort_residual", NumberParameter, &abort_residual);
+    BM_GET_PARAMETER("TimeDisc/abort_residual",
+                     NumberParameter, &abort_residual);
     BM_GET_PARAMETER("TimeDisc/dt", NumberParameter, &dt);
     BM_GET_PARAMETER("TimeDisc/t_start", NumberParameter, &t_start);
     BM_GET_PARAMETER("TimeDisc/t_end", NumberParameter, &t_end);

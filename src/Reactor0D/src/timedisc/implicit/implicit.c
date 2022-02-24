@@ -79,7 +79,8 @@ void calc_jacobian_numerical(int n_var)
 
         phi[i_var] += 0.5 * eps_fd;
         phi[i_var] = BM_MAX(phi_bounds[i_var * BOUNDDIM],
-                            BM_MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
+                            BM_MIN(phi_bounds[i_var * BOUNDDIM + 1],
+                                   phi[i_var]));
 
         reactor_function_pointer(tpdt_loc);
 
@@ -94,7 +95,8 @@ void calc_jacobian_numerical(int n_var)
 
         phi[i_var] -= 0.5 * eps_fd;
         phi[i_var] = BM_MAX(phi_bounds[i_var * BOUNDDIM],
-                            BM_MIN(phi_bounds[i_var * BOUNDDIM + 1], phi[i_var]));
+                            BM_MIN(phi_bounds[i_var * BOUNDDIM + 1],
+                                   phi[i_var]));
 
         reactor_function_pointer(tpdt_loc);
 
@@ -153,7 +155,8 @@ void implicit_define()
                      "The linear solver maximum number of iterations", NULL, 0);
     BM_SET_PARAMETER("TimeDisc/Implicit/max_krylov_dims", DigitParameter,
                      &max_krylov_dims,
-                     "The maximum Krylov space dimension in GMRes solver", NULL, 0);
+                     "The maximum Krylov space dimension in GMRes solver",
+                     NULL, 0);
     BM_SET_PARAMETER("TimeDisc/Implicit/max_krylov_restarts", DigitParameter,
                      &max_krylov_restarts,
                      "The maximum restarts performed in GMRes solver", NULL, 0);

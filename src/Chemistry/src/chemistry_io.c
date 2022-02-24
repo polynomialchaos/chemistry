@@ -93,7 +93,8 @@ chemistry_t *read_chemistry_data(cstring_t chemistry_file)
                                 dims, specii->coeff_low);
 
         dims[0] = specii->n_specii;
-        BM_GET_HDF5_DATASET_N(group_id, "geom", HDF5Int, dims[0], specii->geom);
+        BM_GET_HDF5_DATASET_N(group_id, "geom", HDF5Int,
+                              dims[0], specii->geom);
 
         dims[0] = specii->n_specii;
         BM_GET_HDF5_DATASET_N(group_id, "pot_lj", HDF5Double,
@@ -108,7 +109,8 @@ chemistry_t *read_chemistry_data(cstring_t chemistry_file)
                               dims[0], specii->dip_mo);
 
         dims[0] = specii->n_specii;
-        BM_GET_HDF5_DATASET_N(group_id, "pol", HDF5Double, dims[0], specii->pol);
+        BM_GET_HDF5_DATASET_N(group_id, "pol", HDF5Double,
+                              dims[0], specii->pol);
 
         dims[0] = specii->n_specii;
         BM_GET_HDF5_DATASET_N(group_id, "rot_rel", HDF5Double,
@@ -143,7 +145,8 @@ chemistry_t *read_chemistry_data(cstring_t chemistry_file)
 
         hid_t group_id = open_hdf5_group(file_id, "REACTIONS");
         BM_GET_HDF5_ATTRIBUTE(group_id, "n_reactions", HDF5Int, &n_reactions);
-        BM_GET_HDF5_ATTRIBUTE(group_id, "max_reactants", HDF5Int, &max_reactants);
+        BM_GET_HDF5_ATTRIBUTE(group_id, "max_reactants",
+                              HDF5Int, &max_reactants);
         BM_GET_HDF5_ATTRIBUTE(group_id, "max_products", HDF5Int, &max_products);
         BM_GET_HDF5_ATTRIBUTE(group_id, "max_troe_coeff", HDF5Int,
                               &max_troe_coeff);
@@ -156,7 +159,8 @@ chemistry_t *read_chemistry_data(cstring_t chemistry_file)
                                max_troe_coeff, max_efficiencies);
 
         dims[0] = reactions->n_reactions;
-        BM_GET_HDF5_DATASET_N(group_id, "type", HDF5Int, dims[0], reactions->type);
+        BM_GET_HDF5_DATASET_N(group_id, "type", HDF5Int,
+                              dims[0], reactions->type);
 
         dims[0] = reactions->n_reactions;
         BM_GET_HDF5_DATASET_N(group_id, "falloff_species", HDF5Int,

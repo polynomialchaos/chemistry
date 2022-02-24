@@ -79,7 +79,8 @@ reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
     reactions->is_reversible = BM_ALLOCATE(sizeof(int) * n_reactions);
 
     reactions->n_reactants = BM_ALLOCATE(sizeof(int) * n_reactions);
-    reactions->reactants = BM_ALLOCATE(sizeof(int) * max_reactants * n_reactions);
+    reactions->reactants =
+        BM_ALLOCATE(sizeof(int) * max_reactants * n_reactions);
     reactions->nu_reactants =
         BM_ALLOCATE(sizeof(double) * max_reactants * n_reactions);
     reactions->ord_reactants =
