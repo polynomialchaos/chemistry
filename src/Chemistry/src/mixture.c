@@ -253,11 +253,11 @@ void correct_fraction(double *Y, double *Y_out, chemistry_t *chemistry)
     double Y_sum = 0.0;
     for (int i = 0; i < n_specii - 1; ++i)
     {
-        Y_out[i] = MAX(0.0, MIN(1.0, Y[i]));
+        Y_out[i] = BM_MAX(0.0, BM_MIN(1.0, Y[i]));
         Y_sum += Y_out[i];
     }
 
-    Y_out[n_specii - 1] = MAX(0.0, 1.0 - Y_sum);
+    Y_out[n_specii - 1] = BM_MAX(0.0, 1.0 - Y_sum);
     Y_sum += Y_out[n_specii - 1];
 
     for (int i = 0; i < n_specii - 1; ++i)

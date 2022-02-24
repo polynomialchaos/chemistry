@@ -32,32 +32,32 @@ void read_restart_data()
 
     hid_t last_id = open_hdf5_group(file_id, "SOLUTION");
 
-    GET_HDF5_ATTRIBUTE(last_id, "iter", HDF5Int, &iter_restart);
-    GET_HDF5_ATTRIBUTE(last_id, "t", HDF5Double, &t_restart);
+    BM_GET_HDF5_ATTRIBUTE(last_id, "iter", HDF5Int, &iter_restart);
+    BM_GET_HDF5_ATTRIBUTE(last_id, "t", HDF5Double, &t_restart);
 
-    phi_restart = ALLOCATE(sizeof(double) * n_variables);
-    phi_dt_restart = ALLOCATE(sizeof(double) * n_variables);
+    phi_restart = BM_ALLOCATE(sizeof(double) * n_variables);
+    phi_dt_restart = BM_ALLOCATE(sizeof(double) * n_variables);
 
     {
         hsize_t dims[1] = {n_variables};
-        GET_HDF5_ATTRIBUTE_N(last_id, "phi", HDF5Double, dims[0],
-                             phi_restart);
+        BM_GET_HDF5_ATTRIBUTE_N(last_id, "phi", HDF5Double, dims[0],
+                                phi_restart);
     }
 
     {
         hsize_t dims[1] = {n_variables};
-        GET_HDF5_ATTRIBUTE_N(last_id, "phi_dt", HDF5Double, dims[0],
-                             phi_dt_restart);
+        BM_GET_HDF5_ATTRIBUTE_N(last_id, "phi_dt", HDF5Double, dims[0],
+                                phi_dt_restart);
     }
 
     if (n_bdf_stages > 0)
     {
-        GET_HDF5_ATTRIBUTE(last_id, "n_stages", HDF5Int, &n_stages_restart);
-        CHECK_EXPRESSION(n_stages_restart == n_bdf_stages);
+        BM_GET_HDF5_ATTRIBUTE(last_id, "n_stages", HDF5Int, &n_stages_restart);
+        BM_CHECK_EXPRESSION(n_stages_restart == n_bdf_stages);
 
-        phi_old_restart = ALLOCATE(sizeof(double *) * n_stages_restart);
+        phi_old_restart = BM_ALLOCATE(sizeof(double *) * n_stages_restart);
         for (int i = 0; i < n_stages_restart; ++i)
-            phi_old_restart[i] = ALLOCATE(sizeof(double) * n_variables);
+            phi_old_restart[i] = BM_ALLOCATE(sizeof(double) * n_variables);
 
         for (int i_stage = 0; i_stage < n_stages_restart; ++i_stage)
         {
@@ -66,10 +66,10 @@ void read_restart_data()
             string_t tmp = allocate_strcat("phi_old:", iter_string);
 
             hsize_t dims[1] = {n_variables};
-            GET_HDF5_DATASET_N(last_id, tmp, HDF5Double, dims[0],
-                               phi_old_restart[i_stage]);
+            BM_GET_HDF5_DATASET_N(last_id, tmp, HDF5Double, dims[0],
+                                  phi_old_restart[i_stage]);
 
-            DEALLOCATE(tmp);
+            BM_DEALLOCATE(tmp);
         }
     }
 
@@ -85,9 +85,9 @@ void read_restart_data()
         copy_n(phi_old_restart[i_stage], n_variables, phi_old[i_stage]);
     }
 
-    DEALLOCATE(phi_restart);
-    DEALLOCATE(phi_dt_restart);
-    DEALLOCATE(phi_old_restart);
+    BM_DEALLOCATE(phi_restart);
+    BM_DEALLOCATE(phi_dt_restart);
+    BM_DEALLOCATE(phi_old_restart);
 }
 
 /*******************************************************************************
@@ -95,11 +95,11 @@ void read_restart_data()
  ******************************************************************************/
 void restart_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(restart_initialize);
-    REGISTER_FINALIZE_ROUTINE(restart_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(restart_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(restart_finalize);
 
-    SET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart,
-                  "The flag to start from restart", NULL, 0);
+    BM_SET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart,
+                     "The flag to start from restart", NULL, 0);
 }
 
 /*******************************************************************************
@@ -107,9 +107,9 @@ void restart_define()
  ******************************************************************************/
 void restart_finalize()
 {
-    DEALLOCATE(phi_restart);
-    DEALLOCATE(phi_dt_restart);
-    DEALLOCATE(phi_old_restart);
+    BM_DEALLOCATE(phi_restart);
+    BM_DEALLOCATE(phi_dt_restart);
+    BM_DEALLOCATE(phi_old_restart);
 }
 
 /*******************************************************************************
@@ -117,7 +117,7 @@ void restart_finalize()
  ******************************************************************************/
 void restart_initialize()
 {
-    GET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart);
+    BM_GET_PARAMETER("Restart/use_restart", LogicalParameter, &use_restart);
 
     if (use_restart == 1)
         read_restart_data();

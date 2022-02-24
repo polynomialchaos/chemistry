@@ -17,8 +17,8 @@ double *residual = NULL;
  ******************************************************************************/
 void analyze_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(analyze_initialize);
-    REGISTER_FINALIZE_ROUTINE(analyze_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(analyze_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(analyze_finalize);
 }
 
 /*******************************************************************************
@@ -26,7 +26,7 @@ void analyze_define()
  ******************************************************************************/
 void analyze_finalize()
 {
-    DEALLOCATE(residual);
+    BM_DEALLOCATE(residual);
 }
 
 /*******************************************************************************
@@ -34,7 +34,7 @@ void analyze_finalize()
  ******************************************************************************/
 void analyze_initialize()
 {
-    residual = ALLOCATE(sizeof(residual) * n_variables);
+    residual = BM_ALLOCATE(sizeof(residual) * n_variables);
     set_value_n(0.0, n_variables, residual);
 }
 
@@ -45,5 +45,5 @@ void analyze_initialize()
 void calc_global_residual(double dt)
 {
     for (int i = 0; i < n_variables; ++i)
-        residual[i] = ABS(phi_dt[i]) * dt;
+        residual[i] = BM_ABS(phi_dt[i]) * dt;
 }

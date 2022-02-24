@@ -18,14 +18,14 @@
  ******************************************************************************/
 int main(int argc, char **argv)
 {
-    global_initialize(argc, argv, BFLS, BFLS, BFLS, BFLS);
+    global_initialize(argc, argv, BC_FALSE, BC_FALSE, BC_FALSE, BC_FALSE);
 
     string_t chem_file = argc > 1 ? argv[1] : "../gri3.mech.h5";
     chemistry_t *chemistry = read_chemistry_data(chem_file);
 
     print_chemistry_info(chemistry);
     deallocate_chemistry(chemistry);
-    DEALLOCATE(chemistry);
+    BM_DEALLOCATE(chemistry);
 
     check_abort(1);
     return 0;

@@ -33,10 +33,10 @@ int main(int argc, string_t *argv)
     restart_define();
 
     /* call the global initialize routine */
-    global_initialize(argc, argv, BFLS, BFLS, BFLS, BTRU);
+    global_initialize(argc, argv, BC_FALSE, BC_FALSE, BC_FALSE, BC_TRUE);
 
     /* calculation */
-    PRINTF("\n");
+    BM_PRINT("\n");
     printf_r_sep_title('=', "Calculation");
 
     timedisc();
@@ -53,12 +53,12 @@ int main(int argc, string_t *argv)
  ******************************************************************************/
 void reactor0d_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(reactor0d_initialize);
-    REGISTER_FINALIZE_ROUTINE(reactor0d_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(reactor0d_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(reactor0d_finalize);
 
     string_t tmp = "untitled";
-    SET_PARAMETER("General/title", StringParameter, &tmp,
-                  "The project title", NULL, 0);
+    BM_SET_PARAMETER("General/title", StringParameter, &tmp,
+                     "The project title", NULL, 0);
 }
 
 /*******************************************************************************
@@ -66,7 +66,7 @@ void reactor0d_define()
  ******************************************************************************/
 void reactor0d_finalize()
 {
-    DEALLOCATE(title);
+    BM_DEALLOCATE(title);
 }
 
 /*******************************************************************************
@@ -74,5 +74,5 @@ void reactor0d_finalize()
  ******************************************************************************/
 void reactor0d_initialize()
 {
-    GET_PARAMETER("General/title", StringParameter, &title);
+    BM_GET_PARAMETER("General/title", StringParameter, &title);
 }

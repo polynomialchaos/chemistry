@@ -50,15 +50,15 @@ double *rk_g = NULL;
  ******************************************************************************/
 void explicit_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(explicit_initialize);
-    REGISTER_FINALIZE_ROUTINE(explicit_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(explicit_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(explicit_finalize);
 
     string_t tmp_opt[] = {"RK3-3", "RK4-5", "Euler"};
     int tmp_opt_n = sizeof(tmp_opt) / sizeof(string_t);
     string_t tmp = tmp_opt[0];
 
-    SET_PARAMETER("TimeDisc/Explicit/scheme", StringParameter, &tmp,
-                  "The explicit timestep scheme", &tmp_opt, tmp_opt_n);
+    BM_SET_PARAMETER("TimeDisc/Explicit/scheme", StringParameter, &tmp,
+                     "The explicit timestep scheme", &tmp_opt, tmp_opt_n);
 }
 
 /*******************************************************************************
@@ -66,7 +66,7 @@ void explicit_define()
  ******************************************************************************/
 void explicit_finalize()
 {
-    DEALLOCATE(explicit_scheme_name);
+    BM_DEALLOCATE(explicit_scheme_name);
     rk_a = NULL;
     rk_b = NULL;
     rk_g = NULL;
@@ -80,7 +80,7 @@ void explicit_initialize()
     if (explicit_active == 0)
         return;
 
-    GET_PARAMETER("TimeDisc/Explicit/scheme", StringParameter, &explicit_scheme_name);
+    BM_GET_PARAMETER("TimeDisc/Explicit/scheme", StringParameter, &explicit_scheme_name);
 
     time_step_function_pointer = time_step_lserkw2;
 
@@ -107,7 +107,7 @@ void explicit_initialize()
     }
     else
     {
-        CHECK_EXPRESSION(0);
+        BM_CHECK_EXPRESSION(0);
     }
 }
 
@@ -120,7 +120,7 @@ void explicit_initialize()
 void time_step_lserkw2(int iter, double t, double dt)
 {
 #if DEBUG
-    UNUSED(iter);
+    BM_UNUSED(iter);
 #endif /* DEBUG */
 
     double phi_dt_tmp[n_variables];

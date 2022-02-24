@@ -24,7 +24,7 @@ void create_file_header()
 {
     hid_t file_id = create_hdf5_file(output_file);
 
-    SET_HDF5_ATTRIBUTE(file_id, "n_variables", HDF5Int, &n_variables);
+    BM_SET_HDF5_ATTRIBUTE(file_id, "n_variables", HDF5Int, &n_variables);
 
     {
         size_t max_len = strlen_n(variables, n_variables) + 1;
@@ -32,10 +32,10 @@ void create_file_header()
             allocate_hdf5_string_buffer(n_variables, max_len, variables);
 
         hsize_t dims[1] = {n_variables};
-        SET_HDF5_DATASET_N(file_id, "variables", HDF5String, tmp, dims[0]);
+        BM_SET_HDF5_DATASET_N(file_id, "variables", HDF5String, tmp, dims[0]);
 
         deallocate_hdf5_string_buffer(tmp);
-        DEALLOCATE(tmp);
+        BM_DEALLOCATE(tmp);
     }
 
     hid_t group_id = create_hdf5_group(file_id, "SOLUTIONS");
@@ -49,13 +49,13 @@ void create_file_header()
  ******************************************************************************/
 void output_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(output_initialize);
-    REGISTER_FINALIZE_ROUTINE(output_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(output_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(output_finalize);
 
-    SET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data,
-                  "The output file frequency "
-                  "(-1 ... first/solutions/last, 0 ... disable)",
-                  NULL, 0);
+    BM_SET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data,
+                     "The output file frequency "
+                     "(-1 ... first/solutions/last, 0 ... disable)",
+                     NULL, 0);
 }
 
 /*******************************************************************************
@@ -63,7 +63,7 @@ void output_define()
  ******************************************************************************/
 void output_finalize()
 {
-    DEALLOCATE(output_file);
+    BM_DEALLOCATE(output_file);
 }
 
 /*******************************************************************************
@@ -71,7 +71,7 @@ void output_finalize()
  ******************************************************************************/
 void output_initialize()
 {
-    GET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data);
+    BM_GET_PARAMETER("Output/i_output_data", DigitParameter, &i_output_data);
     do_output_data = (i_output_data != 0);
 
     output_file = allocate_strcat(title, ".h5");
@@ -96,22 +96,22 @@ void write_output(int iter, double t)
 
     hid_t solution_id = create_hdf5_group(group_id, iter_string);
 
-    SET_HDF5_ATTRIBUTE(solution_id, "iter", HDF5Int, &iter);
-    SET_HDF5_ATTRIBUTE(solution_id, "t", HDF5Double, &t);
+    BM_SET_HDF5_ATTRIBUTE(solution_id, "iter", HDF5Int, &iter);
+    BM_SET_HDF5_ATTRIBUTE(solution_id, "t", HDF5Double, &t);
 
     {
         hsize_t dims[1] = {n_variables};
-        SET_HDF5_DATASET_N(solution_id, "phi", HDF5Double, phi, dims[0]);
+        BM_SET_HDF5_DATASET_N(solution_id, "phi", HDF5Double, phi, dims[0]);
     }
 
     {
         hsize_t dims[1] = {n_variables};
-        SET_HDF5_DATASET_N(solution_id, "phi_dt", HDF5Double, phi_dt, dims[0]);
+        BM_SET_HDF5_DATASET_N(solution_id, "phi_dt", HDF5Double, phi_dt, dims[0]);
     }
 
     if (n_bdf_stages > 0)
     {
-        SET_HDF5_ATTRIBUTE(solution_id, "n_stages", HDF5Int, &n_bdf_stages);
+        BM_SET_HDF5_ATTRIBUTE(solution_id, "n_stages", HDF5Int, &n_bdf_stages);
 
         for (int i_stage = 0; i_stage < n_bdf_stages; ++i_stage)
         {
@@ -121,10 +121,10 @@ void write_output(int iter, double t)
 
             hsize_t dims[1] = {n_variables};
 
-            SET_HDF5_DATASET_N(solution_id, tmp, HDF5Double,
-                               phi_old[i_stage], dims[0]);
+            BM_SET_HDF5_DATASET_N(solution_id, tmp, HDF5Double,
+                                  phi_old[i_stage], dims[0]);
 
-            DEALLOCATE(tmp);
+            BM_DEALLOCATE(tmp);
         }
     }
 
@@ -136,7 +136,7 @@ void write_output(int iter, double t)
         delete_hdf5_link(file_id, "SOLUTION");
     string_t tmp = allocate_strcat("SOLUTIONS/", iter_string);
     create_hdf5_soft_link(file_id, "SOLUTION", tmp);
-    DEALLOCATE(tmp);
+    BM_DEALLOCATE(tmp);
 
     close_hdf5_file(file_id);
 }

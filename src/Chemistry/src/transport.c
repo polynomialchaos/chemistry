@@ -146,9 +146,9 @@ double calc_inter_param_xi(int i, int j, chemistry_t *chemistry)
  ******************************************************************************/
 double calc_rot_rel(double T, double pot_lj)
 {
-    const double f1 = pow(MCPI, 1.5) / 2.;
-    const double f2 = MCPI * MCPI / 4. + 2.;
-    const double f3 = pow(MCPI, 1.5);
+    const double f1 = pow(BC_PI, 1.5) / 2.;
+    const double f2 = BC_PI * BC_PI / 4. + 2.;
+    const double f3 = pow(BC_PI, 1.5);
 
     double ratio = pot_lj / T;
     return 1. + f1 * sqrt(ratio) + f2 * ratio + f3 * pow(ratio, 1.5);
@@ -172,8 +172,8 @@ double calc_species_dii(int i, double p, double T,
     double delta_k = 0.5 * specii->dip_mo[i] * specii->dip_mo[i] /
                      (specii->pot_lj[i] * KB * col_lj_sq * specii->col_lj[i]);
 
-    double tmp = p * MCPI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
-    return s38 * sqrt(MCPI * pow(KB * T, 3) / specii->molecule_weight[i]) / tmp;
+    double tmp = p * BC_PI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
+    return s38 * sqrt(BC_PI * pow(KB * T, 3) / specii->molecule_weight[i]) / tmp;
 }
 
 /*******************************************************************************
@@ -199,9 +199,9 @@ double calc_species_dij(int i, int j, double p, double T,
     double delta_k = 0.5 * specii->dip_mo[i] * specii->dip_mo[j] /
                      (pot_lj * KB * col_lj_sq * col_lj);
 
-    double tmp = p * MCPI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
+    double tmp = p * BC_PI * col_lj_sq * calc_coll_int_11(T_r, delta_k);
     double M = calc_inter_param_molecule_weight(i, j, chemistry);
-    return s316 * sqrt(2. * MCPI * pow(KB * T, 3) / M) / tmp;
+    return s316 * sqrt(2. * BC_PI * pow(KB * T, 3) / M) / tmp;
 }
 
 /*******************************************************************************
@@ -247,10 +247,10 @@ double calc_species_lambda(int i, double p, double T, double mu, double Dii,
     double rho = p / (specii->Rsp[i] * T);
     double Z = specii->rot_rel[i] * calc_rot_rel(i, 298.0) / calc_rot_rel(i, T);
     double A = s52 - rho * Dii / mu;
-    double B = Z + 2. / MCPI * (s53 * cvR / RM + rho * Dii / mu);
+    double B = Z + 2. / BC_PI * (s53 * cvR / RM + rho * Dii / mu);
 
-    double fT = s52 * (1 - 2. / MCPI * cvR / cvT * A / B);
-    double fR = rho * Dii / mu * (1 + 2. / MCPI * A / B);
+    double fT = s52 * (1 - 2. / BC_PI * cvR / cvT * A / B);
+    double fR = rho * Dii / mu * (1 + 2. / BC_PI * A / B);
     double fV = rho * Dii / mu;
 
     return mu / specii->molar_mass[i] * (fT * cvT + fR * cvR + fV * cvV);
@@ -272,6 +272,6 @@ double calc_species_mu(int i, double T, chemistry_t *chemistry)
     double delta_k = 0.5 * specii->dip_mo[i] * specii->dip_mo[i] /
                      (specii->pot_lj[i] * KB * col_lj_sq * specii->col_lj[i]);
 
-    double tmp = MCPI * col_lj_sq * calc_coll_int_22(T_r, delta_k);
-    return s516 * sqrt(MCPI * specii->molecule_weight[i] * KB * T) / tmp;
+    double tmp = BC_PI * col_lj_sq * calc_coll_int_22(T_r, delta_k);
+    return s516 * sqrt(BC_PI * specii->molecule_weight[i] * KB * T) / tmp;
 }

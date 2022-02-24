@@ -32,7 +32,7 @@ double *phi_bounds = NULL;
 void calc_reactor_isobar_adiabt(double t)
 {
 #ifdef DEBUG
-    UNUSED(t);
+    BM_UNUSED(t);
 #endif /* DEBUG */
 
     update_state_isobaric(global_state->p, global_state->rho,
@@ -56,7 +56,7 @@ void calc_reactor_isobar_adiabt(double t)
 void calc_reactor_isobar_isotherm(double t)
 {
 #ifdef DEBUG
-    UNUSED(t);
+    BM_UNUSED(t);
 #endif /* DEBUG */
 
     update_state_isobaric(global_state->p, global_state->rho,
@@ -79,7 +79,7 @@ void calc_reactor_isobar_isotherm(double t)
 void calc_reactor_isochor_adiabat(double t)
 {
 #ifdef DEBUG
-    UNUSED(t);
+    BM_UNUSED(t);
 #endif /* DEBUG */
 
     update_state_isochoric(global_state->p, global_state->rho,
@@ -103,7 +103,7 @@ void calc_reactor_isochor_adiabat(double t)
 void calc_reactor_isochor_isotherm(double t)
 {
 #ifdef DEBUG
-    UNUSED(t);
+    BM_UNUSED(t);
 #endif /* DEBUG */
 
     update_state_isochoric(global_state->p, global_state->rho,
@@ -143,34 +143,34 @@ double calc_dT_dt(double *dY_dt, double T_old)
  ******************************************************************************/
 void reactor_define()
 {
-    REGISTER_INITIALIZE_ROUTINE(reactor_initialize);
-    REGISTER_FINALIZE_ROUTINE(reactor_finalize);
+    BM_REGISTER_INITIALIZE_ROUTINE(reactor_initialize);
+    BM_REGISTER_FINALIZE_ROUTINE(reactor_finalize);
 
     string_t tmp = "untitled";
-    SET_PARAMETER("Reactor/chem_file", StringParameter, &tmp,
-                  "The chemistry data file", NULL, 0);
+    BM_SET_PARAMETER("Reactor/chem_file", StringParameter, &tmp,
+                     "The chemistry data file", NULL, 0);
 
     string_t tmp1_opt[] = {"ISOBAR-ADIABAT", "ISOBAR-ISOTHERM",
                            "ISOCHOR-ADIABAT", "ISOCHOR-ISOTHERM"};
     int tmp1_opt_n = sizeof(tmp1_opt) / sizeof(string_t);
     string_t tmp1 = tmp1_opt[0];
-    SET_PARAMETER("Reactor/type", StringParameter, &tmp1,
-                  "The reactor type", tmp1_opt, tmp1_opt_n);
+    BM_SET_PARAMETER("Reactor/type", StringParameter, &tmp1,
+                     "The reactor type", tmp1_opt, tmp1_opt_n);
 
     double p = 1e5;
-    SET_PARAMETER("Reactor/p", NumberParameter, &p, NULL, NULL, 0);
+    BM_SET_PARAMETER("Reactor/p", NumberParameter, &p, NULL, NULL, 0);
 
     double T = 1200.0;
-    SET_PARAMETER("Reactor/T", NumberParameter, &T, NULL, NULL, 0);
+    BM_SET_PARAMETER("Reactor/T", NumberParameter, &T, NULL, NULL, 0);
 
     double Y_CH4 = 0.05;
-    SET_PARAMETER("Reactor/Y/CH4", NumberParameter, &Y_CH4, NULL, NULL, 0);
+    BM_SET_PARAMETER("Reactor/Y/CH4", NumberParameter, &Y_CH4, NULL, NULL, 0);
 
     double Y_O2 = 0.1;
-    SET_PARAMETER("Reactor/Y/O2", NumberParameter, &Y_O2, NULL, NULL, 0);
+    BM_SET_PARAMETER("Reactor/Y/O2", NumberParameter, &Y_O2, NULL, NULL, 0);
 
     double Y_N2 = 0.85;
-    SET_PARAMETER("Reactor/Y/N2", NumberParameter, &Y_N2, NULL, NULL, 0);
+    BM_SET_PARAMETER("Reactor/Y/N2", NumberParameter, &Y_N2, NULL, NULL, 0);
 }
 
 /*******************************************************************************
@@ -178,22 +178,22 @@ void reactor_define()
  ******************************************************************************/
 void reactor_finalize()
 {
-    DEALLOCATE(chem_file);
-    DEALLOCATE(reactor_type_name);
+    BM_DEALLOCATE(chem_file);
+    BM_DEALLOCATE(reactor_type_name);
 
     deallocate_chemistry(global_chemistry);
-    DEALLOCATE(global_chemistry);
+    BM_DEALLOCATE(global_chemistry);
 
     deallocate_state(global_state);
-    DEALLOCATE(global_state);
+    BM_DEALLOCATE(global_state);
 
     for (int i = 0; i < n_variables; ++i)
-        DEALLOCATE(variables[i]);
-    DEALLOCATE(variables);
+        BM_DEALLOCATE(variables[i]);
+    BM_DEALLOCATE(variables);
 
-    DEALLOCATE(phi);
-    DEALLOCATE(phi_dt);
-    DEALLOCATE(phi_bounds);
+    BM_DEALLOCATE(phi);
+    BM_DEALLOCATE(phi_dt);
+    BM_DEALLOCATE(phi_bounds);
 }
 
 /*******************************************************************************
@@ -201,8 +201,8 @@ void reactor_finalize()
  ******************************************************************************/
 void reactor_initialize()
 {
-    GET_PARAMETER("Reactor/chem_file", StringParameter, &chem_file);
-    GET_PARAMETER("Reactor/type", StringParameter, &reactor_type_name);
+    BM_GET_PARAMETER("Reactor/chem_file", StringParameter, &chem_file);
+    BM_GET_PARAMETER("Reactor/type", StringParameter, &reactor_type_name);
 
     if (is_equal(reactor_type_name, "ISOBAR-ADIABAT"))
     {
@@ -222,7 +222,7 @@ void reactor_initialize()
     }
     else
     {
-        CHECK_EXPRESSION(0);
+        BM_CHECK_EXPRESSION(0);
     }
 
     global_chemistry = read_chemistry_data(chem_file);
@@ -232,35 +232,35 @@ void reactor_initialize()
     specii_t *specii = global_chemistry->specii;
     int n_specii = specii->n_specii;
 
-    GET_PARAMETER("Reactor/p", NumberParameter, &global_state->p);
-    GET_PARAMETER("Reactor/T", NumberParameter, &global_state->T);
+    BM_GET_PARAMETER("Reactor/p", NumberParameter, &global_state->p);
+    BM_GET_PARAMETER("Reactor/T", NumberParameter, &global_state->T);
 
     for (int i = 0; i < n_specii; ++i)
     {
         string_t tmp = allocate_strcat("Reactor/Y/", specii->symbol[i]);
-        if (PARAMETER_EXISTS(tmp))
-            GET_PARAMETER(tmp, NumberParameter, &global_state->Y[i]);
-        DEALLOCATE(tmp);
+        if (BM_PARAMETER_EXISTS(tmp))
+            BM_GET_PARAMETER(tmp, NumberParameter, &global_state->Y[i]);
+        BM_DEALLOCATE(tmp);
     }
 
     double Y_sum = sum_n(global_state->Y, n_specii);
-    if (ABS(Y_sum - 1.0) > YONE)
-        CHECK_EXPRESSION(0);
+    if (BM_ABS(Y_sum - 1.0) > YONE)
+        BM_CHECK_EXPRESSION(0);
 
     update_state_isobaric(global_state->p, global_state->rho,
                           global_state->T, global_state->Y, global_state);
 
     /* initialize thermochemical vectors */
     n_variables = i_Y0 + specii->n_specii;
-    variables = ALLOCATE(sizeof(string_t) * n_variables);
+    variables = BM_ALLOCATE(sizeof(string_t) * n_variables);
 
     variables[0] = allocate_strcpy("T");
     for (int i = 0; i < specii->n_specii; ++i)
         variables[i_Y0 + i] = allocate_strcpy(specii->symbol[i]);
 
-    phi = ALLOCATE(sizeof(double) * n_variables);
-    phi_dt = ALLOCATE(sizeof(double) * n_variables);
-    phi_bounds = ALLOCATE(sizeof(double) * BOUNDDIM * n_variables);
+    phi = BM_ALLOCATE(sizeof(double) * n_variables);
+    phi_dt = BM_ALLOCATE(sizeof(double) * n_variables);
+    phi_bounds = BM_ALLOCATE(sizeof(double) * BOUNDDIM * n_variables);
 
     phi[0] = global_state->T;
     copy_n(global_state->Y, n_specii, &phi[i_Y0]);

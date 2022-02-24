@@ -20,13 +20,13 @@ double calc_ig_T(double p, double rho, double R);
  ******************************************************************************/
 state_t *allocate_state(chemistry_t *chemistry)
 {
-    state_t *state = ALLOCATE(sizeof(state_t));
+    state_t *state = BM_ALLOCATE(sizeof(state_t));
     state->chemistry = chemistry;
 
-    state->Y = ALLOCATE(sizeof(double) * chemistry->specii->n_specii);
-    state->X = ALLOCATE(sizeof(double) * chemistry->specii->n_specii);
+    state->Y = BM_ALLOCATE(sizeof(double) * chemistry->specii->n_specii);
+    state->X = BM_ALLOCATE(sizeof(double) * chemistry->specii->n_specii);
     /* 3rd body concentration */
-    state->C = ALLOCATE(sizeof(double) * (chemistry->specii->n_specii + 1));
+    state->C = BM_ALLOCATE(sizeof(double) * (chemistry->specii->n_specii + 1));
 
     set_value_n(0.0, chemistry->specii->n_specii, state->Y);
     set_value_n(0.0, chemistry->specii->n_specii, state->X);
@@ -80,9 +80,9 @@ void deallocate_state(state_t *state)
     if (state == NULL)
         return;
 
-    DEALLOCATE(state->Y);
-    DEALLOCATE(state->C);
-    DEALLOCATE(state->X);
+    BM_DEALLOCATE(state->Y);
+    BM_DEALLOCATE(state->C);
+    BM_DEALLOCATE(state->X);
 }
 
 /*******************************************************************************
@@ -94,33 +94,33 @@ void print_state(state_t *state)
     if (state == NULL)
         return;
 
-    PRINTF("\n");
+    BM_PRINT("\n");
     printf_r_sep_title('-', "State");
 
-    PRINTF("%s = %e\n", "p", state->p);
-    PRINTF("%s = %e\n", "T", state->T);
-    PRINTF("%s = %e\n", "rho", state->rho);
+    BM_PRINT("%s = %e\n", "p", state->p);
+    BM_PRINT("%s = %e\n", "T", state->T);
+    BM_PRINT("%s = %e\n", "rho", state->rho);
 
     for (int i = 0; i < state->chemistry->specii->n_specii; ++i)
     {
         if (state->Y[i] < YSMALL)
             continue;
-        PRINTF("%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i],
-               state->Y[i], state->C[i], state->X[i]);
+        BM_PRINT("%s = %e (C=%e, X=%e)\n", state->chemistry->specii->symbol[i],
+                 state->Y[i], state->C[i], state->X[i]);
     }
 
-    PRINTF("%s = %e\n", "R", state->R);
-    PRINTF("%s = %e\n", "Molar mass", state->molar_mass);
+    BM_PRINT("%s = %e\n", "R", state->R);
+    BM_PRINT("%s = %e\n", "Molar mass", state->molar_mass);
 
-    PRINTF("%s = %e\n", "cp", state->cp);
-    PRINTF("%s = %e\n", "cv", state->cv);
-    PRINTF("%s = %e\n", "h", state->h);
-    PRINTF("%s = %e\n", "s", state->s);
-    PRINTF("%s = %e\n", "u", state->u);
-    PRINTF("%s = %e\n", "g", state->g);
+    BM_PRINT("%s = %e\n", "cp", state->cp);
+    BM_PRINT("%s = %e\n", "cv", state->cv);
+    BM_PRINT("%s = %e\n", "h", state->h);
+    BM_PRINT("%s = %e\n", "s", state->s);
+    BM_PRINT("%s = %e\n", "u", state->u);
+    BM_PRINT("%s = %e\n", "g", state->g);
 
     printf_r_sep('-');
-    PRINTF("\n");
+    BM_PRINT("\n");
 }
 
 /*******************************************************************************
@@ -135,7 +135,7 @@ void update_state_isochoric(double p, double rho, double T,
                             double *Y, state_t *state)
 {
 #ifdef DEBUG
-    UNUSED(p);
+    BM_UNUSED(p);
 #endif /* DEBUG */
 
     chemistry_t *chemistry = state->chemistry;
@@ -174,7 +174,7 @@ void update_state_isobaric(double p, double rho, double T,
                            double *Y, state_t *state)
 {
 #ifdef DEBUG
-    UNUSED(rho);
+    BM_UNUSED(rho);
 #endif /* DEBUG */
 
     chemistry_t *chemistry = state->chemistry;

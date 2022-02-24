@@ -18,7 +18,7 @@
  ******************************************************************************/
 chemistry_t *allocate_chemistry()
 {
-    chemistry_t *tmp = ALLOCATE(sizeof(chemistry_t));
+    chemistry_t *tmp = BM_ALLOCATE(sizeof(chemistry_t));
 
     tmp->elements = NULL;
     tmp->specii = NULL;
@@ -37,14 +37,14 @@ chemistry_t *allocate_chemistry()
 elements_t *allocate_elements(chemistry_t *chemistry,
                               int n_elements, int max_name_length)
 {
-    chemistry->elements = ALLOCATE(sizeof(elements_t));
+    chemistry->elements = BM_ALLOCATE(sizeof(elements_t));
     elements_t *elements = chemistry->elements;
 
     elements->n_elements = n_elements;
 
     elements->symbol =
         allocate_hdf5_string_buffer(n_elements, max_name_length, NULL);
-    elements->mass = ALLOCATE(sizeof(double) * n_elements);
+    elements->mass = BM_ALLOCATE(sizeof(double) * n_elements);
 
     return elements;
 }
@@ -63,7 +63,7 @@ reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
                                 int max_reactants, int max_products,
                                 int max_troe_coeff, int max_efficiencies)
 {
-    chemistry->reactions = ALLOCATE(sizeof(reactions_t));
+    chemistry->reactions = BM_ALLOCATE(sizeof(reactions_t));
     reactions_t *reactions = chemistry->reactions;
 
     reactions->n_reactions = n_reactions;
@@ -72,46 +72,46 @@ reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
     reactions->max_troe_coeff = max_troe_coeff;
     reactions->max_efficiencies = max_efficiencies;
 
-    reactions->type = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->falloff_species = ALLOCATE(sizeof(int) * n_reactions);
+    reactions->type = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->falloff_species = BM_ALLOCATE(sizeof(int) * n_reactions);
 
-    reactions->arr_coeff = ALLOCATE(sizeof(double) * ARR * n_reactions);
-    reactions->is_reversible = ALLOCATE(sizeof(int) * n_reactions);
+    reactions->arr_coeff = BM_ALLOCATE(sizeof(double) * ARR * n_reactions);
+    reactions->is_reversible = BM_ALLOCATE(sizeof(int) * n_reactions);
 
-    reactions->n_reactants = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->reactants = ALLOCATE(sizeof(int) * max_reactants * n_reactions);
+    reactions->n_reactants = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->reactants = BM_ALLOCATE(sizeof(int) * max_reactants * n_reactions);
     reactions->nu_reactants =
-        ALLOCATE(sizeof(double) * max_reactants * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_reactants * n_reactions);
     reactions->ord_reactants =
-        ALLOCATE(sizeof(double) * max_reactants * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_reactants * n_reactions);
 
-    reactions->n_products = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->products = ALLOCATE(sizeof(int) * max_products * n_reactions);
+    reactions->n_products = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->products = BM_ALLOCATE(sizeof(int) * max_products * n_reactions);
     reactions->nu_products =
-        ALLOCATE(sizeof(double) * max_products * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_products * n_reactions);
     reactions->ord_products =
-        ALLOCATE(sizeof(double) * max_products * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_products * n_reactions);
 
-    reactions->sum_nu = ALLOCATE(sizeof(double) * n_reactions);
+    reactions->sum_nu = BM_ALLOCATE(sizeof(double) * n_reactions);
 
-    reactions->has_rev_arr = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->rev_arr_coeff = ALLOCATE(sizeof(double) * ARR * n_reactions);
+    reactions->has_rev_arr = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->rev_arr_coeff = BM_ALLOCATE(sizeof(double) * ARR * n_reactions);
 
-    reactions->has_high_arr = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->has_low_arr = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->adv_arr_coeff = ALLOCATE(sizeof(double) * ARR * n_reactions);
+    reactions->has_high_arr = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->has_low_arr = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->adv_arr_coeff = BM_ALLOCATE(sizeof(double) * ARR * n_reactions);
 
-    reactions->has_troe = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->n_troe_coeff = ALLOCATE(sizeof(int) * n_reactions);
+    reactions->has_troe = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->n_troe_coeff = BM_ALLOCATE(sizeof(int) * n_reactions);
     reactions->troe_coeff =
-        ALLOCATE(sizeof(double) * max_troe_coeff * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_troe_coeff * n_reactions);
 
-    reactions->has_efficiencies = ALLOCATE(sizeof(int) * n_reactions);
-    reactions->n_efficiencies = ALLOCATE(sizeof(int) * n_reactions);
+    reactions->has_efficiencies = BM_ALLOCATE(sizeof(int) * n_reactions);
+    reactions->n_efficiencies = BM_ALLOCATE(sizeof(int) * n_reactions);
     reactions->sp_efficiencies =
-        ALLOCATE(sizeof(int) * max_efficiencies * n_reactions);
+        BM_ALLOCATE(sizeof(int) * max_efficiencies * n_reactions);
     reactions->efficiencies =
-        ALLOCATE(sizeof(double) * max_efficiencies * n_reactions);
+        BM_ALLOCATE(sizeof(double) * max_efficiencies * n_reactions);
 
     set_value_int_n(0, n_reactions, reactions->n_reactants);
     set_value_int_n(0, n_reactions, reactions->n_products);
@@ -130,9 +130,9 @@ reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
     reactions->n_reactions_rev_arr = 0;
     reactions->idx_reactions_rev_arr = NULL;
 
-    reactions->q = ALLOCATE(sizeof(double) * KINDIM * n_reactions);
-    reactions->k = ALLOCATE(sizeof(double) * KINDIM * n_reactions);
-    reactions->pr = ALLOCATE(sizeof(double) * n_reactions);
+    reactions->q = BM_ALLOCATE(sizeof(double) * KINDIM * n_reactions);
+    reactions->k = BM_ALLOCATE(sizeof(double) * KINDIM * n_reactions);
+    reactions->pr = BM_ALLOCATE(sizeof(double) * n_reactions);
 
     return reactions;
 }
@@ -147,7 +147,7 @@ reactions_t *allocate_reactions(chemistry_t *chemistry, int n_reactions,
 specii_t *allocate_specii(chemistry_t *chemistry, int n_specii,
                           int max_name_length, int max_reac_points)
 {
-    chemistry->specii = ALLOCATE(sizeof(specii_t));
+    chemistry->specii = BM_ALLOCATE(sizeof(specii_t));
     specii_t *specii = chemistry->specii;
 
     elements_t *elements = chemistry->elements;
@@ -158,33 +158,33 @@ specii_t *allocate_specii(chemistry_t *chemistry, int n_specii,
 
     specii->symbol =
         allocate_hdf5_string_buffer(n_specii, max_name_length, NULL);
-    specii->is_inert = ALLOCATE(sizeof(int) * n_specii);
+    specii->is_inert = BM_ALLOCATE(sizeof(int) * n_specii);
 
-    specii->composition = ALLOCATE(sizeof(int) * n_elements * n_specii);
-    specii->phase = ALLOCATE(sizeof(int) * n_specii);
-    specii->bounds = ALLOCATE(sizeof(double) * BOUNDS * n_specii);
-    specii->coeff_high = ALLOCATE(sizeof(double) * NASA * n_specii);
-    specii->coeff_low = ALLOCATE(sizeof(double) * NASA * n_specii);
+    specii->composition = BM_ALLOCATE(sizeof(int) * n_elements * n_specii);
+    specii->phase = BM_ALLOCATE(sizeof(int) * n_specii);
+    specii->bounds = BM_ALLOCATE(sizeof(double) * BOUNDS * n_specii);
+    specii->coeff_high = BM_ALLOCATE(sizeof(double) * NASA * n_specii);
+    specii->coeff_low = BM_ALLOCATE(sizeof(double) * NASA * n_specii);
 
-    specii->geom = ALLOCATE(sizeof(int) * n_specii);
-    specii->pot_lj = ALLOCATE(sizeof(double) * n_specii);
-    specii->col_lj = ALLOCATE(sizeof(double) * n_specii);
-    specii->dip_mo = ALLOCATE(sizeof(double) * n_specii);
-    specii->pol = ALLOCATE(sizeof(double) * n_specii);
-    specii->rot_rel = ALLOCATE(sizeof(double) * n_specii);
+    specii->geom = BM_ALLOCATE(sizeof(int) * n_specii);
+    specii->pot_lj = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->col_lj = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->dip_mo = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->pol = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->rot_rel = BM_ALLOCATE(sizeof(double) * n_specii);
 
-    specii->n_reac_points = ALLOCATE(sizeof(int) * n_specii);
-    specii->reac_points = ALLOCATE(sizeof(int) * max_reac_points * n_specii);
+    specii->n_reac_points = BM_ALLOCATE(sizeof(int) * n_specii);
+    specii->reac_points = BM_ALLOCATE(sizeof(int) * max_reac_points * n_specii);
     specii->nu_reac_points =
-        ALLOCATE(sizeof(double) * max_reac_points * n_specii);
+        BM_ALLOCATE(sizeof(double) * max_reac_points * n_specii);
 
     set_value_int_n(0, n_specii, specii->n_reac_points);
 
-    specii->molar_mass = ALLOCATE(sizeof(double) * n_specii);
-    specii->molecule_weight = ALLOCATE(sizeof(double) * n_specii);
-    specii->Rsp = ALLOCATE(sizeof(double) * n_specii);
+    specii->molar_mass = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->molecule_weight = BM_ALLOCATE(sizeof(double) * n_specii);
+    specii->Rsp = BM_ALLOCATE(sizeof(double) * n_specii);
 
-    specii->omega = ALLOCATE(sizeof(double) * n_specii);
+    specii->omega = BM_ALLOCATE(sizeof(double) * n_specii);
 
     return specii;
 }
@@ -224,7 +224,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_three += 1;
 
-            reactions->idx_reactions_three = REALLOCATE(
+            reactions->idx_reactions_three = BM_REALLOCATE(
                 reactions->idx_reactions_three,
                 sizeof(int) * reactions->n_reactions_three);
 
@@ -239,7 +239,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_low += 1;
 
-            reactions->idx_reactions_low = REALLOCATE(
+            reactions->idx_reactions_low = BM_REALLOCATE(
                 reactions->idx_reactions_low,
                 sizeof(int) * reactions->n_reactions_low);
 
@@ -253,7 +253,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_high += 1;
 
-            reactions->idx_reactions_high = REALLOCATE(
+            reactions->idx_reactions_high = BM_REALLOCATE(
                 reactions->idx_reactions_high,
                 sizeof(int) * reactions->n_reactions_high);
 
@@ -267,7 +267,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_troe += 1;
 
-            reactions->idx_reactions_troe = REALLOCATE(
+            reactions->idx_reactions_troe = BM_REALLOCATE(
                 reactions->idx_reactions_troe,
                 sizeof(int) * reactions->n_reactions_troe);
 
@@ -281,7 +281,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_rev += 1;
 
-            reactions->idx_reactions_rev = REALLOCATE(
+            reactions->idx_reactions_rev = BM_REALLOCATE(
                 reactions->idx_reactions_rev,
                 sizeof(int) * reactions->n_reactions_rev);
 
@@ -295,7 +295,7 @@ void complete_chemistry(chemistry_t *chemistry)
         {
             reactions->n_reactions_rev_arr += 1;
 
-            reactions->idx_reactions_rev_arr = REALLOCATE(
+            reactions->idx_reactions_rev_arr = BM_REALLOCATE(
                 reactions->idx_reactions_rev_arr,
                 sizeof(int) * reactions->n_reactions_rev_arr);
 
@@ -314,13 +314,13 @@ void deallocate_chemistry(chemistry_t *chemistry)
         return;
 
     deallocate_elements(chemistry->elements);
-    DEALLOCATE(chemistry->elements);
+    BM_DEALLOCATE(chemistry->elements);
 
     deallocate_specii(chemistry->specii);
-    DEALLOCATE(chemistry->specii);
+    BM_DEALLOCATE(chemistry->specii);
 
     deallocate_reactions(chemistry->reactions);
-    DEALLOCATE(chemistry->reactions);
+    BM_DEALLOCATE(chemistry->reactions);
 }
 
 /*******************************************************************************
@@ -333,9 +333,9 @@ void deallocate_elements(elements_t *elements)
         return;
 
     deallocate_hdf5_string_buffer(elements->symbol);
-    DEALLOCATE(elements->symbol);
+    BM_DEALLOCATE(elements->symbol);
 
-    DEALLOCATE(elements->mass);
+    BM_DEALLOCATE(elements->mass);
 }
 
 /*******************************************************************************
@@ -347,50 +347,50 @@ void deallocate_reactions(reactions_t *reactions)
     if (reactions == NULL)
         return;
 
-    DEALLOCATE(reactions->type);
-    DEALLOCATE(reactions->falloff_species);
+    BM_DEALLOCATE(reactions->type);
+    BM_DEALLOCATE(reactions->falloff_species);
 
-    DEALLOCATE(reactions->arr_coeff);
-    DEALLOCATE(reactions->is_reversible);
+    BM_DEALLOCATE(reactions->arr_coeff);
+    BM_DEALLOCATE(reactions->is_reversible);
 
-    DEALLOCATE(reactions->n_reactants);
-    DEALLOCATE(reactions->reactants);
-    DEALLOCATE(reactions->nu_reactants);
-    DEALLOCATE(reactions->ord_reactants);
+    BM_DEALLOCATE(reactions->n_reactants);
+    BM_DEALLOCATE(reactions->reactants);
+    BM_DEALLOCATE(reactions->nu_reactants);
+    BM_DEALLOCATE(reactions->ord_reactants);
 
-    DEALLOCATE(reactions->n_products);
-    DEALLOCATE(reactions->products);
-    DEALLOCATE(reactions->nu_products);
-    DEALLOCATE(reactions->ord_products);
+    BM_DEALLOCATE(reactions->n_products);
+    BM_DEALLOCATE(reactions->products);
+    BM_DEALLOCATE(reactions->nu_products);
+    BM_DEALLOCATE(reactions->ord_products);
 
-    DEALLOCATE(reactions->sum_nu);
+    BM_DEALLOCATE(reactions->sum_nu);
 
-    DEALLOCATE(reactions->has_rev_arr);
-    DEALLOCATE(reactions->rev_arr_coeff);
+    BM_DEALLOCATE(reactions->has_rev_arr);
+    BM_DEALLOCATE(reactions->rev_arr_coeff);
 
-    DEALLOCATE(reactions->has_high_arr);
-    DEALLOCATE(reactions->has_low_arr);
-    DEALLOCATE(reactions->adv_arr_coeff);
+    BM_DEALLOCATE(reactions->has_high_arr);
+    BM_DEALLOCATE(reactions->has_low_arr);
+    BM_DEALLOCATE(reactions->adv_arr_coeff);
 
-    DEALLOCATE(reactions->has_troe);
-    DEALLOCATE(reactions->n_troe_coeff);
-    DEALLOCATE(reactions->troe_coeff);
+    BM_DEALLOCATE(reactions->has_troe);
+    BM_DEALLOCATE(reactions->n_troe_coeff);
+    BM_DEALLOCATE(reactions->troe_coeff);
 
-    DEALLOCATE(reactions->has_efficiencies);
-    DEALLOCATE(reactions->n_efficiencies);
-    DEALLOCATE(reactions->sp_efficiencies);
-    DEALLOCATE(reactions->efficiencies);
+    BM_DEALLOCATE(reactions->has_efficiencies);
+    BM_DEALLOCATE(reactions->n_efficiencies);
+    BM_DEALLOCATE(reactions->sp_efficiencies);
+    BM_DEALLOCATE(reactions->efficiencies);
 
-    DEALLOCATE(reactions->idx_reactions_three);
-    DEALLOCATE(reactions->idx_reactions_low);
-    DEALLOCATE(reactions->idx_reactions_high);
-    DEALLOCATE(reactions->idx_reactions_troe);
-    DEALLOCATE(reactions->idx_reactions_rev);
-    DEALLOCATE(reactions->idx_reactions_rev_arr);
+    BM_DEALLOCATE(reactions->idx_reactions_three);
+    BM_DEALLOCATE(reactions->idx_reactions_low);
+    BM_DEALLOCATE(reactions->idx_reactions_high);
+    BM_DEALLOCATE(reactions->idx_reactions_troe);
+    BM_DEALLOCATE(reactions->idx_reactions_rev);
+    BM_DEALLOCATE(reactions->idx_reactions_rev_arr);
 
-    DEALLOCATE(reactions->q);
-    DEALLOCATE(reactions->k);
-    DEALLOCATE(reactions->pr);
+    BM_DEALLOCATE(reactions->q);
+    BM_DEALLOCATE(reactions->k);
+    BM_DEALLOCATE(reactions->pr);
 }
 
 /*******************************************************************************
@@ -403,32 +403,32 @@ void deallocate_specii(specii_t *specii)
         return;
 
     deallocate_hdf5_string_buffer(specii->symbol);
-    DEALLOCATE(specii->symbol);
+    BM_DEALLOCATE(specii->symbol);
 
-    DEALLOCATE(specii->is_inert);
+    BM_DEALLOCATE(specii->is_inert);
 
-    DEALLOCATE(specii->composition);
-    DEALLOCATE(specii->phase);
-    DEALLOCATE(specii->bounds);
-    DEALLOCATE(specii->coeff_high);
-    DEALLOCATE(specii->coeff_low);
+    BM_DEALLOCATE(specii->composition);
+    BM_DEALLOCATE(specii->phase);
+    BM_DEALLOCATE(specii->bounds);
+    BM_DEALLOCATE(specii->coeff_high);
+    BM_DEALLOCATE(specii->coeff_low);
 
-    DEALLOCATE(specii->geom);
-    DEALLOCATE(specii->pot_lj);
-    DEALLOCATE(specii->col_lj);
-    DEALLOCATE(specii->dip_mo);
-    DEALLOCATE(specii->pol);
-    DEALLOCATE(specii->rot_rel);
+    BM_DEALLOCATE(specii->geom);
+    BM_DEALLOCATE(specii->pot_lj);
+    BM_DEALLOCATE(specii->col_lj);
+    BM_DEALLOCATE(specii->dip_mo);
+    BM_DEALLOCATE(specii->pol);
+    BM_DEALLOCATE(specii->rot_rel);
 
-    DEALLOCATE(specii->n_reac_points);
-    DEALLOCATE(specii->reac_points);
-    DEALLOCATE(specii->nu_reac_points);
+    BM_DEALLOCATE(specii->n_reac_points);
+    BM_DEALLOCATE(specii->reac_points);
+    BM_DEALLOCATE(specii->nu_reac_points);
 
-    DEALLOCATE(specii->molar_mass);
-    DEALLOCATE(specii->molecule_weight);
-    DEALLOCATE(specii->Rsp);
+    BM_DEALLOCATE(specii->molar_mass);
+    BM_DEALLOCATE(specii->molecule_weight);
+    BM_DEALLOCATE(specii->Rsp);
 
-    DEALLOCATE(specii->omega);
+    BM_DEALLOCATE(specii->omega);
 }
 
 /*******************************************************************************
@@ -474,10 +474,10 @@ void print_elements(elements_t *elements)
     if (elements == NULL)
         return;
 
-    PRINTF("\n");
+    BM_PRINT("\n");
     printf_r_sep_title(PCSS, "Elements");
 
-    PRINTF(PCIN "Number of elements = %d\n", elements->n_elements);
+    BM_PRINT(PCIN "Number of elements = %d\n", elements->n_elements);
 
     printf_r_sep(PCSS);
 }
@@ -491,23 +491,23 @@ void print_reactions(reactions_t *reactions)
     if (reactions == NULL)
         return;
 
-    PRINTF("\n");
+    BM_PRINT("\n");
     printf_r_sep_title(PCSS, "Reactions");
 
-    PRINTF(PCIN "Number of reactions = %d\n",
-        reactions->n_reactions);
-    PRINTF(PCIN "Number of three-body reactions = %d\n",
-        reactions->n_reactions_three);
-    PRINTF(PCIN "Number of pressure-dep. reactions (LOW) = %d\n",
-        reactions->n_reactions_low);
-    PRINTF(PCIN "Number of pressure-dep. reactions (HIGH) = %d\n",
-        reactions->n_reactions_high);
-    PRINTF(PCIN "Number of pressure-dep. reactions (TROE) = %d\n",
-        reactions->n_reactions_troe);
-    PRINTF(PCIN "Number of reversible reactions = %d\n",
-        reactions->n_reactions_rev);
-    PRINTF(PCIN "Number of reversible reactions (REV) = %d\n",
-        reactions->n_reactions_rev_arr);
+    BM_PRINT(PCIN "Number of reactions = %d\n",
+             reactions->n_reactions);
+    BM_PRINT(PCIN "Number of three-body reactions = %d\n",
+             reactions->n_reactions_three);
+    BM_PRINT(PCIN "Number of pressure-dep. reactions (LOW) = %d\n",
+             reactions->n_reactions_low);
+    BM_PRINT(PCIN "Number of pressure-dep. reactions (HIGH) = %d\n",
+             reactions->n_reactions_high);
+    BM_PRINT(PCIN "Number of pressure-dep. reactions (TROE) = %d\n",
+             reactions->n_reactions_troe);
+    BM_PRINT(PCIN "Number of reversible reactions = %d\n",
+             reactions->n_reactions_rev);
+    BM_PRINT(PCIN "Number of reversible reactions (REV) = %d\n",
+             reactions->n_reactions_rev_arr);
 
     printf_r_sep(PCSS);
 }
@@ -521,10 +521,10 @@ void print_specii(specii_t *specii)
     if (specii == NULL)
         return;
 
-    PRINTF("\n");
+    BM_PRINT("\n");
     printf_r_sep_title(PCSS, "Specii");
 
-    PRINTF(PCIN "Number of specii = %d\n", specii->n_specii);
+    BM_PRINT(PCIN "Number of specii = %d\n", specii->n_specii);
 
     printf_r_sep(PCSS);
 }
